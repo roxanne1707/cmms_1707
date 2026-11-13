@@ -1,0 +1,21 @@
+{
+  "recordedAtUtc": "2026-11-13T21:42:57.452954+00:00",
+  "backend": {
+    "tests": 2166,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontendClientTests": 25,
+  "frontendSocketTests": 12,
+  "frontendTypecheck": "PASS",
+  "frontendProductionBuild": "PASS",
+  "runtime": "native dedicated PostgreSQL/Redis/RabbitMQ; not Docker",
+  "externalDelivery": false,
+  "remoteCIExecuted": false,
+  "sourceBase": "6f2bad34ffb13b42b05f6319953c2395cd0565f1",
+  "sourceFilesHashed": 1707,
+  "sourceDigest": "dba1f26e5f48e20969e3ccb3a2c0181e89063c792232e5a45c18ce6b6fd9b1c6",
+  "backendJarSha256": "a0a201f2297352441496aa1a3ed76e4d7c2d341eb0b8fdf9f4dd499d295af4c8",
+  "finalSixPageBrowserChecks": 12
+}

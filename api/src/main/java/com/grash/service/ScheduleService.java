@@ -175,7 +175,7 @@ public class ScheduleService {
                 }
 
                 JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
-                        .withIdentity("wo-job-" + schedule.getId(), "wo-group")
+                        .withIdentity("wo-job-" + schedule.getId(), "wo-group").requestRecovery(true)
                         .usingJobData("scheduleId", schedule.getId())
                         .storeDurably()
                         .build();
@@ -187,7 +187,7 @@ public class ScheduleService {
                         .endAt(schedule.getEndsOn())
                         .build();
 
-                scheduler.scheduleJob(woJob, woTrigger);
+                scheduleIfAbsent(woJob, woTrigger);
 
                 // ---------------------------------------------------------
                 // JOB 2: Notification (Shared Method Call - FIXED CALL SITE)
@@ -227,6 +227,12 @@ public class ScheduleService {
             // Delete Work Order Job
             scheduler.deleteJob(new JobKey("wo-job-" + scheduleId, "wo-group"));
 
+            for(JobKey key:scheduler.getJobKeys(org.quartz.impl.matchers.GroupMatcher.jobGroupEquals("wo-group"))) {
+                if(key.getName().startsWith("wo-job-chained-"+scheduleId+"-")) scheduler.deleteJob(key);
+            }
+            for(String group:List.of("wo-retry","notif-retry")) for(JobKey key:scheduler.getJobKeys(org.quartz.impl.matchers.GroupMatcher.jobGroupEquals(group))) {
+                if(key.getName().startsWith("maintenance-retry-"+scheduleId+"-")) scheduler.deleteJob(key);
+            }
             // Delete Notification Job (it might not exist, but Quartz handles that gracefully usually, or returns
             // false)
             scheduler.deleteJob(new JobKey("notif-job-" + scheduleId, "notif-group"));
@@ -305,7 +311,7 @@ public class ScheduleService {
         }
 
         JobDetail notifJob = JobBuilder.newJob(PreventiveMaintenanceNotificationJob.class)
-                .withIdentity("notif-job-" + scheduleId, "notif-group")
+                .withIdentity("notif-job-" + scheduleId, "notif-group").requestRecovery(true)
                 .usingJobData("scheduleId", scheduleId)
                 .build();
 
@@ -316,7 +322,7 @@ public class ScheduleService {
                 .endAt(endsOn)
                 .build();
 
-        scheduler.scheduleJob(notifJob, notifTrigger);
+        scheduleIfAbsent(notifJob, notifTrigger);
     }
 
     // =========================================================================================
@@ -363,7 +369,7 @@ public class ScheduleService {
             JobKey jobKey = new JobKey("wo-job-chained-" + schedule.getId() + "-" + nextRunDate.getTime(), "wo-group");
 
             JobDetail woJob = JobBuilder.newJob(WorkOrderCreationJob.class)
-                    .withIdentity(jobKey)
+                    .withIdentity(jobKey).requestRecovery(true)
                     .usingJobData("scheduleId", schedule.getId())
                     .storeDurably()
                     .build();
@@ -373,7 +379,7 @@ public class ScheduleService {
                     .withSchedule(oneShotSchedule) // Run Once
                     .build();
 
-            scheduler.scheduleJob(woJob, woTrigger);
+            scheduleIfAbsent(woJob, woTrigger);
             log.info("Chained next schedule for Schedule ID {} at {}", schedule.getId(), nextRunDate);
 
             int daysBeforePMNotification = pm.getCompany()
@@ -393,6 +399,11 @@ public class ScheduleService {
         }
     }
 
+    private void scheduleIfAbsent(JobDetail job,Trigger trigger) throws SchedulerException {
+        try { scheduler.scheduleJob(job,trigger); }
+        catch(org.quartz.ObjectAlreadyExistsException existing) { log.debug("Schedule {} was registered by another instance",job.getKey()); }
+    }
+
     public Schedule save(Schedule schedule) {
         return scheduleRepository.saveAndFlush(schedule);
     }
@@ -401,7 +412,9 @@ public class ScheduleService {
         scheduleRepository.deleteByPreventiveMaintenanceCompany_IdAndIsDemoTrue(companyId);
     }
 
-    public boolean checkIfWeeklyShouldRun(Schedule schedule) {
+    public boolean checkIfWeeklyShouldRun(Schedule schedule) { return checkIfWeeklyShouldRun(schedule,new Date()); }
+
+    public boolean checkIfWeeklyShouldRun(Schedule schedule,Date scheduledWorkDate) {
         if (schedule.getRecurrenceType() == RecurrenceType.WEEKLY && schedule.getFrequency() > 1) {
             String tzId = schedule.getPreventiveMaintenance()
                     .getCompany().getCompanySettings()
@@ -410,11 +423,11 @@ public class ScheduleService {
 
             long daysSinceStart = ChronoUnit.DAYS.between(
                     schedule.getStartsOn().toInstant().atZone(zoneId).toLocalDate(),
-                    new Date().toInstant().atZone(zoneId).toLocalDate()
+                    scheduledWorkDate.toInstant().atZone(zoneId).toLocalDate()
             );
             long weeksSinceStart = daysSinceStart / 7;
 
-            if (weeksSinceStart % schedule.getFrequency() != 0) {
+            if (daysSinceStart < 0 || weeksSinceStart % schedule.getFrequency() != 0) {
                 log.info("Skipping execution - not on correct week interval for schedule {}", schedule.getId());
                 return false;
             }

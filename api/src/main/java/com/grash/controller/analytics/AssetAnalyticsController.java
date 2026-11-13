@@ -18,7 +18,6 @@ import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,11 +43,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getTimeCostByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                           @Parameter(description = "Date range for " +
                                                                                   "filtering analytics") @RequestBody DateRange dateRange,
@@ -80,11 +74,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getOverviewStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<AssetStats> getOverviewStats(@Parameter(hidden = true) @CurrentUser User user,
                                                        @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                        @RequestParam(required = false) @Parameter(description =
@@ -99,7 +88,7 @@ public class AssetAnalyticsController {
             Collection<Asset> assets = assetService.findByCompanyAndBefore(resolvedCompanyId,
                     dateRange.getEnd());
             long livingTime = assets.stream().mapToLong(asset -> getLivingTime(asset, dateRange)).sum();
-            long availability = livingTime == 0 ? 0 : (livingTime - downtimesDuration) * 100 / livingTime;
+            long availability = livingTime <= 0 ? 0 : Math.max(0, Math.min(100, (livingTime - downtimesDuration) * 100 / livingTime));
             return ResponseEntity.ok(AssetStats.builder()
                     .downtime(downtimesDuration)
                     .availability(availability)
@@ -110,11 +99,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/downtimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getDowntimesByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                             @Parameter(description = "Date range for " +
                                                                                     "filtering analytics") @RequestBody DateRange dateRange,
@@ -141,11 +125,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/mtbf")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getMTBFByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
                                                                           "analytics") @RequestBody DateRange dateRange,
@@ -168,11 +147,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/meantimes")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getMeantimes",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Meantimes> getMeantimes(@Parameter(hidden = true) @CurrentUser User user,
                                                   @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                   @RequestParam(required = false) @Parameter(description = "Filter by" +
@@ -186,7 +160,7 @@ public class AssetAnalyticsController {
             Collection<WorkOrder> workOrders =
                     workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd());
-            if (workOrders.size() > 2) {
+            if (workOrders.size() >= 2) {
                 AuditComparator auditComparator = new AuditComparator();
                 WorkOrder firstWorkOrder = Collections.min(workOrders, auditComparator);
                 WorkOrder lastWorkOrder = Collections.max(workOrders, auditComparator);
@@ -202,11 +176,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/repair-times")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getRepairTimeByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                               @Parameter(description = "Date range " +
                                                                                       "for filtering analytics") @RequestBody DateRange dateRange,
@@ -228,11 +197,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/downtimes/meantime/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getDowntimesMeantimeByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<DowntimesMeantimeByDate>> getDowntimesMeantimeByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
@@ -267,11 +231,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/costs/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getAssetsCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<AssetsCosts> getAssetsCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                       @RequestParam(required = false) @Parameter(description =
@@ -301,11 +260,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/downtimes/costs")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getDowntimesAndCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
@@ -335,11 +289,6 @@ public class AssetAnalyticsController {
 
     @PostMapping("/downtimes/costs/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getDowntimesByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<DowntimesByDate>> getDowntimesByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
@@ -379,14 +328,12 @@ public class AssetAnalyticsController {
 
     @PostMapping("/{id}/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getDateRangeOverview",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)+'_'+#id"
-    )
     public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @Parameter(description = "Date " +
                                                                       "range for filtering analytics") @RequestBody DateRange dateRange
             , @Parameter(hidden = true) @CurrentUser User user) {
-        Asset savedAsset = assetService.findById(id).get();
+        Asset savedAsset = assetService.findById(id)
+                .orElseThrow(() -> new CustomException("Asset not found", HttpStatus.NOT_FOUND));
+        Helper.resolveCompanyId(user, savedAsset.getCompany().getId());
         Date start = dateRange.getStart();
         Date end = dateRange.getEnd();
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&

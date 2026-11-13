@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Stomp } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
-import { apiUrl } from 'src/config';
+import { createSessionSocket, SessionSocket } from '../utils/sessionSocket';
 import api from 'src/utils/api';
 import useAuth from './useAuth';
 
@@ -37,28 +35,20 @@ export const useExport = (): UseExportReturn => {
     'costs-times': false,
     'part-transactions': false
   });
-  const [stompClient, setStompClient] = useState(null);
+  const [stompClient, setStompClient] = useState<SessionSocket | null>(null);
   const { user } = useAuth();
-  // Initialize WebSocket connection
   useEffect(() => {
-    const socket = new SockJS(`${apiUrl}ws`);
-    const client = Stomp.over(socket);
-    client.connect({ token: localStorage.getItem('accessToken') }, () => {
-      setStompClient(client);
-    });
-
-    return () => {
-      if (client) {
-        client.disconnect();
-      }
-    };
-  }, []);
+    if (!user?.email) { setStompClient(null); return; }
+    const socket = createSessionSocket(user.email);
+    setStompClient(socket);
+    return () => socket.close();
+  }, [user?.id, user?.email]);
 
   const exportEntity = useCallback(
     async (entity: ExportEntityType): Promise<void> => {
       return new Promise((resolve, reject) => {
         // Check if stompClient is initialized
-        if (!stompClient) {
+        if (!stompClient?.connected) {
           reject(new Error('WebSocket connection not initialized'));
           return;
         }
@@ -66,8 +56,15 @@ export const useExport = (): UseExportReturn => {
         // Generate UUID client-side
         const uuid = crypto.randomUUID();
 
+        let timeout: ReturnType<typeof setTimeout>;
+        let subscription: { unsubscribe: () => void };
+        const cancelled = (error: Error) => {
+          clearTimeout(timeout);
+          setLoadingExport((prev) => ({ ...prev, [entity]: false }));
+          reject(error);
+        };
         // Subscribe to WebSocket topic before making request
-        const subscription = stompClient.subscribe(
+        subscription = stompClient.subscribe(
           `/user/${user.email}/exports/${uuid}`,
           function (message) {
             try {
@@ -80,11 +77,17 @@ export const useExport = (): UseExportReturn => {
             } catch (error) {
               reject(error);
             } finally {
+              clearTimeout(timeout);
               subscription.unsubscribe();
               setLoadingExport((prev) => ({ ...prev, [entity]: false }));
             }
-          }
+          },
+          cancelled
         );
+        timeout = setTimeout(() => {
+          subscription.unsubscribe();
+          cancelled(new Error('Operation result timed out; check its status before retrying'));
+        }, 300000);
         // Handle subscription error
         if (!subscription) {
           reject(new Error('Failed to subscribe to WebSocket topic'));
@@ -99,13 +102,14 @@ export const useExport = (): UseExportReturn => {
             `export/${entity}?uuid=${uuid}`
           )
           .catch((error) => {
+            clearTimeout(timeout);
             subscription.unsubscribe();
             setLoadingExport((prev) => ({ ...prev, [entity]: false }));
             reject(error);
           });
       });
     },
-    [stompClient]
+    [stompClient, user?.email]
   );
 
   return {

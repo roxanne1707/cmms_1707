@@ -1,0 +1,10 @@
+{
+  "receipt": 1,
+  "notifications": 1,
+  "replayAudit": 1,
+  "deliveryAudit": 1,
+  "deliveryState": "SKIPPED",
+  "sent": false,
+  "result": "PASS",
+  "recordedAtUtc": "2026-11-13T21:10:48.300464+00:00"
+}

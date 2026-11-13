@@ -165,7 +165,31 @@ const Downgrade = Loader(
 const SwitchAccount = Loader(
   lazy(() => import('../content/own/SwitchAccount'))
 );
+const AssetWorkOrderOverview = Loader(
+  lazy(() => import('../content/own/MaintenanceQueries/AssetOverview'))
+);
+const MaintenanceLedger = Loader(
+  lazy(() => import('../content/own/MaintenanceQueries/MaintenanceLedger'))
+);
+const NotificationFailures = Loader(
+  lazy(() => import('../content/own/NotificationFailures'))
+);
+const MaintenanceSla = Loader(lazy(() => import('../content/own/MaintenanceSla')));
+const RequestLinks = Loader(lazy(() => import('../content/own/RequestLink')));
+const SessionManagement = Loader(lazy(() => import('../content/own/SessionManagement')));
 const appRoutes = [
+  { path: 'account/sessions', element: <SessionManagement /> },
+  {
+    path: 'maintenance',
+    children: [
+      { index: true, element: <Navigate to="overview" replace /> },
+      { path: 'overview', element: <AssetWorkOrderOverview /> },
+      { path: 'ledger', element: <MaintenanceLedger /> },
+      { path: 'notification-failures', element: <NotificationFailures /> },
+        { path: 'sla', element: <MaintenanceSla /> },
+        { path: 'request-links', element: <RequestLinks /> }
+    ]
+  },
   {
     path: 'settings',
     element: <SettingsLayout />,

@@ -166,7 +166,7 @@ public class Helper {
             case ZH -> new Locale("zh", "CN");
             case BA -> new Locale("ba", "BA");
             case JA -> new Locale("ja", "JP");
-            default -> Locale.getDefault();
+            case EN -> Locale.ENGLISH;
         };
     }
 

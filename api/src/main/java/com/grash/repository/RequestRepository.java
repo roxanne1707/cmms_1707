@@ -13,6 +13,8 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Long>, JpaSpecificationExecutor<Request> {
     Collection<Request> findByCompany_Id(@Param("x") Long id);
 
+    List<Request> findByCompany_IdAndWorkOrder_Id(Long companyId, Long workOrderId);
+
     Collection<Request> findByCreatedAtBetweenAndCompany_Id(Date date1, Date date2, Long id);
 
     @Query("SELECT COUNT(r) FROM Request r WHERE r.workOrder IS NULL AND r.cancelled = false and r.company" +

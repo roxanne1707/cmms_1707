@@ -1,0 +1,7 @@
+{
+  "result": "PASS",
+  "connectionResets": 50,
+  "finalHttpStatus": 200,
+  "scope": "Only local preview port3289; abrupt WebSocket client disconnects",
+  "recordedAtUtc": "2026-11-13T21:37:35.812Z"
+}

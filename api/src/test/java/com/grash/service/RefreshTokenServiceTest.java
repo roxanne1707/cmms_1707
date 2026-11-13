@@ -41,6 +41,7 @@ class RefreshTokenServiceTest {
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
+    @Mock private com.grash.security.SessionRegistry sessionRegistry;
 
     private User user;
     private Role role;
@@ -54,6 +55,8 @@ class RefreshTokenServiceTest {
         user.setEmail("john@test.com");
         user.setRole(role);
         user.setEnabled(true);
+        org.mockito.Mockito.lenient().when(sessionRegistry.create(org.mockito.ArgumentMatchers.anyLong(), any(Date.class)))
+                .thenReturn(java.util.UUID.randomUUID());
     }
 
     @Test
@@ -73,13 +76,16 @@ class RefreshTokenServiceTest {
 
     @Test
     void createTokenPair_returnsAccessAndRefreshTokens() {
-        when(jwtTokenProvider.createToken("john@test.com", Collections.singletonList(RoleType.ROLE_CLIENT)))
+        when(jwtTokenProvider.createToken(org.mockito.ArgumentMatchers.eq("john@test.com"), org.mockito.ArgumentMatchers.eq(Collections.singletonList(RoleType.ROLE_CLIENT)), any(java.util.UUID.class)))
                 .thenReturn("access-token");
         when(jwtTokenProvider.computeAccessTokenExpiration()).thenReturn(new Date(1784300000000L));
         when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(inv -> inv.getArgument(0));
 
         AuthTokens tokens = refreshTokenService.createTokenPair(user);
 
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(refreshTokenRepository, sessionRegistry);
+        order.verify(refreshTokenRepository).flush();
+        order.verify(sessionRegistry).create(org.mockito.ArgumentMatchers.eq(user.getId()), any(Date.class));
         assertEquals("access-token", tokens.getAccessToken());
         assertNotNull(tokens.getRefreshToken());
         assertEquals(new Date(1784300000000L), tokens.getAccessTokenExpiresAt());
@@ -124,7 +130,7 @@ class RefreshTokenServiceTest {
             when(refreshTokenRepository.findByTokenHash(refreshTokenService.hash(raw)))
                     .thenReturn(Optional.of(stored));
             when(refreshTokenRepository.save(any(RefreshToken.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken("john@test.com", Collections.singletonList(RoleType.ROLE_CLIENT)))
+            when(jwtTokenProvider.createToken(org.mockito.ArgumentMatchers.eq("john@test.com"), org.mockito.ArgumentMatchers.eq(Collections.singletonList(RoleType.ROLE_CLIENT)), any(java.util.UUID.class)))
                     .thenReturn("new-access");
             when(jwtTokenProvider.computeAccessTokenExpiration()).thenReturn(new Date(1784300000000L));
 

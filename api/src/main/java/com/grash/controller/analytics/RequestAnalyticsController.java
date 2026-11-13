@@ -17,7 +17,6 @@ import com.grash.service.WorkOrderCategoryService;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,11 +43,6 @@ public class RequestAnalyticsController {
 
     @PostMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getRequestStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<RequestStats> getRequestStats(@Parameter(hidden = true) @CurrentUser User user,
                                                         @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                         @RequestParam(required = false) @Parameter(description =
@@ -78,11 +72,6 @@ public class RequestAnalyticsController {
 
     @PostMapping("/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getRequestByPriority",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<RequestStatsByPriority> getByPriority(@Parameter(hidden = true) @CurrentUser User user,
                                                                 @Parameter(description = "Date range for filtering " +
                                                                         "analytics") @RequestBody DateRange dateRange,
@@ -117,11 +106,6 @@ public class RequestAnalyticsController {
 
     @PostMapping("/cycle-time/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getCycleTimeByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
@@ -159,11 +143,6 @@ public class RequestAnalyticsController {
 
     @PostMapping("/counts/category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getRequestCountsByCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser User user,
                                                                            @Parameter(description = "Date range for " +
                                                                                    "filtering analytics") @RequestBody DateRange dateRange,
@@ -191,11 +170,6 @@ public class RequestAnalyticsController {
 
     @PostMapping("/received-and-resolved")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getReceivedAndResolvedRequests",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser User user,
                                                                                            @Parameter(description =
                                                                                                    "Date range for " +

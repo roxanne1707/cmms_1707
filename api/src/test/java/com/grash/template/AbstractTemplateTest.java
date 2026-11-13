@@ -52,10 +52,7 @@ abstract class AbstractTemplateTest {
     }
 
     protected ResourceBundleMessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("mailMessages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
+        return new com.grash.configuration.EmailConfiguration().emailMessageSource();
     }
 
     protected StandardEnvironment environment() {

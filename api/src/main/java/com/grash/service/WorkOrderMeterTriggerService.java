@@ -44,6 +44,8 @@ public class WorkOrderMeterTriggerService {
                         company);
             }
         }
+        if (workOrderMeterTrigger.getWaitBefore() < 0) throw new CustomException("waitBefore must be non-negative seconds", HttpStatus.BAD_REQUEST);
+        if (workOrderMeterTrigger.getEpisodePolicy() == null) workOrderMeterTrigger.setEpisodePolicy(com.grash.model.enums.MeterEpisodePolicy.PER_EPISODE);
         WorkOrderMeterTrigger savedWorkOrderMeterTrigger =
                 workOrderMeterTriggerRepository.saveAndFlush(workOrderMeterTrigger);
         em.refresh(savedWorkOrderMeterTrigger);
@@ -54,6 +56,9 @@ public class WorkOrderMeterTriggerService {
     public WorkOrderMeterTrigger update(Long id, WorkOrderMeterTriggerPatchDTO workOrderMeterTrigger, Company company) {
         if (workOrderMeterTriggerRepository.existsById(id)) {
             WorkOrderMeterTrigger savedWorkOrderMeterTrigger = workOrderMeterTriggerRepository.findById(id).get();
+            em.lock(savedWorkOrderMeterTrigger.getMeter(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+            em.refresh(savedWorkOrderMeterTrigger, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+            if (workOrderMeterTrigger.getWaitBefore() < 0) throw new CustomException("waitBefore must be non-negative seconds", HttpStatus.BAD_REQUEST);
             if (!workOrderMeterTrigger.getCustomFields().isEmpty()) {
                 setMeterTriggerCustomFields(savedWorkOrderMeterTrigger, workOrderMeterTrigger.getCustomFields(),
                         company);

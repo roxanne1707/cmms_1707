@@ -1,4 +1,15 @@
+import { maintenanceQueryZh } from '../../content/own/MaintenanceQueries/translations';
+import { notificationFailureZh } from '../../content/own/NotificationFailures/translations';
+
 const locale = {
+  ...maintenanceQueryZh,
+  ...notificationFailureZh,
+  maintenance_sla_nav: '维修 SLA 与超时升级',
+  maintenance_request_links_nav: '重复报修关联',
+  maintenance_sessions_nav: '登录设备与会话',
+  maintenance_overview_nav: "设备工单概览",
+  maintenance_ledger_nav: "维修台账",
+  maintenance_notifications_nav: "通知失败补投",
   DUPLICATE_OF: '复制自',
   DUPLICATED_BY: '被复制',
   RELATED_TO: '相关于',
@@ -1648,7 +1659,7 @@ const locale = {
   email_contractors_description: '配置报告并添加可选消息以发送给承包商。',
   custom_message_optional: '自定义消息（可选）',
   send_work_order_as_pdf: '以PDF形式发送工作单',
-  report_sent_success: '报告已成功发送',
+  report_sent_success: '报告发送请求已受理，请在通知记录中查看投递结果',
   trigger_work_order: '触发工作单',
   edit_reading: '编辑读数',
   are_you_sure_delete_reading: '确定要删除此读数吗？',

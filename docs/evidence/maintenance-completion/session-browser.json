@@ -1,0 +1,44 @@
+{
+  "recordedAtUtc": "2026-11-13T21:41:17.584Z",
+  "url": "http://127.0.0.1:3289/app/account/sessions",
+  "browser": "installed Chrome + Playwright",
+  "fallback": "Browser plugin not available",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "checks": [
+    {
+      "name": "identity, meaningful content, no framework overlay and current-device marker",
+      "result": "PASS"
+    },
+    {
+      "name": "cancel preserves session; confirm revokes only selected device and updates row",
+      "result": "PASS"
+    },
+    {
+      "name": "503 clears old rows; refresh recovers without replaying a mutation",
+      "result": "PASS"
+    },
+    {
+      "name": "mobile viewport has no document horizontal overflow",
+      "result": "PASS"
+    },
+    {
+      "name": "current-device action returns to login and rejects old JWT",
+      "result": "PASS"
+    },
+    {
+      "name": "all-device action returns to login and rejects both independent sessions",
+      "result": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "result": "PASS"
+}

@@ -37,6 +37,8 @@ class JwtTokenProviderTest {
     @Mock
     private CustomUserDetailsService customUserDetailsService;
 
+    @Mock private SessionRegistry sessionRegistry;
+
     @InjectMocks
     private JwtTokenProvider jwtTokenProvider;
 
@@ -143,6 +145,20 @@ class JwtTokenProviderTest {
             assertNotNull(auth);
             assertTrue(auth.isAuthenticated());
         }
+    }
+
+    @Test
+    void sessionClaimIsVerifiedOnEveryAuthenticationAndCannotUseAnotherUsersId() {
+        java.util.UUID sid=java.util.UUID.randomUUID();
+        User user=new User();user.setId(17L);user.setEmail("user@test.com");user.setEnabled(true);
+        user.setRole(Role.builder().roleType(RoleType.ROLE_CLIENT).build());
+        when(customUserDetailsService.loadUserByUsername(user.getEmail())).thenReturn(CustomUserDetail.builder().user(user).build());
+        String token=jwtTokenProvider.createToken(user.getEmail(),List.of(RoleType.ROLE_CLIENT),sid);
+        assertEquals(sid,jwtTokenProvider.getSessionId(token));
+        assertNotNull(jwtTokenProvider.getAuthentication(token));
+        org.mockito.Mockito.verify(sessionRegistry).assertActive(sid,17L);
+        org.mockito.Mockito.doThrow(new CustomException("revoked",HttpStatus.UNAUTHORIZED)).when(sessionRegistry).assertActive(sid,17L);
+        assertThrows(CustomException.class,()->jwtTokenProvider.getAuthentication(token));
     }
 
     @Nested

@@ -13,6 +13,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableMethodSecurity
 public class AbstractControllerTest {
     @MockitoBean
+    protected com.grash.security.FreshMaintenanceActor freshMaintenanceActor;
+
+    @org.junit.jupiter.api.BeforeEach
+    void defaultFreshMaintenanceActor() {
+        org.mockito.Mockito.lenient().when(freshMaintenanceActor.load(org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+    }
+
+    @MockitoBean
     private ApiKeyRepository apiKeyRepository;
     @MockitoBean
     private LicenseService licenseService;

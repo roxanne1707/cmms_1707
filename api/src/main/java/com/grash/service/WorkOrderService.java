@@ -12,6 +12,7 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.exception.CustomException;
+import com.grash.event.ReliableEventService;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
@@ -81,6 +82,7 @@ public class WorkOrderService {
     private AdditionalCostService additionalCostService;
     private PartQuantityService partQuantityService;
     private final NotificationService notificationService;
+    private final ReliableEventService reliableEventService;
     private final WorkOrderMapper workOrderMapper;
     private final EntityManager em;
     private final MailServiceFactory mailServiceFactory;
@@ -142,8 +144,9 @@ public class WorkOrderService {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", savedWorkOrder.getId());
         Object serializedWorkOrder = workOrderMapper.toShowDto(savedWorkOrder);
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
-                "newWorkOrder", serializedWorkOrder, null, null, null, null, null);
+        if (!reliableEventsEnabled())
+            webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_WORK_ORDER, webhookPayload,
+                    "newWorkOrder", serializedWorkOrder, null, null, null, null, null);
         return savedWorkOrder;
     }
 
@@ -216,6 +219,9 @@ public class WorkOrderService {
             WorkOrder updatedWorkOrder =
                     workOrderRepository.saveAndFlush(newWorkOrder);
             em.refresh(updatedWorkOrder);
+            if (reliableEventsEnabled()) {
+                reliableEventService.workOrderPatched(updatedWorkOrder, changedFields, user.getId(), previousCategoryId);
+            } else {
             Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
             Map<String, Object> webhookPayload = new HashMap<>();
             webhookPayload.put("workOrderId", updatedWorkOrder.getId());
@@ -236,6 +242,7 @@ public class WorkOrderService {
                 webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER,
                         webhookPayload,
                         "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
+            }
             }
 
             return updatedWorkOrder;
@@ -285,7 +292,8 @@ public class WorkOrderService {
         webhookPayload.put("workOrderId", workOrder.getId());
         webhookPayload.put("workOrderTitle", workOrder.getTitle());
         Object serializedWorkOrder = workOrderMapper.toShowDto(workOrder);
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_DELETE, webhookPayload,
+        if (reliableEventsEnabled()) reliableEventService.workOrderDeleted(workOrder, currentEventActor());
+        else webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_DELETE, webhookPayload,
                 "deleteWorkOrder", serializedWorkOrder, null, null, null, null, null);
         workOrderRepository.deleteById(workOrder.getId());
     }
@@ -319,6 +327,10 @@ public class WorkOrderService {
     }
 
     public void notify(WorkOrder workOrder, Locale locale) {
+        if (reliableEventsEnabled()) {
+            reliableEventService.workOrderCreated(workOrder, currentEventActor());
+            return;
+        }
         String title = messageSource.getMessage("new_wo", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{workOrder.getTitle()},
                 locale);
@@ -338,6 +350,11 @@ public class WorkOrderService {
     }
 
     public void patchNotify(WorkOrder oldWorkOrder, WorkOrder newWorkOrder, Locale locale) {
+        if (reliableEventsEnabled()) {
+            reliableEventService.workOrderAssigned(newWorkOrder, oldWorkOrder.getNewUsersToNotify(newWorkOrder.getUsers())
+                    .stream().map(User::getId).toList(), currentEventActor());
+            return;
+        }
         String title = messageSource.getMessage("new_assignment", null, locale);
         String message = messageSource.getMessage("notification_wo_assigned", new Object[]{newWorkOrder.getTitle()},
                 Helper.getLocale(newWorkOrder.getCompany()));
@@ -423,6 +440,11 @@ public class WorkOrderService {
         boolean categoryChanged = !Objects.equals(originalCategoryId, newCategoryId);
         WorkOrder updatedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(updatedWorkOrder);
+        if (reliableEventsEnabled()) {
+            if (statusChanged) reliableEventService.workOrderStatusChanged(updatedWorkOrder, originalWorkOrder.getStatus(), currentEventActor());
+            else reliableEventService.workOrderPatched(updatedWorkOrder, changedFields, currentEventActor(), originalCategoryId);
+            return updatedWorkOrder;
+        }
         Object serializedWorkOrder = workOrderMapper.toShowDto(updatedWorkOrder);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", updatedWorkOrder.getId());
@@ -886,7 +908,7 @@ public class WorkOrderService {
             if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
                 List<User> admins =
                         userService.findWorkersByCompany(user.getCompany().getId()).stream().filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) && ownUser.isEnabled() && ownUser.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
-                notificationService.createMultiple(admins.stream().map(admin -> new Notification(messageSource.getMessage("complete_work_order_content", new String[]{patchedWorkOrder.getTitle(), user.getFullName()}, Helper.getLocale(admin)), admin,
+                if (!reliableEventsEnabled()) notificationService.createMultiple(admins.stream().map(admin -> new Notification(messageSource.getMessage("complete_work_order_content", new String[]{patchedWorkOrder.getTitle(), user.getFullName()}, Helper.getLocale(admin)), admin,
                                 NotificationType.WORK_ORDER, id)).collect(Collectors.toList()), true,
                         messageSource.getMessage("complete_work_order", null, Helper.getLocale(user)));
                 Collection<Workflow> workflows =
@@ -898,7 +920,7 @@ public class WorkOrderService {
                     reviewEligibilityService.incrementWorkOrder(reviewEligibilityService.getOrCreate(user));
                 }
             }
-            if (user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
+            if (!reliableEventsEnabled() && user.getCompany().getCompanySettings().getGeneralPreferences().isWoUpdateForRequesters()
                     && savedWorkOrderStatusBefore != patchedWorkOrder.getStatus()
                     && patchedWorkOrder.getParentRequest() != null) {
                 Long requesterId = patchedWorkOrder.getParentRequest().getCreatedBy();
@@ -1079,9 +1101,11 @@ public class WorkOrderService {
                                         .getViewPermissions().contains(PermissionEntity.SETTINGS))
                                 .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).toList();
 
-                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
-                                .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
-                        Helper.getLocale(user), null);
+                if (!reliableEventsEnabled()) {
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
+                                    .toArray(String[]::new), title, mailVariables, "deleted-work-order.html",
+                            Helper.getLocale(user), null);
+                }
 
                 delete(savedWorkOrder, user.getCompany());
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -1166,6 +1190,12 @@ public class WorkOrderService {
                 new Object[]{user.getFullName(), customMessage, savedWorkOrder.getTitle()},
                 locale);
 
+        if (reliableEventsEnabled()) {
+            // The separate event service atomically stores the attachment and Outbox after PDF rendering.
+            reliableEventService.workOrderReport(savedWorkOrder, user, customersInDb, subject, messageBody,
+                    emailMessageSource.getMessage("workOrderReport", null, locale) + ".pdf", pdfBytes);
+            return;
+        }
         Map<String, Object> mailVariables = new HashMap<>();
         mailVariables.put("messageBody", messageBody);
 
@@ -1324,4 +1354,13 @@ public class WorkOrderService {
             return savedWorkOrder.getFiles();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
+    private boolean reliableEventsEnabled() {
+        return reliableEventService.isEnabled();
+    }
+
+    private Long currentEventActor() {
+        User current = Helper.getCurrentUser();
+        return current == null ? null : current.getId();
+    }
+
 }

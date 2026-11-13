@@ -1,0 +1,41 @@
+{
+  "browserAvailability": "Browser plugin not available; existing Playwright + Chrome",
+  "flow": "真实登录 -> SLA策略/纳管 -> 重复报修关联 -> 权限及移动布局",
+  "checks": [
+    {
+      "name": "管理员通过真实登录表单",
+      "status": "PASS"
+    },
+    {
+      "name": "真实保存HIGH策略并显式纳管自己的工单",
+      "status": "PASS"
+    },
+    {
+      "name": "报修 1 通过页面关联同一维修工单",
+      "status": "PASS"
+    },
+    {
+      "name": "报修 2 通过页面关联同一维修工单",
+      "status": "PASS"
+    },
+    {
+      "name": "HTTP同目标关联重放返回replayed且不新建工单",
+      "status": "PASS"
+    },
+    {
+      "name": "维修工单 SLA 移动布局无页面横向溢出",
+      "status": "PASS"
+    },
+    {
+      "name": "重复报修关联 移动布局无页面横向溢出",
+      "status": "PASS"
+    },
+    {
+      "name": "只读用户两模块HTTP403且页面正确拒绝",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "recordedAtUtc": "2026-11-13T21:16:11.945Z",
+  "result": "PASS"
+}

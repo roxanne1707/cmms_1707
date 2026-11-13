@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class PartController {
 
     private final PartService partService;
+    private final com.grash.service.InventoryCommandService inventoryCommandService;
     private final PartMapper partMapper;
 
     @PostMapping("/search")
@@ -62,8 +63,9 @@ public class PartController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> restock(@Parameter(description = "Part ID") @PathVariable("id") Long id,
                                                    @Valid @RequestBody PartRestockDTO partRestockDTO,
-                                                   @Parameter(hidden = true) @CurrentUser User user) {
-        partService.restock(id, partRestockDTO, user);
+                                                   @Parameter(hidden = true) @CurrentUser User user,
+                                                   @RequestHeader(value = "Idempotency-Key", required = false) String commandKey) {
+        inventoryCommandService.restock(id, partRestockDTO, user, commandKey);
         return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
     }
 

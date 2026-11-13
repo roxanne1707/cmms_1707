@@ -1,5 +1,5 @@
 import Asset from '../../../../models/owns/asset';
-import { Box, Card, CircularProgress, Grid, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Grid, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../../../../store';
 import { useContext, useEffect } from 'react';
@@ -7,6 +7,9 @@ import { getAssetWorkOrders } from '../../../../slices/asset';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import Loading from '../../Analytics/Loading';
+
+import useAuth from '../../../../hooks/useAuth';
+import { canSeeMaintenancePage } from '../../../../utils/maintenanceAccess';
 
 interface PropsType {
   asset: Asset;
@@ -19,6 +22,7 @@ const AssetWorkOrders = ({ asset }: PropsType) => {
   const workOrders = assetInfos[asset?.id]?.workOrders;
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user, company } = useAuth();
 
   useEffect(() => {
     if (asset) dispatch(getAssetWorkOrders(asset.id));
@@ -39,6 +43,20 @@ const AssetWorkOrders = ({ asset }: PropsType) => {
     );
   return (
     <Box sx={{ px: 4 }}>
+      {asset && (
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mb: 2 }}>
+          {canSeeMaintenancePage(user, company, 'overview') && (
+            <Button variant="outlined" onClick={() => navigate(`/app/maintenance/overview?assetId=${asset.id}`)}>
+              {t('maintenance_overview_nav')}
+            </Button>
+          )}
+          {canSeeMaintenancePage(user, company, 'ledger') && (
+            <Button variant="outlined" onClick={() => navigate(`/app/maintenance/ledger?assetId=${asset.id}`)}>
+              {t('maintenance_ledger_nav')}
+            </Button>
+          )}
+        </Stack>
+      )}
       <Grid container spacing={2}>
         {workOrders?.length ? (
           workOrders.map((workOrder) => (

@@ -1,3 +1,5 @@
+import { decode as decodeBase64 } from 'base-64';
+import { clearPendingCommands, isMaintenanceCommand, runIdempotentCommand } from './idempotentCommand';
 import { getApiUrl } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
@@ -7,6 +9,7 @@ type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 let refreshPromise: Promise<boolean> | null = null;
 
 async function clearTokens(): Promise<void> {
+  clearPendingCommands();
   await AsyncStorage.removeItem('accessToken');
   await AsyncStorage.removeItem('refreshToken');
 }
@@ -73,10 +76,9 @@ async function doFetch<T>(
   options: Options,
   retried: boolean
 ): Promise<T> {
-  const response = await fetch(url, {
-    headers: await authHeader(false),
-    ...options
-  });
+  const headers = new Headers(await authHeader(false));
+  new Headers(options?.headers).forEach((value, key) => headers.set(key, value));
+  const response = await fetch(url, { ...options, headers });
   if (!response.ok) {
     if (response.status === 401 && !retried && !isRefreshRequest(url)) {
       const refreshed = await refreshAccessToken();
@@ -86,7 +88,9 @@ async function doFetch<T>(
     }
     if (response.status === 409) {
       if (onConflictError) onConflictError();
-      throw new Error('conflict_error');
+      const conflict = new Error('conflict_error');
+      (conflict as any).status = 409;
+      throw conflict;
     }
     let body: any = null;
     try {
@@ -102,9 +106,28 @@ async function doFetch<T>(
   return response.json() as Promise<T>;
 }
 
-async function api<T>(url: string, options: Options): Promise<T> {
-  return doFetch<T>(url, options, false);
+async function api<T>(url: string, options: Options = {}): Promise<T> {
+  if (!isMaintenanceCommand(url, options.method)) return doFetch<T>(url, options, false);
+  const supplied = new Headers(options.headers).get('Idempotency-Key');
+  if (supplied) return doFetch<T>(url, options, false);
+  const auth = new Headers(await authHeader(false)).get('Authorization') || '';
+  // The JWT payload is used only to distinguish local retry sessions, never to grant access.
+  const identity = JSON.stringify([url, options.method, options.body, commandSession(auth)]);
+  return runIdempotentCommand(identity, (key) => {
+    const headers = new Headers(options.headers);
+    headers.set('Idempotency-Key', key);
+    return doFetch<T>(url, { ...options, headers }, false);
+  });
 }
+
+function commandSession(auth: string): string {
+  try {
+    const payload = auth.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(decodeBase64(normalized)).sub || auth;
+  } catch { return auth; }
+}
+
 
 async function get<T>(url: string, options?: Options) {
   const currentApiUrl = await getApiUrl();

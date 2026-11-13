@@ -1,0 +1,40 @@
+# Dedicated synthetic-data services; never point these at the deployed Atlas volumes.
+name: cmms-enhancement-test
+services:
+  postgres:
+    image: postgres:16.16-alpine
+    environment:
+      POSTGRES_DB: cmms_enhancement_test
+      POSTGRES_USER: cmms_test
+      POSTGRES_PASSWORD: cmms_test_local
+    ports: ["127.0.0.1:25432:5432"]
+    volumes: ["enhancement-pg:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cmms_test -d cmms_enhancement_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:8.4.0-alpine
+    command: ["redis-server", "--maxmemory", "64mb", "--maxmemory-policy", "allkeys-lru"]
+    ports: ["127.0.0.1:26379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  rabbitmq:
+    image: rabbitmq:4.4.0-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: cmms_test
+      RABBITMQ_DEFAULT_PASS: cmms_test_local
+    ports: ["127.0.0.1:25672:5672"]
+    volumes: ["enhancement-rabbit:/var/lib/rabbitmq"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+volumes:
+  enhancement-pg:
+  enhancement-rabbit:

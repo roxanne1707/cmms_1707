@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    "LAB_28089",
+    "LAB_28090"
+  ],
+  "checks": [
+    {
+      "mode": "two-node-single-execution",
+      "scheduleId": 1,
+      "pmId": 1,
+      "receiptCount": 1,
+      "workOrderId": 5000302,
+      "workOrders": 1,
+      "outbox": 1,
+      "result": "PASS"
+    },
+    {
+      "mode": "node-crash-recovery",
+      "scheduleId": 3,
+      "pmId": 3,
+      "stoppedInstance": "LAB_28090",
+      "receiptCount": 1,
+      "workOrderId": 5000303,
+      "workOrders": 1,
+      "outbox": 1,
+      "result": "PASS"
+    }
+  ],
+  "scope": "New synthetic preventive maintenance only; two loopback APIs, one shared dedicated PostgreSQL; no external delivery",
+  "result": "PASS",
+  "recordedAtUtc": "2026-11-13T21:20:53.144708+00:00"
+}

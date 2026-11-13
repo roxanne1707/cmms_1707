@@ -31,3 +31,7 @@ docker-compose-minio.yml
 /data/
 **/.idea/
 **/.vscode/
+
+# JVM failure diagnostics can contain process environment; keep local.
+**/hs_err_pid*.log
+**/replay_pid*.log

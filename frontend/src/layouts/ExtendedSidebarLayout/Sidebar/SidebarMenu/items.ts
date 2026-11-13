@@ -29,7 +29,10 @@ import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import { IS_LOCALHOST } from '../../../../config';
 import { UiConfiguration } from '../../../../models/owns/uiConfiguration';
 
+import type { MaintenancePage } from '../../../../utils/maintenanceAccess';
+
 export interface MenuItem {
+  maintenancePage?: MaintenancePage;
   link?: string;
   icon?: ReactNode;
   badge?: string;
@@ -227,6 +230,33 @@ const ownMenuItems: MenuItems[] = [
         icon: AttachFileTwoToneIcon,
         permission: PermissionEntity.FILES,
         planFeature: PlanFeature.FILE
+      },
+      {
+        name: 'maintenance_sla_nav', link: '/app/maintenance/sla', icon: PendingActionsTwoToneIcon, maintenancePage: 'sla'
+      },
+      {
+        name: 'maintenance_request_links_nav', link: '/app/maintenance/request-links', icon: MoveToInboxTwoToneIcon, maintenancePage: 'request-links'
+      },
+      {
+        name: 'maintenance_sessions_nav', link: '/app/account/sessions', icon: VpnKeyTwoToneIcon, maintenancePage: 'sessions'
+      },
+      {
+        name: 'maintenance_overview_nav',
+        link: '/app/maintenance/overview',
+        icon: AnalyticsTwoToneIcon,
+        maintenancePage: 'overview'
+      },
+      {
+        name: 'maintenance_ledger_nav',
+        link: '/app/maintenance/ledger',
+        icon: BackupTableTwoToneIcon,
+        maintenancePage: 'ledger'
+      },
+      {
+        name: 'maintenance_notifications_nav',
+        link: '/app/maintenance/notification-failures',
+        icon: ErrorTwoToneIcon,
+        maintenancePage: 'notifications'
       },
       {
         name: 'settings',

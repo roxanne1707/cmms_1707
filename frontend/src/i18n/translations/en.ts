@@ -1,4 +1,15 @@
+import { maintenanceQueryEn } from '../../content/own/MaintenanceQueries/translations';
+import { notificationFailureEn } from '../../content/own/NotificationFailures/translations';
+
 const locale = {
+  ...maintenanceQueryEn,
+  ...notificationFailureEn,
+  maintenance_sla_nav: 'Maintenance SLA',
+  maintenance_request_links_nav: 'Link duplicate requests',
+  maintenance_sessions_nav: 'Devices and sessions',
+  maintenance_overview_nav: "Equipment work-order overview",
+  maintenance_ledger_nav: "Maintenance ledger",
+  maintenance_notifications_nav: "Notification recovery",
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',
@@ -1935,7 +1946,7 @@ const locale = {
     'Configure the report and add an optional message to send to the contractors.',
   custom_message_optional: 'Custom message (optional)',
   send_work_order_as_pdf: 'Send Work Order as PDF',
-  report_sent_success: 'Report sent successfully',
+  report_sent_success: 'Report request accepted. Check notifications for delivery status.',
   trigger_work_order: 'Trigger Work Order',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',

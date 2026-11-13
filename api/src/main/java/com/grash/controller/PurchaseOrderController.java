@@ -44,7 +44,9 @@ import java.util.stream.Collectors;
 public class PurchaseOrderController {
 
     private final PurchaseOrderService purchaseOrderService;
+    private final InventoryCommandService inventoryCommandService;
     private final UserService userService;
+    private final com.grash.security.FreshMaintenanceActor freshMaintenanceActor;
     private final PartQuantityService partQuantityService;
     private final MessageSource messageSource;
     private final PartQuantityMapper partQuantityMapper;
@@ -155,34 +157,7 @@ public class PurchaseOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public PurchaseOrderShowDTO respond(@Parameter(description = "Whether the purchase order is approved") @RequestParam("approved") boolean approved, @PathVariable("id") Long id,
                                         HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
-
-        if (optionalPurchaseOrder.isPresent()) {
-            PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
-                if (!savedPurchaseOrder.getStatus().equals(ApprovalStatus.APPROVED)) {
-                    if (approved) {
-                        Collection<PartQuantity> partQuantities =
-                                partQuantityService.findByPurchaseOrder(savedPurchaseOrder.getId());
-                        partQuantities.forEach(partQuantity -> {
-                            Part part = partQuantity.getPart();
-                            double previousQuantity = part.getQuantity();
-                            part.setQuantity(part.getQuantity() + partQuantity.getQuantity());
-                            partService.save(part);
-
-                            // Dispatch webhook for part quantity change from purchase order
-                            dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(),
-                                    partQuantity, savedPurchaseOrder, user.getCompany());
-                        });
-                    }
-                    savedPurchaseOrder.setStatus(approved ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED);
-                    return setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrderService.save(savedPurchaseOrder)));
-                } else
-                    throw new CustomException("The purchase order has already been approved",
-                            HttpStatus.NOT_ACCEPTABLE);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("PurchaseOrder not found", HttpStatus.NOT_FOUND);
+        return inventoryCommandService.respondToPurchaseOrder(id,approved,freshMaintenanceActor.load(userService.whoami(req)),req.getHeader("Idempotency-Key"));
     }
 
     @DeleteMapping("/{id}")

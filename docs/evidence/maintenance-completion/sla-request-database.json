@@ -1,0 +1,15 @@
+{
+  "workOrderId": 5000252,
+  "companyId": 152,
+  "linkedRequestCount": 2,
+  "linkAuditCount": 2,
+  "slaCaseCount": 1,
+  "slaEscalationCount": 2,
+  "slaOutboxCount": 2,
+  "slaReceiptCount": 2,
+  "slaNotificationCount": 2,
+  "slaAdminNotificationCount": 2,
+  "externalSentCount": 0,
+  "recordedAtUtc": "2026-11-13T21:41:18.092765+00:00",
+  "result": "PASS"
+}

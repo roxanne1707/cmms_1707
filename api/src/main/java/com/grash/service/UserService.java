@@ -126,10 +126,10 @@ public class UserService {
         if (sendEmailToSuperAdmins)
             sendRegistrationMailToSuperAdmins(user, userSignupRequest);
         onCompanyAndUserCreation(user);
-        String accessToken = jwtTokenProvider.createToken(user.getEmail(),
-                Collections.singletonList(user.getRole().getRoleType()));
-        String refreshToken = refreshTokenService.createRefreshToken(user);
-        return new SignupSuccessResponse<>(true, accessToken, user, refreshToken);
+        // Flush the new account before the JDBC session row references it in the same transaction.
+        userRepository.flush();
+        AuthTokens tokens = refreshTokenService.createTokenPair(user);
+        return new SignupSuccessResponse<>(true, tokens.getAccessToken(), user, tokens.getRefreshToken());
     }
 
     public void checkUsageBasedLimit(int newUsersCount) {
@@ -263,7 +263,7 @@ public class UserService {
     }
 
     public User whoami(HttpServletRequest req) {
-        return whoami(req, true);
+        return whoami(req, false);
     }
 
     public User whoami(HttpServletRequest req, boolean cached) {
@@ -281,8 +281,8 @@ public class UserService {
     }
 
     public User whoami(String username, boolean cached) {
-        return cached ? findByEmailWithRolesCached(username).get() :
-                findByEmail(username).get();
+        return (cached ? findByEmailWithRolesCached(username) : userRepository.findForAuthentication(username))
+                .orElseThrow(() -> new CustomException("Authentication required", HttpStatus.UNAUTHORIZED));
     }
 
     public Optional<User> findByEmailWithRolesCached(String email) {

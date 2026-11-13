@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+ <changeSet id="2026_11_14_asset_summary_epoch" author="cmms-enhancement" dbms="postgresql">
+  <sqlFile path="sql/asset_summary_epoch.sql" relativeToChangelogFile="true" splitStatements="false"/>
+  <rollback>
+   <sql splitStatements="false">
+    DROP TRIGGER IF EXISTS cmms_work_order_truncate_epoch ON work_order;
+    DROP TRIGGER IF EXISTS cmms_work_order_epoch ON work_order;
+    DROP TRIGGER IF EXISTS cmms_asset_epoch ON asset;
+    DROP FUNCTION IF EXISTS cmms_truncate_work_order_epoch();
+    DROP FUNCTION IF EXISTS cmms_touch_work_order_epoch();
+    DROP FUNCTION IF EXISTS cmms_initialize_asset_epoch();
+    DROP TABLE IF EXISTS asset_summary_epoch;
+    DROP SEQUENCE IF EXISTS cmms_asset_summary_epoch_seq;
+   </sql>
+  </rollback>
+ </changeSet>
+</databaseChangeLog>

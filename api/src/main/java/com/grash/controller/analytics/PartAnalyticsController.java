@@ -9,7 +9,6 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,11 +36,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getPartStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<PartStats> getPartStats(@Parameter(hidden = true) @CurrentUser User user,
                                                   @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                   @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
@@ -63,11 +57,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/pareto")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getPartPareto",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
                                                                           "analytics") @RequestBody DateRange dateRange,
@@ -95,11 +84,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getConsumptionByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +
@@ -121,11 +105,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/parts-category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getConsumptionByPartCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@Parameter(hidden =
                                                                                                        true) @CurrentUser User user,
                                                                                                @Parameter(description
@@ -160,11 +139,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/work-order-category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getConsumptionByWOCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@Parameter(hidden =
                                                                                                        true) @CurrentUser User user,
                                                                                                @Parameter(description
@@ -200,11 +174,6 @@ public class PartAnalyticsController {
 
     @PostMapping("/consumptions/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getPartConsumptionsByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                     @Parameter(description = "Date " +
                                                                                             "range for filtering " +

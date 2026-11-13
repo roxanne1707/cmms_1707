@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@org.quartz.DisallowConcurrentExecution
 @Component
 @RequiredArgsConstructor
 @Slf4j

@@ -1,0 +1,9 @@
+{
+  "result": "PASS",
+  "checks": [
+    "事件重放200，最新失败记录移除，原因必填",
+    "补投200后真实worker进入SKIPPED，按钮禁用，不声明送达"
+  ],
+  "pageErrors": [],
+  "recordedAtUtc": "2026-11-13T21:10:47.775Z"
+}

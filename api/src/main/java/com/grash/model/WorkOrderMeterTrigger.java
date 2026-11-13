@@ -33,6 +33,11 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     @Schema(description = "Whether the trigger is recurrent")
     private boolean recurrent;
 
+    @Schema(description = "Explicit policy: PER_EPISODE opens again only after recovery; ONCE opens once for this trigger")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private com.grash.model.enums.MeterEpisodePolicy episodePolicy = com.grash.model.enums.MeterEpisodePolicy.PER_EPISODE;
+
     @NotNull
     @Schema(description = "Name of the meter trigger", requiredMode = Schema.RequiredMode.REQUIRED)
     private String name;

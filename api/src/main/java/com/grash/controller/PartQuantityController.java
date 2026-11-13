@@ -34,8 +34,10 @@ import java.util.stream.Collectors;
 public class PartQuantityController {
 
     private final PartQuantityService partQuantityService;
+    private final InventoryCommandService inventoryCommandService;
     private final PartQuantityMapper partQuantityMapper;
     private final UserService userService;
+    private final com.grash.security.FreshMaintenanceActor freshMaintenanceActor;
     private final WorkOrderService workOrderService;
     private final PartService partService;
     private final PurchaseOrderService purchaseOrderService;
@@ -75,39 +77,7 @@ public class PartQuantityController {
                                                                   "with work order") @Valid @RequestBody List<Long> parts,
                                                           @PathVariable("id") Long id,
                                                           HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
-
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (savedWorkOrder.getFirstTimeToReact() == null) {
-                savedWorkOrder.setFirstTimeToReact(new Date());
-                workOrderService.save(savedWorkOrder);
-            }
-            if (savedWorkOrder.canBeEditedBy(user)) {
-                Collection<PartQuantity> partQuantities = partQuantityService.findByWorkOrder(id);
-                Collection<Long> partQuantityMappedPartIds = partQuantities.stream().map
-                        (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
-                parts.forEach(partId -> {
-                    if (!partQuantityMappedPartIds.contains(partId)) {
-                        Optional<Part> optionalPart = partService.findById(partId);
-                        if (optionalPart.isPresent()) {
-                            partService.consumePart(optionalPart.get().getId(), 1, savedWorkOrder,
-                                    Helper.getLocale(user), false);
-                            PartQuantity partQuantity = new PartQuantity(optionalPart.get(), savedWorkOrder, null, 1);
-                            partQuantityService.create(partQuantity);
-                        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
-                    }
-                });
-                partQuantityMappedPartIds.forEach(partId -> {
-                    if (!parts.contains(partId)) {
-                        partQuantityService.delete(partQuantities.stream().filter(partQuantity ->
-                                partQuantity.getPart().getId().equals(partId)).findFirst().get().getId());
-                    }
-                });
-                return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+        return inventoryCommandService.replaceWorkOrder(id, parts, freshMaintenanceActor.load(userService.whoami(req)), req.getHeader("Idempotency-Key"));
     }
 
     @PatchMapping("/purchase-order/{id}")
@@ -115,47 +85,7 @@ public class PartQuantityController {
     public Collection<PartQuantityShowDTO> patchPurchaseOrder(@Parameter(description = "List of part quantities to " +
                                                                       "update for purchase order") @Valid @RequestBody List<PartQuantityCompletePatchDTO> partQuantitiesReq, @PathVariable("id") Long id,
                                                               HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
-
-        if (optionalPurchaseOrder.isPresent()) {
-            PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (!savedPurchaseOrder.canBeEditedBy(user)) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            Collection<PartQuantity> savedPartQuantities = partQuantityService.findByPurchaseOrder(id);
-
-            Collection<Long> savedPartQuantitiesMappedPartIds = savedPartQuantities.stream().map
-                    (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
-
-            Collection<Long> partQuantitiesReqMappedPartIds = partQuantitiesReq.stream().map
-                    (partQuantity -> partQuantity.getPart().getId()).collect(Collectors.toList());
-            partQuantitiesReq.forEach(partQuantityReq -> {
-                if (savedPartQuantitiesMappedPartIds.contains(partQuantityReq.getPart().getId())) {
-                    //existing parts
-                    PartQuantity savedPartQuantity =
-                            savedPartQuantities.stream().filter(partQuantity -> partQuantity.getPart().getId().equals(partQuantityReq.getPart().getId())).findFirst().get();
-                    savedPartQuantity.setQuantity(partQuantityReq.getQuantity());
-                    partQuantityService.save(savedPartQuantity);
-                } else {
-                    //new Parts
-                    Optional<Part> optionalPart = partService.findById(partQuantityReq.getPart().getId());
-                    if (optionalPart.isPresent()) {
-                        PartQuantity partQuantity = new PartQuantity(optionalPart.get(), null, savedPurchaseOrder,
-                                partQuantityReq.getQuantity());
-                        partQuantityService.create(partQuantity);
-                    } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
-                }
-            });
-            // removed Parts
-            savedPartQuantitiesMappedPartIds.forEach(partId -> {
-                if (!partQuantitiesReqMappedPartIds.contains(partId)) {
-                    partQuantityService.delete(savedPartQuantities.stream().filter(partQuantity ->
-                            partQuantity.getPart().getId().equals(partId)).findFirst().get().getId());
-                }
-            });
-            return partQuantityService.findByPurchaseOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
-        } else throw new CustomException("WorkOrder not found", HttpStatus.NOT_FOUND);
+        return inventoryCommandService.replacePurchaseOrder(id, partQuantitiesReq, freshMaintenanceActor.load(userService.whoami(req)), req.getHeader("Idempotency-Key"));
     }
 
     @GetMapping("/{id}")
@@ -179,15 +109,7 @@ public class PartQuantityController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PartQuantityShowDTO create(@Parameter(description = "Part quantity to create") @Valid @RequestBody PartQuantity partQuantityReq,
                                HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (partQuantityReq.getPurchaseOrder() != null && !purchaseOrderService.findById(partQuantityReq.getPurchaseOrder().getId()).get().canBeEditedBy(user)) {
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        }
-        if (partQuantityReq.getWorkOrder() != null && !workOrderService.findById(partQuantityReq.getWorkOrder().getId()).get().canBeEditedBy(user)) {
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        }
-        PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
-        return partQuantityMapper.toShowDto(savedPartQuantity);
+        return inventoryCommandService.create(partQuantityReq, freshMaintenanceActor.load(userService.whoami(req)), req.getHeader("Idempotency-Key"));
     }
 
     @PatchMapping("/{id}")
@@ -195,50 +117,14 @@ public class PartQuantityController {
     public PartQuantityShowDTO patch(@Parameter(description = "Part quantity fields to update") @Valid @RequestBody PartQuantityPatchDTO partQuantity,
                                      @PathVariable("id") Long id,
                                      HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
-        if (optionalPartQuantity.isPresent()) {
-            PartQuantity savedPartQuantity = optionalPartQuantity.get();
-            if (savedPartQuantity.getPart().getUnit() == null) {
-                partQuantity.setQuantity((int) partQuantity.getQuantity());
-            }
-            if (savedPartQuantity.getWorkOrder() != null) {
-                partService.consumePart(savedPartQuantity.getPart().getId(),
-                        partQuantity.getQuantity() - savedPartQuantity.getQuantity(),
-                        savedPartQuantity.getWorkOrder(), Helper.getLocale(user), false);
-            }
-            if (savedPartQuantity.getPurchaseOrder() != null && !savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            if (savedPartQuantity.getWorkOrder() != null && !savedPartQuantity.getWorkOrder().canBeEditedBy(user)) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
-            return partQuantityMapper.toShowDto(patchedPartQuantity);
-        } else throw new CustomException("PartQuantity not found", HttpStatus.NOT_FOUND);
+        return inventoryCommandService.setQuantity(id, partQuantity.getQuantity(), freshMaintenanceActor.load(userService.whoami(req)), req.getHeader("Idempotency-Key"));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
-        if (optionalPartQuantity.isPresent()) {
-            PartQuantity savedPartQuantity = optionalPartQuantity.get();
-            boolean isWorkOrderPartQuantity = savedPartQuantity.getWorkOrder() != null;
-            if (isWorkOrderPartQuantity ? savedPartQuantity.getWorkOrder().canBeEditedBy(user) :
-                    savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
-                if (isWorkOrderPartQuantity) {
-                    partService.consumePart(savedPartQuantity.getPart().getId(),
-                            -savedPartQuantity.getQuantity(),
-                            savedPartQuantity.getWorkOrder(), Helper.getLocale(user), true);
-                }
-                partQuantityService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("PartQuantity not found", HttpStatus.NOT_FOUND);
+        inventoryCommandService.delete(id, freshMaintenanceActor.load(userService.whoami(req)), req.getHeader("Idempotency-Key"));
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"), HttpStatus.OK);
     }
 
 }

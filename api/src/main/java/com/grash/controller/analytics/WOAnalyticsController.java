@@ -15,7 +15,6 @@ import com.grash.service.*;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
@@ -49,11 +48,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getCompleteStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOStats> getCompleteStats(@Parameter(hidden = true) @CurrentUser User user,
                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                     @RequestParam(required = false) @Parameter(description = "Filter " +
@@ -66,7 +60,7 @@ public class WOAnalyticsController {
             Collection<WorkOrder> completedWO =
                     workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).toList();
             Collection<WorkOrder> withFirstTimeToReactWO =
-                    workOrders.stream().filter(workOrder -> workOrder.getFirstTimeToReact() != null).toList();
+                    workOrders.stream().filter(workOrder -> workOrder.getFirstTimeToReact() != null && workOrder.getCreatedAt() != null && !workOrder.getFirstTimeToReact().before(workOrder.getCreatedAt())).toList();
             int total = workOrders.size();
             int complete = completedWO.size();
             int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
@@ -135,13 +129,13 @@ public class WOAnalyticsController {
                 completeWO.stream().filter(workOrder -> workOrder.getCompletedOn() != null && workOrder.getCompletedOn().before(new Date()) && workOrder.getCompletedOn().after(weekStart)).toList();
         Collection<WorkOrder> compliantWOWeek = compliantWO.stream().filter(workOrder -> {
             if (workOrder.getCompletedOn() == null) {
-                return true;
-            } else return workOrder.getCompletedOn().after(weekStart);
+                return false;
+            } else return !workOrder.getCompletedOn().after(new Date()) && workOrder.getCompletedOn().after(weekStart);
         }).toList();
         return ResponseEntity.ok(MobileWOStatsExtended.builder()
                 .complete(completeWO.size())
                 .completeWeek(completeWOWeek.size())
-                .compliantRate(workOrders.isEmpty() ? 1 : ((double) compliantWO.size()) / workOrders.size())
+                .compliantRate(completeWO.isEmpty() ? 1 : ((double) compliantWO.size()) / completeWO.size())
                 .compliantRateWeek(completeWOWeek.isEmpty() ? 1 :
                         ((double) compliantWOWeek.size()) / completeWOWeek.size())
                 .build());
@@ -149,11 +143,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/incomplete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getIncompleteStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOIncompleteStats> getIncompleteStats(@Parameter(hidden = true) @CurrentUser User user,
                                                                 @Parameter(description = "Date range for filtering " +
                                                                         "analytics") @RequestBody DateRange dateRange,
@@ -178,11 +167,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/incomplete/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getIncompleteByPriority",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOStatsByPriority> getIncompleteByPriority(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
@@ -233,11 +217,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/incomplete/statuses")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOStatuses",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOStatuses> getWOStatuses(@Parameter(hidden = true) @CurrentUser User user,
                                                     @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                                     @RequestParam(required = false) @Parameter(description = "Filter " +
@@ -261,11 +240,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/incomplete/age/assets")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getIncompleteByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<IncompleteWOByAsset>> getIncompleteByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                                 @Parameter(description = "Date range " +
                                                                                         "for filtering analytics") @RequestBody DateRange dateRange,
@@ -288,11 +262,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/incomplete/age/users")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getIncompleteByUser",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<IncompleteWOByUser>> getIncompleteByUser(@Parameter(hidden = true) @CurrentUser User user,
                                                                               @Parameter(description = "Date range " +
                                                                                       "for filtering analytics") @RequestBody DateRange dateRange,
@@ -323,11 +292,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/hours")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOHours",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOHours> getHours(@Parameter(hidden = true) @CurrentUser User user,
                                             @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
                                             @RequestParam(required = false) @Parameter(description = "Filter by " +
@@ -351,11 +315,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/counts/primaryUser")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCountsByUser",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<WOCountByUser>> getCountsByUser(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
                                                                              "filtering analytics") @RequestBody DateRange dateRange,
@@ -381,11 +340,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/counts/completedBy")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCountsByCompletedBy",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<WOCountByUser>> getCountsByCompletedBy(@Parameter(hidden = true) @CurrentUser User user,
                                                                             @Parameter(description = "Date range for " +
                                                                                     "filtering analytics") @RequestBody DateRange dateRange,
@@ -411,11 +365,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/counts/priority")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCountsByPriority",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Map<Priority, Integer>> getCountsByPriority(@Parameter(hidden = true) @CurrentUser User user,
                                                                       @Parameter(description = "Date range for " +
                                                                               "filtering analytics") @RequestBody DateRange dateRange,
@@ -436,11 +385,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/counts/category")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCountsByCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<Collection<WOCountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser User user,
                                                                              @Parameter(description = "Date range for" +
                                                                                      " filtering analytics") @RequestBody DateRange dateRange,
@@ -469,10 +413,6 @@ public class WOAnalyticsController {
 
     @GetMapping("/complete/counts/week")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCompleteByWeek",
-            key = "#user.id + (#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<WOCountByWeek>> getCompleteByWeek(@Parameter(hidden = true) @CurrentUser User user,
                                                                  @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
@@ -501,10 +441,6 @@ public class WOAnalyticsController {
 
     @GetMapping("/complete/time/week")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCompleteTimeByWeek",
-            key = "#user.id + (#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<WOTimeByWeek>> getCompleteTimeByWeek(@Parameter(hidden = true) @CurrentUser User user,
                                                                     @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
@@ -535,11 +471,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/costs-time")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCompleteCostsAndTime",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<WOCostsAndTime> getCompleteCostsAndTime(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
                                                                           "analytics") @RequestBody DateRange dateRange,
@@ -567,11 +498,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/complete/costs/date")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOCompleteCostsByDate",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<WOCostsByDate>> getCompleteCostsByDate(@Parameter(hidden = true) @CurrentUser User user,
                                                                       @Parameter(description = "Date range for " +
                                                                               "filtering analytics") @RequestBody DateRange dateRange,
@@ -620,11 +546,6 @@ public class WOAnalyticsController {
 
     @PostMapping("/statuses")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getWOStatusesByDate",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
-    )
     public ResponseEntity<List<WOStatusesByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
                                                                                              "range for filtering " +

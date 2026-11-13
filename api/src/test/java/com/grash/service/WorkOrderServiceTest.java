@@ -74,6 +74,8 @@ class WorkOrderServiceTest {
     @Mock
     private NotificationService notificationService;
     @Mock
+    private com.grash.event.ReliableEventService reliableEventService;
+    @Mock
     private WorkOrderMapper workOrderMapper;
     @Mock
     private EntityManager em;

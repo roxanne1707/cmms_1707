@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <changeSet id="2026-11-14-domain-reliability" author="cmms-enhancement">
+        <addColumn tableName="work_order_meter_trigger">
+            <column name="episode_policy" type="VARCHAR(32)" defaultValue="PER_EPISODE"><constraints nullable="false"/></column>
+        </addColumn>
+        <sql><![CDATA[
+CREATE TABLE domain_command (
+ company_id BIGINT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+ namespace VARCHAR(32) NOT NULL, command_key VARCHAR(128) NOT NULL,
+ payload_hash VARCHAR(64) NOT NULL, actor_id BIGINT NOT NULL,
+ subject_type VARCHAR(32) NOT NULL, subject_id BIGINT NOT NULL,
+ response_json TEXT NOT NULL, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY(company_id,namespace,command_key)
+);
+CREATE TABLE meter_trigger_state (
+ trigger_id BIGINT PRIMARY KEY REFERENCES work_order_meter_trigger(id) ON DELETE CASCADE,
+ company_id BIGINT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+ abnormal BOOLEAN NOT NULL DEFAULT FALSE, opened BOOLEAN NOT NULL DEFAULT FALSE,
+ episode BIGINT NOT NULL DEFAULT 0, opened_count BIGINT NOT NULL DEFAULT 0,
+ first_abnormal_at TIMESTAMP WITH TIME ZONE, rule_hash VARCHAR(64),
+ last_reading_id BIGINT REFERENCES reading(id) ON DELETE SET NULL
+);
+CREATE TABLE meter_trigger_execution (
+ company_id BIGINT NOT NULL REFERENCES company(id) ON DELETE CASCADE,
+ trigger_id BIGINT NOT NULL REFERENCES work_order_meter_trigger(id) ON DELETE CASCADE,
+ episode BIGINT NOT NULL,
+ reading_id BIGINT REFERENCES reading(id) ON DELETE SET NULL,
+ work_order_id BIGINT REFERENCES work_order(id) ON DELETE SET NULL,
+ rule_hash VARCHAR(64) NOT NULL, created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY(trigger_id,episode), UNIQUE(work_order_id)
+);
+CREATE INDEX idx_meter_trigger_execution_company ON meter_trigger_execution(company_id,work_order_id);
+        ]]></sql>
+        <rollback>
+            <dropTable tableName="meter_trigger_execution"/>
+            <dropTable tableName="meter_trigger_state"/>
+            <dropTable tableName="domain_command"/>
+            <dropColumn tableName="work_order_meter_trigger" columnName="episode_policy"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

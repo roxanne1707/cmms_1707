@@ -51,6 +51,8 @@ class PartControllerTest extends AbstractControllerTest {
     @MockitoBean
     private PartService partService;
     @MockitoBean
+    private com.grash.service.InventoryCommandService inventoryCommandService;
+    @MockitoBean
     private PartMapper partMapper;
     @MockitoBean
     private UserService userService;
@@ -247,7 +249,7 @@ class PartControllerTest extends AbstractControllerTest {
         void restock_notFound_returns404() throws Exception {
             mockCurrentUser(clientUser);
             doThrow(new CustomException("Part not found", HttpStatus.NOT_FOUND))
-                    .when(partService).restock(eq(99L), any(), eq(clientUser));
+                    .when(inventoryCommandService).restock(eq(99L), any(), eq(clientUser), org.mockito.ArgumentMatchers.isNull());
 
             mockMvc.perform(post("/parts/99/restock")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -259,7 +261,7 @@ class PartControllerTest extends AbstractControllerTest {
         void restock_forbidden_returns403() throws Exception {
             mockCurrentUser(clientUser);
             doThrow(new CustomException("Forbidden", HttpStatus.FORBIDDEN))
-                    .when(partService).restock(eq(1L), any(), eq(clientUser));
+                    .when(inventoryCommandService).restock(eq(1L), any(), eq(clientUser), org.mockito.ArgumentMatchers.isNull());
 
             mockMvc.perform(post("/parts/1/restock")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -358,7 +360,7 @@ class PartControllerTest extends AbstractControllerTest {
         @Test
         void restock_returnsSuccessResponse() throws Exception {
             mockCurrentUser(clientUser);
-            doNothing().when(partService).restock(eq(1L), any(), eq(clientUser));
+            doNothing().when(inventoryCommandService).restock(eq(1L), any(), eq(clientUser), org.mockito.ArgumentMatchers.isNull());
 
             mockMvc.perform(post("/parts/1/restock")
                             .contentType(MediaType.APPLICATION_JSON)

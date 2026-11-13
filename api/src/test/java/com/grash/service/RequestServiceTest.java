@@ -609,6 +609,34 @@ class RequestServiceTest {
         }
 
         @Test
+        void cancel_sameReasonReplayDoesNotRepeatNotificationsOrWorkflow() {
+            role.getViewPermissions().add(PermissionEntity.SETTINGS);
+            Request saved = buildRequest(1L);
+            saved.setCancelled(true);
+            saved.setCancellationReason("Duplicate report");
+            when(requestRepository.findById(1L)).thenReturn(Optional.of(saved));
+
+            assertSame(saved, requestService.cancel(1L, "  Duplicate report  ", user));
+            verifyNoInteractions(notificationService, workflowService, mailServiceFactory, webhookDispatchService);
+            verify(requestRepository, never()).save(any());
+        }
+
+        @Test
+        void cancel_differentReasonAfterCancellationConflicts() {
+            role.getViewPermissions().add(PermissionEntity.SETTINGS);
+            Request saved = buildRequest(1L);
+            saved.setCancelled(true);
+            saved.setCancellationReason("Duplicate report");
+            when(requestRepository.findById(1L)).thenReturn(Optional.of(saved));
+
+            CustomException error = assertThrows(CustomException.class,
+                    () -> requestService.cancel(1L, "Changed explanation", user));
+            assertEquals(HttpStatus.CONFLICT, error.getHttpStatus());
+            assertEquals("Duplicate report", saved.getCancellationReason());
+            verifyNoInteractions(notificationService, workflowService, mailServiceFactory, webhookDispatchService);
+        }
+
+        @Test
         void cancel_alreadyApproved_throwsNotAcceptable() {
             role.getViewPermissions().add(PermissionEntity.SETTINGS);
             Request saved = buildRequest(1L);

@@ -1,0 +1,11 @@
+{
+  "checks": [
+    {
+      "name": "真实Quartz处理后页面显示响应及修复升级入账，刷新不重复触发",
+      "status": "PASS"
+    }
+  ],
+  "pageErrors": [],
+  "recordedAtUtc": "2026-11-13T21:41:03.085Z",
+  "result": "PASS"
+}

@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "recordedAtUtc": "2026-11-13T21:41:18.451387+00:00",
+  "unauthenticatedMetricsStatus": 401,
+  "authenticatedMetricsStatus": 200,
+  "prometheusTarget": "up",
+  "dashboardPanels": 6,
+  "queries": {
+    "up{job=\"cmms-lab\"}": [
+      "1"
+    ],
+    "cmms_events_outbox_pending": [
+      "0"
+    ],
+    "hikaricp_connections_active": [
+      "0"
+    ],
+    "sum(jvm_memory_used_bytes{area=\"heap\"})": [
+      "222812736"
+    ]
+  },
+  "scope": "Loopback-only native portable monitoring; not production monitoring deployment"
+}

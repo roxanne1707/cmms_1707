@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+  <changeSet id="2026-11-14-auth-session-families" author="cmms-enhancement">
+    <sql><![CDATA[
+CREATE TABLE auth_session (
+ id UUID PRIMARY KEY,
+ user_id BIGINT NOT NULL REFERENCES own_user(id) ON DELETE CASCADE,
+ created_at TIMESTAMPTZ NOT NULL,
+ last_rotated_at TIMESTAMPTZ NOT NULL,
+ expires_at TIMESTAMPTZ NOT NULL,
+ revoked_at TIMESTAMPTZ,
+ user_agent VARCHAR(255) NOT NULL
+);
+CREATE INDEX idx_auth_session_user_created ON auth_session(user_id,created_at DESC);
+ALTER TABLE refresh_token ADD COLUMN session_id UUID REFERENCES auth_session(id) ON DELETE CASCADE;
+CREATE INDEX idx_refresh_token_session ON refresh_token(session_id);
+    ]]></sql>
+    <rollback><sql>ALTER TABLE refresh_token DROP COLUMN session_id; DROP TABLE auth_session;</sql></rollback>
+  </changeSet>
+</databaseChangeLog>

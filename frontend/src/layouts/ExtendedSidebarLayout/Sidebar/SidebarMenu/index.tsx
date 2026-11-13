@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from '../../../../store';
 import { getPendingRequestsCount } from '../../../../slices/request';
 import dayjs from 'dayjs';
 import { isCloudVersion } from 'src/config';
+import { canSeeMaintenancePage } from '../../../../utils/maintenanceAccess';
 import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 const MenuWrapper = styled(Box)(
@@ -315,6 +316,12 @@ function SidebarMenu() {
                   [
                     'work_orders',
                     'Statistics',
+                    'maintenance_sla_nav',
+                    'maintenance_request_links_nav',
+                    'maintenance_sessions_nav',
+                    'maintenance_overview_nav',
+                    'maintenance_ledger_nav',
+                    'maintenance_notifications_nav',
                     'requests',
                     'preventive_maintenance'
                   ].includes(item.name)
@@ -339,7 +346,9 @@ function SidebarMenu() {
                   : true
                 : true;
 
-              return hasPermission && featured && inUiConfig;
+              const maintenanceAllowed = !item.maintenancePage ||
+                canSeeMaintenancePage(user, company, item.maintenancePage);
+              return hasPermission && featured && inUiConfig && maintenanceAllowed;
             });
             if (index === 0) {
               //ownItems

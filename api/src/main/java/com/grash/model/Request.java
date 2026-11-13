@@ -39,8 +39,8 @@ public class Request extends WorkOrderBase {
     @OneToOne(fetch = FetchType.LAZY)
     private File audioDescription;
 
-    @Schema(description = "Work order created from this request (if approved)")
-    @OneToOne(fetch = FetchType.LAZY)
+    @Schema(description = "Work order handling this request; several requests may share one repair")
+    @ManyToOne(fetch = FetchType.LAZY)
     private WorkOrder workOrder;
 
     @Schema(description = "Portal through which this request was submitted")
@@ -57,7 +57,8 @@ public class Request extends WorkOrderBase {
 
     @PreRemove
     private void preRemove() {
-        if (workOrder != null)
+        if (workOrder != null && workOrder.getParentRequest() != null
+                && java.util.Objects.equals(workOrder.getParentRequest().getId(), id))
             workOrder.setParentRequest(null);
     }
 

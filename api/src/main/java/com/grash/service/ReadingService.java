@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReadingService {
     private final ReadingRepository readingRepository;
+    private final jakarta.persistence.EntityManager entityManager;
+    private final DomainCommandStore commandStore;
+    private final MeterTriggerCommandService triggerCommands;
+    private record ReadingResult(Long id, double value, Date createdAt, Date updatedAt, Long createdBy, Long updatedBy) {
+        static ReadingResult from(Reading reading) { return new ReadingResult(reading.getId(),reading.getValue(),reading.getCreatedAt(),reading.getUpdatedAt(),reading.getCreatedBy(),reading.getUpdatedBy()); }
+        Reading toReading() { Reading r = new Reading(); r.setId(id); r.setValue(value); r.setCreatedAt(createdAt); r.setUpdatedAt(updatedAt); r.setCreatedBy(createdBy); r.setUpdatedBy(updatedBy); return r; }
+    }
     private final ReadingMapper readingMapper;
-    private final LicenseService licenseService;
-    private final WorkOrderMeterTriggerService workOrderMeterTriggerService;
-    private final NotificationService notificationService;
-    private final WorkOrderService workOrderService;
-    private final MessageSource messageSource;
-    private final WebhookDispatchService webhookDispatchService;
-    private final WorkOrderMapper workOrderMapper;
     private MeterService meterService;
 
     @Autowired
@@ -55,30 +55,37 @@ public class ReadingService {
     }
 
     @Transactional
-    public Reading create(Reading readingReq, User user) {
+    public Reading create(Reading request, User user) { return create(request, user, null); }
+
+    @Transactional
+    public Reading create(Reading request, User user, String commandKey) {
+        if (!Double.isFinite(request.getValue()) || request.getMeter() == null || request.getMeter().getId() == null)
+            throw new CustomException("A meter and a finite reading are required", HttpStatus.BAD_REQUEST);
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
-        if (optionalMeter.isPresent()) {
-            Meter meter = optionalMeter.get();
-            if (!meter.canBeViewedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            Optional<Reading> optionalLastReading = findLastByMeter(readingReq.getMeter().getId());
-            if (optionalLastReading.isPresent()) {
-                Reading lastReading = optionalLastReading.get();
-                String timeZone = meter.getCompany()
-                        .getCompanySettings()
-                        .getGeneralPreferences()
-                        .getTimeZone();
-                LocalDate nextReading =
-                        Helper.dateToLocalDate(lastReading.getCreatedAt()).plusDays(meter.getUpdateFrequency());
-                if (LocalDate.now(ZoneId.of(timeZone)).isBefore(nextReading)) {
-                    throw new CustomException("The update frequency has not been respected", HttpStatus.NOT_ACCEPTABLE);
-                }
-            }
-            processMeterTriggers(meter, readingReq.getValue(), user);
-            return readingRepository.save(readingReq);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        Long meterId = request.getMeter().getId();
+        String payload = "create:" + meterId + ":" + request.getValue();
+        Optional<DomainCommandStore.Stored> previous = commandStore.begin("READING",commandKey,user,payload);
+        Meter meter = entityManager.find(Meter.class,meterId,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (meter == null) throw new CustomException("Meter not found",HttpStatus.NOT_FOUND);
+        entityManager.refresh(meter,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (!Objects.equals(meter.getCompany().getId(),user.getCompany().getId()) || !meter.canBeViewedBy(user))
+            throw new CustomException("Access denied",HttpStatus.FORBIDDEN);
+        if (previous.isPresent()) return commandStore.result(previous.get(),new com.fasterxml.jackson.core.type.TypeReference<ReadingResult>() {}).toReading();
+        Optional<Reading> last = findLastByMeter(meterId);
+        if (last.isPresent()) {
+            String timeZone = meter.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone();
+            LocalDate next = last.get().getCreatedAt().toInstant().atZone(ZoneId.of(timeZone)).toLocalDate().plusDays(meter.getUpdateFrequency());
+            if (LocalDate.now(ZoneId.of(timeZone)).isBefore(next))
+                throw new CustomException("The update frequency has not been respected",HttpStatus.NOT_ACCEPTABLE);
+        }
+        Reading saved = new Reading();
+        saved.setMeter(meter);
+        saved.setValue(request.getValue());
+        saved = readingRepository.saveAndFlush(saved); // source ID and reading must exist before its work order
+        triggerCommands.process(meter,saved,user);
+        commandStore.complete("READING",commandKey,user,payload,"METER",meterId,ReadingResult.from(saved));
+        return saved;
     }
 
     public Collection<Reading> getAll() {
@@ -119,8 +126,11 @@ public class ReadingService {
             Reading savedReading = optionalReading.get();
             if (!savedReading.getMeter().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            if (!Double.isFinite(reading.getValue())) throw new CustomException("Reading must be finite", HttpStatus.BAD_REQUEST);
+            entityManager.lock(savedReading.getMeter(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+            if (!Objects.equals(savedReading.getMeter().getCompany().getId(),user.getCompany().getId())) throw new CustomException("Access denied",HttpStatus.FORBIDDEN);
             Reading updated = readingRepository.save(readingMapper.updateReading(savedReading, reading));
-            processMeterTriggers(savedReading.getMeter(), updated.getValue(), user);
+            // Editing history does not open, close or rewind the currently accepted anomaly episode.
             return updated;
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
@@ -132,6 +142,9 @@ public class ReadingService {
         if (optionalReading.isPresent()) {
             if (!optionalReading.get().getMeter().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            entityManager.lock(optionalReading.get().getMeter(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+            if (!Objects.equals(optionalReading.get().getMeter().getCompany().getId(),user.getCompany().getId())) throw new CustomException("Access denied",HttpStatus.FORBIDDEN);
+            // Deleting even the latest sample preserves real-time state; a NEW reading establishes recovery.
             readingRepository.deleteById(id);
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
@@ -146,49 +159,6 @@ public class ReadingService {
 
     public Optional<Reading> findLastByMeter(Long id) {
         return readingRepository.findFirstByMeter_IdOrderByCreatedAtDesc(id);
-    }
-
-    private void processMeterTriggers(Meter meter, double readingValue, User user) {
-        Collection<WorkOrderMeterTrigger> meterTriggers = workOrderMeterTriggerService.findByMeter(meter.getId());
-        Locale locale = Helper.getLocale(user);
-        meterTriggers.forEach(meterTrigger -> {
-            boolean error = false;
-            StringBuilder message = new StringBuilder();
-            String title = messageSource.getMessage("new_wo", null, locale);
-            Object[] notificationArgs = new Object[]{meter.getName(), meterTrigger.getValue(), meter.getUnit()};
-            if (meterTrigger.getTriggerCondition().equals(WorkOrderMeterTriggerCondition.LESS_THAN)) {
-                if (readingValue < meterTrigger.getValue()) {
-                    error = true;
-                    message.append(messageSource.getMessage("notification_reading_less_than", notificationArgs,
-                            locale));
-                }
-            } else if (readingValue > meterTrigger.getValue()) {
-                error = true;
-                message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs,
-                        locale));
-            }
-            if (error) {
-                notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
-                        new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
-                ).collect(Collectors.toList()), true, title);
-                WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
-                WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
-
-                Map<String, Object> webhookPayload = new HashMap<>();
-                webhookPayload.put("meterId", meter.getId());
-                webhookPayload.put("meterName", meter.getName());
-                webhookPayload.put("meterTriggerId", meterTrigger.getId());
-                webhookPayload.put("meterTriggerName", meterTrigger.getName());
-                webhookPayload.put("readingValue", readingValue);
-                webhookPayload.put("triggerValue", meterTrigger.getValue());
-                webhookPayload.put("triggerCondition", meterTrigger.getTriggerCondition().name());
-                webhookPayload.put("workOrderId", createdWorkOrder.getId());
-                Object serializedWorkOrder = workOrderMapper.toShowDto(createdWorkOrder);
-                webhookDispatchService.dispatchWebhook(user.getCompany(),
-                        WebhookEvent.METER_TRIGGER_STATUS_CHANGE, webhookPayload,
-                        "triggeredWorkOrder", serializedWorkOrder, null, null, null, null, null);
-            }
-        });
     }
 
     public List<ReadingHistogramDTO> getHistogramData(Long meterId, Date start, Date end, @NotNull String timeZone) {

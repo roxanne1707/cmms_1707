@@ -1,0 +1,50 @@
+# Explicit opt-in. These defaults refer ONLY to the dedicated synthetic test services.
+spring:
+  datasource:
+    url: jdbc:postgresql://127.0.0.1:25432/cmms_enhancement_test
+    username: cmms_test
+    password: cmms_test_local
+    hikari:
+      maximum-pool-size: 10
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 26379
+      connect-timeout: 500ms
+      timeout: 500ms
+  rabbitmq:
+    host: 127.0.0.1
+    port: 25672
+    username: ${LAB_RABBIT_USER:cmms_test}
+    password: ${LAB_RABBIT_PASSWORD:cmms_test_local}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+  mail:
+    host: 127.0.0.1
+    port: 25252
+  quartz:
+    auto-startup: false
+server:
+  address: 127.0.0.1
+  port: 28089
+enhancement:
+  query:
+    enabled: true
+cmms:
+  sla:
+    enabled: true
+  events:
+    enabled: true
+    external-delivery-enabled: false
+mail:
+  enable: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  health:
+    mail:
+      enabled: false

@@ -284,8 +284,8 @@ class UserServiceTest {
             com.grash.model.Currency currency = new com.grash.model.Currency();
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -307,8 +307,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -337,8 +337,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -392,8 +392,8 @@ class UserServiceTest {
                     .thenReturn(new ArrayList<>(List.of(invitation)));
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -424,8 +424,8 @@ class UserServiceTest {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -492,8 +492,8 @@ class UserServiceTest {
             when(userInvitationService.findByRoleAndEmail(3L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -522,8 +522,8 @@ class UserServiceTest {
                     .thenReturn(new ArrayList<>(List.of(invitation)));
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -560,8 +560,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -586,8 +586,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
@@ -618,8 +618,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
             userService.signup(signupRequest);
@@ -648,8 +648,8 @@ class UserServiceTest {
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
             userService.signup(signupRequest);
@@ -706,8 +706,8 @@ class UserServiceTest {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -794,8 +794,8 @@ class UserServiceTest {
             ccy.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
             when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -826,8 +826,8 @@ class UserServiceTest {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -863,8 +863,8 @@ class UserServiceTest {
             when(userRepository.findByCompany_Id(1L))
                     .thenReturn(List.of(user, disabledUser, notInSubscriptionUser));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -925,8 +925,8 @@ class UserServiceTest {
             doNothing().when(mailService).sendMessageUsingThymeleafTemplate(
                     any(String[].class), anyString(), anyMap(), anyString(), any(), any());
             when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Confirm Email");
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
+            when(refreshTokenService.createTokenPair(any(User.class)))
+                    .thenReturn(new AuthTokens("signup-token", "signup-refresh", new Date()));
 
             SignupSuccessResponse<User> response = userService.signup(signupRequest);
 
@@ -1400,12 +1400,12 @@ class UserServiceTest {
             HttpServletRequest request = mock(HttpServletRequest.class);
             when(jwtTokenProvider.resolveToken(request)).thenReturn("valid-token");
             when(jwtTokenProvider.getUsername("valid-token")).thenReturn("john@test.com");
-            when(userRepository.findByEmailIgnoreCase("john@test.com")).thenReturn(Optional.of(user));
+            when(userRepository.findForAuthentication("john@test.com")).thenReturn(Optional.of(user));
 
             User result = userService.whoami(request, false);
 
             assertEquals("john@test.com", result.getEmail());
-            verify(userRepository).findByEmailIgnoreCase("john@test.com");
+            verify(userRepository).findForAuthentication("john@test.com");
         }
     }
 

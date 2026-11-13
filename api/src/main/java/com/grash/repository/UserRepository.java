@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     boolean existsByUsername(String username);
 
+    // Join the authentication transaction; never reuse a Caffeine authorization graph.
+    @Query("select u from User u where lower(u.email)=lower(:email)")
+    Optional<User> findForAuthentication(@Param("email") String email);
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     Optional<User> findByEmailIgnoreCase(String email);
 

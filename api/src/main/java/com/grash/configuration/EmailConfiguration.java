@@ -35,6 +35,8 @@ public class EmailConfiguration {
         final ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasename("mailMessages");
         messageSource.setDefaultEncoding("UTF-8");
+        // English lives in the base bundle; never substitute the server's locale for a recipient's language.
+        messageSource.setFallbackToSystemLocale(false);
         return messageSource;
     }
 }

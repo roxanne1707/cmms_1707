@@ -45,8 +45,14 @@ public class JwtTokenProvider {
     }
 
     private final CustomUserDetailsService customUserDetailsService;
+    private final SessionRegistry sessionRegistry;
 
+    // Kept for legacy callers/tests; new interactive login uses the session-aware overload.
     public String createToken(String username, List<RoleType> roles) {
+        return createToken(username, roles, null);
+    }
+
+    public String createToken(String username, List<RoleType> roles, java.util.UUID sessionId) {
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -55,6 +61,7 @@ public class JwtTokenProvider {
                 .subject(username)
                 .issuedAt(now)
                 .expiration(validity)
+                .claim("sid", sessionId == null ? null : sessionId.toString())
                 .claim("auth",
                         roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).collect(Collectors.toList()))
                 .signWith(key)
@@ -73,11 +80,24 @@ public class JwtTokenProvider {
         User user = userDetails.getUser();
         Date sessionInvalidatedAt = user.getSessionInvalidatedAt();
         Date issuedAt = claims.getIssuedAt();
-        if (sessionInvalidatedAt != null && issuedAt != null && issuedAt.before(sessionInvalidatedAt)) {
+        String rawSessionId = claims.get("sid", String.class);
+        if (rawSessionId != null) {
+            sessionRegistry.assertActive(parseSessionId(rawSessionId), user.getId());
+        } else if (sessionInvalidatedAt != null && (issuedAt == null || !issuedAt.after(sessionInvalidatedAt))) {
             throw new CustomException("Session has been revoked. Please sign in again",
                     HttpStatus.UNAUTHORIZED);
         }
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    public java.util.UUID getSessionId(String token) {
+        String raw = Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().get("sid", String.class);
+        return raw == null ? null : parseSessionId(raw);
+    }
+
+    private java.util.UUID parseSessionId(String raw) {
+        try { return java.util.UUID.fromString(raw); }
+        catch (IllegalArgumentException ex) { throw new CustomException("Invalid session identifier", HttpStatus.UNAUTHORIZED); }
     }
 
     public String getUsername(String token) {

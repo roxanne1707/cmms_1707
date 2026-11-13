@@ -1,0 +1,139 @@
+{
+  "recordedAtUtc": "2026-11-13T21:07:29.620217+00:00",
+  "complete": true,
+  "scope": "Two isolated native API processes, same synthetic PostgreSQL DB, 100000 rows, 5 VUs, 3s warmup then 15s per run. Not production capacity.",
+  "runs": [
+    {
+      "scenario": "hot",
+      "mode": "direct_sql",
+      "repeat": 1,
+      "requests": 713,
+      "rps": 47.238337160974744,
+      "avgMs": 54.960187938288996,
+      "p95Ms": 60.97838,
+      "p99Ms": 181.53661199999996,
+      "errorRate": 0
+    },
+    {
+      "scenario": "hot",
+      "mode": "redis",
+      "repeat": 1,
+      "requests": 1210,
+      "rps": 80.40630408549148,
+      "avgMs": 11.490542396694218,
+      "p95Ms": 16.0408,
+      "p99Ms": 18.21359300000006,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "direct_sql",
+      "repeat": 1,
+      "requests": 1250,
+      "rps": 83.25406990850911,
+      "avgMs": 9.364508400000018,
+      "p95Ms": 10.601,
+      "p99Ms": 11.6296,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "redis",
+      "repeat": 1,
+      "requests": 1250,
+      "rps": 83.12374125303002,
+      "avgMs": 9.471376879999966,
+      "p95Ms": 10.6253,
+      "p99Ms": 11.650054,
+      "errorRate": 0
+    },
+    {
+      "scenario": "hot",
+      "mode": "redis",
+      "repeat": 2,
+      "requests": 1260,
+      "rps": 83.70572081965757,
+      "avgMs": 9.07025119047622,
+      "p95Ms": 10.3319,
+      "p99Ms": 11.2599,
+      "errorRate": 0
+    },
+    {
+      "scenario": "hot",
+      "mode": "direct_sql",
+      "repeat": 2,
+      "requests": 753,
+      "rps": 49.90209050791859,
+      "avgMs": 49.471711553784885,
+      "p95Ms": 56.00088,
+      "p99Ms": 57.392528,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "redis",
+      "repeat": 2,
+      "requests": 1270,
+      "rps": 84.60831344099726,
+      "avgMs": 8.469412677165332,
+      "p95Ms": 9.8051,
+      "p99Ms": 10.9541,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "direct_sql",
+      "repeat": 2,
+      "requests": 1280,
+      "rps": 85.10848069905553,
+      "avgMs": 8.039756328124971,
+      "p95Ms": 9.1211,
+      "p99Ms": 9.606349000000002,
+      "errorRate": 0
+    },
+    {
+      "scenario": "hot",
+      "mode": "direct_sql",
+      "repeat": 3,
+      "requests": 764,
+      "rps": 50.7734180528131,
+      "avgMs": 47.78314306282723,
+      "p95Ms": 56.307105,
+      "p99Ms": 58.7714,
+      "errorRate": 0
+    },
+    {
+      "scenario": "hot",
+      "mode": "redis",
+      "repeat": 3,
+      "requests": 1285,
+      "rps": 85.457221840517,
+      "avgMs": 7.802961556420253,
+      "p95Ms": 8.7854,
+      "p99Ms": 9.244004,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "direct_sql",
+      "repeat": 3,
+      "requests": 1290,
+      "rps": 85.67798329808005,
+      "avgMs": 7.68868418604652,
+      "p95Ms": 8.751685,
+      "p99Ms": 9.434,
+      "errorRate": 0
+    },
+    {
+      "scenario": "sparse",
+      "mode": "redis",
+      "repeat": 3,
+      "requests": 1290,
+      "rps": 85.85324361008284,
+      "avgMs": 7.555793720930233,
+      "p95Ms": 8.6149,
+      "p99Ms": 9.2019,
+      "errorRate": 0
+    }
+  ]
+}

@@ -66,6 +66,7 @@ public class PartService {
     private final CustomFieldValueService customFieldValueService;
     private final MailServiceFactory mailServiceFactory;
     private final WorkflowService workflowService;
+    private final com.grash.event.ReliableEventService reliableEventService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -145,24 +146,25 @@ public class PartService {
 
     @Transactional
     public void consumePart(Long id, double quantity, WorkOrder workOrder, Locale locale, boolean deleteConsumption) {
-        Part part = findById(id).get();
+        if (!Double.isFinite(quantity)) throw new CustomException("Quantity must be finite", HttpStatus.BAD_REQUEST);
+        if (quantity == 0d) return;
+        Part part = findById(id).orElseThrow(() -> new CustomException("Part not found", HttpStatus.NOT_FOUND));
         if (part.isNonStock()) return;
         double previousQuantity = part.getQuantity();
-        part.setQuantity(part.getQuantity() - quantity);
-        if (part.getQuantity() < 0)
+        double nextQuantity = previousQuantity - quantity;
+        if (!Double.isFinite(nextQuantity) || nextQuantity < 0)
             throw new CustomException("There is not enough of this part", HttpStatus.NOT_ACCEPTABLE);
-        if (quantity <= 0) {
-            PartTransaction partTransaction =
-                    Collections.max(partTransactionService.findByWorkOrderAndPart(workOrder.getId(), part.getId()),
-                            new AuditComparator());
-            if (deleteConsumption || quantity == 0d) {
-                partTransactionService.delete(partTransaction.getId());
-            } else {
-                partTransaction.setQuantity(partTransaction.getQuantity() + quantity);
-                partRepository.save(part);
-                partTransactionService.save(partTransaction);
-            }
-        } else {
+        part.setQuantity(nextQuantity);
+        PartTransaction transaction = new PartTransaction(part, workOrder, quantity);
+        transaction.setCompany(part.getCompany());
+        partTransactionService.create(transaction); // returns append a negative entry; history is never erased
+        partRepository.save(part);
+        if(reliableEventService!=null && reliableEventService.isEnabled()) {
+            reliableEventService.partQuantityChanged(part,previousQuantity,nextQuantity,workOrder,partMapper.toShowDto(part));
+            return;
+        }
+        afterCommitBestEffort(() -> {
+        if (quantity > 0) {
             String message = messageSource.getMessage("notification_part_low", new Object[]{part.getName()}, locale);
             if (part.getQuantity() < part.getMinQuantity() && licenseService.hasEntitlement(LicenseEntitlement.LOW_STOCK_ALERTS)) {
                 Map<Long, User> uniqueUsersMap = new TreeMap<>();
@@ -194,24 +196,39 @@ public class PartService {
                     );
                 }
             }
-            partTransactionService.create(new PartTransaction(part, workOrder, quantity));
-            partRepository.save(part);
-
         }
-        dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), workOrder,
-                workOrder.getCompany());
+        dispatchPartQuantityChangeWebhook(part, previousQuantity, nextQuantity, workOrder, workOrder.getCompany());
+        });
+    }
+
+    private void afterCommitBestEffort(Runnable action) {
+        Runnable guarded = () -> {
+            try { action.run(); }
+            catch (RuntimeException failure) { io.sentry.Sentry.captureException(failure); }
+        };
+        if (org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive()) {
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override public void afterCommit() { guarded.run(); }
+                });
+        } else guarded.run();
     }
 
     @Transactional
     public void restockPart(Long id, double quantity, String description) {
-        Part part = findById(id).get();
+        if (!Double.isFinite(quantity) || quantity <= 0) throw new CustomException("Restock quantity must be positive and finite",HttpStatus.BAD_REQUEST);
+        Part part = findById(id).orElseThrow(() -> new CustomException("Part not found",HttpStatus.NOT_FOUND));
         if (part.isNonStock()) return;
         double previousQuantity = part.getQuantity();
-        part.setQuantity(part.getQuantity() + quantity);
+        double nextQuantity = previousQuantity + quantity;
+        if (!Double.isFinite(nextQuantity)) throw new CustomException("Quantity overflow",HttpStatus.BAD_REQUEST);
+        part.setQuantity(nextQuantity);
         partRepository.save(part);
-        partTransactionService.create(new PartTransaction(part, -quantity, description));
-        dispatchPartQuantityChangeWebhook(part, previousQuantity, part.getQuantity(), null,
-                part.getCompany());
+        PartTransaction transaction = new PartTransaction(part, -quantity, description); transaction.setCompany(part.getCompany());
+        partTransactionService.create(transaction);
+        if(reliableEventService!=null && reliableEventService.isEnabled()) {
+            reliableEventService.partQuantityChanged(part,previousQuantity,nextQuantity,null,partMapper.toShowDto(part));
+        } else afterCommitBestEffort(() -> dispatchPartQuantityChangeWebhook(part,previousQuantity,nextQuantity,null,part.getCompany()));
     }
 
     public Collection<Part> getAll() {
@@ -512,6 +529,10 @@ public class PartService {
     private void dispatchPartQuantityChangeWebhook(Part part, double previousQuantity, double newQuantity,
                                                    WorkOrder workOrder, Company company) {
         if (previousQuantity == newQuantity) return;
+        if(reliableEventService!=null && reliableEventService.isEnabled()) {
+            reliableEventService.partQuantityChanged(part,previousQuantity,newQuantity,workOrder,partMapper.toShowDto(part));
+            return;
+        }
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("partId", part.getId());
         webhookPayload.put("partName", part.getName());

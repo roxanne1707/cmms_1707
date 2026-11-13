@@ -677,7 +677,18 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } catch (err) {
       console.error(err);
     }
-    await api.post('auth/logout', {});
+    try {
+      await api.post('auth/sessions/logout-current', {}, {
+        suppressConflictNotification: true
+      });
+    } catch (error: any) {
+      // A pre-upgrade JWT has no sid. Upgrade it once via its existing refresh token,
+      // then revoke only that device; never silently fall back to logging out everyone.
+      if (error?.status !== 409 || !(await refreshAccessToken())) throw error;
+      await api.post('auth/sessions/logout-current', {}, {
+        suppressConflictNotification: true
+      });
+    }
     setSession(null, null);
     Sentry.setUser(null);
     if (clarityId && !IS_LOCALHOST) Clarity.identify('');

@@ -1,4 +1,8 @@
 spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
   datasource:
     # url: jdbc:h2:mem:test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     url: jdbc:postgresql://${DB_URL}
@@ -24,11 +28,14 @@ spring:
       initialize-schema: never
     properties:
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.isClustered: true
+      org.quartz.scheduler.instanceId: AUTO
   liquibase:
     change-log: classpath:/db/master.xml
     enabled: true
   messages:
     encoding: UTF-8
+    fallback-to-system-locale: false
   servlet:
     multipart:
       max-request-size: 100MB

@@ -12,7 +12,6 @@ import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,10 +35,6 @@ public class UserAnalyticsController {
 
     @GetMapping("/me/work-orders/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Cacheable(
-            value = "getUserWOStats",
-            key = "#user.id"
-    )
     public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser User user) {
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());
         Collection<WorkOrder> completedWorkOrders = workOrderService.findByCompletedBy(user.getId());

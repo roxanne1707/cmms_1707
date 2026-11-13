@@ -1,0 +1,939 @@
+{
+  "recordedAtUtc": "2026-11-13T19:33:35.502018+00:00",
+  "scope": "Selected regression and enhancement tests; not the entire repository suite; no original database migration",
+  "branch": "feat/maintenance-reliability",
+  "headBeforeImplementation": "6f2bad34ffb13b42b05f6319953c2395cd0565f1",
+  "officialBusinessBaseline": "06abfe35d09372ff80f889fcde73eb3cc71dc205",
+  "implementationCommitted": false,
+  "implementationPushed": false,
+  "testResult": {
+    "testcases": 585,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "surefireSuiteAttributeSum": 535,
+    "nestedNameCountNote": "Count actual testcase elements; duplicate nested method names cause testsuite aggregate attributes to undercount by 50.",
+    "suites": [
+      {
+        "suite": "com.grash.aspect.TenantAspectTest",
+        "testcases": 9,
+        "suiteTestsAttribute": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "b8c1ec176d160793db3ccd5d7d1265fb6616de6ea46ce5b9d94576298faf5199"
+      },
+      {
+        "suite": "com.grash.cache.AssetOverviewCacheTest",
+        "testcases": 4,
+        "suiteTestsAttribute": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "7390e1a3a93fc3fe956fc1c8c958e063f32e3365e945e5563c52eecfce100d1b"
+      },
+      {
+        "suite": "com.grash.configuration.CacheConfigTest",
+        "testcases": 2,
+        "suiteTestsAttribute": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "87106c427c31fef2f0d468a95159b67d2e0141f3377772ff4db23adbf2437382"
+      },
+      {
+        "suite": "com.grash.controller.InventoryFreshActorControllerTest",
+        "testcases": 2,
+        "suiteTestsAttribute": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "00789351919d6d9e3f0b5114f7cf76a862f59e059b8a76987709f837235a650a"
+      },
+      {
+        "suite": "com.grash.controller.MaintenanceQueryControllerTest",
+        "testcases": 4,
+        "suiteTestsAttribute": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "8f21b222f473e3df24c459df999470531c715c5360dca22fe1d7b82fb5866832"
+      },
+      {
+        "suite": "com.grash.controller.PartControllerTest",
+        "testcases": 24,
+        "suiteTestsAttribute": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "7391ffa9c3aea6b82be2922cd2bab0e4aeaf5151c28dcb64a87f75e59104fc0b"
+      },
+      {
+        "suite": "com.grash.event.EventAccessPolicyTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "b0b917207d0a2ea443844e795e65a854be3ece8d616c3f63493792133e99b89b"
+      },
+      {
+        "suite": "com.grash.event.EventDeliverySenderTest",
+        "testcases": 2,
+        "suiteTestsAttribute": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "48c705730c78651c623988a1675fc3dac23e1a884cfa5c8ae8d986049d7ce2e9"
+      },
+      {
+        "suite": "com.grash.event.ReliableEventsPostgresIntegrationTest",
+        "testcases": 10,
+        "suiteTestsAttribute": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "ba09453d99a7aef1d83c2ffc63c11ef23b5afbffa0a22bbfc25e9b6ab0ee36ff"
+      },
+      {
+        "suite": "com.grash.event.WorkOrderEventListenerTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "6f95b0491fcd6ebdf029190be1799099134a90a03d0b7047053e87ae0b8d4a3e"
+      },
+      {
+        "suite": "com.grash.integration.DomainReliabilityIntegrationTest",
+        "testcases": 11,
+        "suiteTestsAttribute": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "05eb854eec8381f75febe0f496b5ef333650811472bcc7e7531a3b9387f49607"
+      },
+      {
+        "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+        "testcases": 11,
+        "suiteTestsAttribute": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "e5729270d20f0b5610d1288772fe50a30020f86bb04bc703bdff93cf76f631d8"
+      },
+      {
+        "suite": "com.grash.integration.query.QueryInfrastructureIntegrationTest",
+        "testcases": 10,
+        "suiteTestsAttribute": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "6498a7948060a2529f4f5fed050355a6b8ec12280606498a1365c36ad34242a6"
+      },
+      {
+        "suite": "com.grash.job.WorkOrderCreationJobTest",
+        "testcases": 6,
+        "suiteTestsAttribute": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "5893516f2c91c486621463b92a90eb7b1a20bb1eb541633c451a09e5671f81ff"
+      },
+      {
+        "suite": "com.grash.security.FreshMaintenanceActorTest",
+        "testcases": 4,
+        "suiteTestsAttribute": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "a0b99b93fd9995fff09943db69817ec346a20fc7dc3f49c1208a7c996126ff25"
+      },
+      {
+        "suite": "com.grash.security.QueryAccessPolicyTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "8570a7af531c71d4f6612a4dd540c43bb1c0e8873ffbc99d4c89d2db08b41af9"
+      },
+      {
+        "suite": "com.grash.service.InventoryCommandServiceTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "29ea1604bfb8c0613a27fedcf0e62ea4933650ae4b59eff94e6b76ec36b9a8bc"
+      },
+      {
+        "suite": "com.grash.service.MeterEpisodeRulesTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "c0d3948dc1affe5c0577fd307342ed8b3334d14e91f8d7a29f4228916eab2960"
+      },
+      {
+        "suite": "com.grash.service.NotificationServiceTest",
+        "testcases": 31,
+        "suiteTestsAttribute": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "3543753da1f32f9847646329b989110cc0cf2bd041450e8d1394ecc07980a5e3"
+      },
+      {
+        "suite": "com.grash.service.PartServiceTest",
+        "testcases": 63,
+        "suiteTestsAttribute": 57,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "ed823c5e4e4a505d9c9cf47a9539bb485facea920c9eafbc57c206fbe441ba7f"
+      },
+      {
+        "suite": "com.grash.service.query.OverviewQueryTest",
+        "testcases": 3,
+        "suiteTestsAttribute": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "bd302a8ec0ae0528a217d02e2c34a6fc4971cb7cf75d58b6527796c3b0371aaf"
+      },
+      {
+        "suite": "com.grash.service.query.QueryServicesTest",
+        "testcases": 4,
+        "suiteTestsAttribute": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "e48aa3589a2194da767013985d3cc9c3cc2da1f0f730c0fca8957a53f903144c"
+      },
+      {
+        "suite": "com.grash.service.RefreshTokenServiceTest",
+        "testcases": 9,
+        "suiteTestsAttribute": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "61bce5e15a51c354c079f1a4c1c58d682f5ba83b4ec26aa108c67465065b68ed"
+      },
+      {
+        "suite": "com.grash.service.RefreshTokenTransactionIntegrationTest",
+        "testcases": 6,
+        "suiteTestsAttribute": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "a48d185d1ebef8896d598c0634cfbbc0c7909bf0d8ae206c5b91504dfae366ba"
+      },
+      {
+        "suite": "com.grash.service.RequestServiceTest",
+        "testcases": 42,
+        "suiteTestsAttribute": 42,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "75904a52077bf3a93f3adaf9f71acfb5a3bb2c97d3fc4ea4a52077408443a394"
+      },
+      {
+        "suite": "com.grash.service.ScheduleServiceTest",
+        "testcases": 55,
+        "suiteTestsAttribute": 54,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "a6fcdfcae0fc70a98be2f97fa63b4a809537b379791651a33eebc4fab27ddab3"
+      },
+      {
+        "suite": "com.grash.service.WorkOrderServiceTest",
+        "testcases": 252,
+        "suiteTestsAttribute": 211,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "addca1aad9dadfb91f16a775553caa5b6ff5d279f904ab494679e335b78fed9a"
+      },
+      {
+        "suite": "com.grash.utils.CacheKeyUtilsTest",
+        "testcases": 6,
+        "suiteTestsAttribute": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "reportSha256": "9637d071f568b1a625b36fcef162782a7efeabc15495b519dddf426c2951d554"
+      }
+    ]
+  },
+  "realDependencyTests": {
+    "MaintenanceJpaIntegrationTest": 11,
+    "DomainReliabilityIntegrationTest": 11,
+    "RefreshTokenTransactionIntegrationTest": 6,
+    "QueryInfrastructureIntegrationTest": 10,
+    "ReliableEventsPostgresIntegrationTest": 10,
+    "total": 48
+  },
+  "clientTestResult": {
+    "cases": 9,
+    "logSha256": "515820db35abc8f2c700538e6e775ffc892311db1fd51c747ed3a8db91718662"
+  },
+  "build": {
+    "result": "SUCCESS",
+    "testInvocationSeparateFromPackaging": true,
+    "jarSha256": "96b64942cf70d26e66f02364ee1dead3b7212333ab0c6679effbd01486824d59",
+    "jarBytes": 199291882
+  },
+  "localLogs": {
+    "test": "C:\\Users\\roxanne\\Documents\\Codex\\work\\cmms-enhancement\\logs\\final-tests-02.log",
+    "testSha256": "bf236f993438f733cc40873d29087b19df36d4d5ecbc7b5fefeba94c66ef61fb",
+    "package": "C:\\Users\\roxanne\\Documents\\Codex\\work\\cmms-enhancement\\logs\\package-final.log",
+    "packageSha256": "1f4e6718ba96dda17ae0febed03b7ba046561e165c131c53bcf4f5f51d3d6a81"
+  },
+  "environment": {
+    "os": "Windows",
+    "java": "17.0.8",
+    "maven": "3.9.4",
+    "springBoot": "3.5.16",
+    "mybatisPlus": "3.5.18",
+    "postgresql": "16.16",
+    "redis": "8.8.0 Windows fork (native local test)",
+    "rabbitmq": "4.4.0",
+    "erlang": "OTP 27",
+    "ports": {
+      "postgresql": 25432,
+      "redis": 26379,
+      "rabbitmq": 25672,
+      "api": 28089
+    }
+  },
+  "notExecuted": [
+    "full repository tests",
+    "Docker Compose",
+    "Testcontainers containers",
+    "remote CI",
+    "MySQL standalone lab",
+    "full frontend/mobile build",
+    "browser end-to-end",
+    "k6 HTTP load test",
+    "two full API instance load test",
+    "real SMTP or public webhook delivery"
+  ],
+  "sqlBenchmarkEvidence": "query-plan-benchmark.json",
+  "runtimeSmoke": [
+    {
+      "url": "http://127.0.0.1:28089/actuator/health",
+      "status": 401,
+      "bytes": 0
+    },
+    {
+      "url": "http://127.0.0.1:18089/actuator/health",
+      "status": 401,
+      "bytes": 0
+    },
+    {
+      "url": "http://127.0.0.1:3089",
+      "status": 200,
+      "bytes": 1382
+    }
+  ],
+  "workingTreeManifest": [
+    {
+      "path": ".github/workflows/maintenance-tests.yml",
+      "sha256": "245e03c917b84187064728d16514898a50878787216d1e85fbb3bdd9baa1512e",
+      "bytes": 1665
+    },
+    {
+      "path": "api/pom.xml",
+      "sha256": "d6b6fccd430f6b4971dfd940a8af79d297050020979c0835c3e016bb68cc82bc",
+      "bytes": 15710
+    },
+    {
+      "path": "api/src/main/java/com/grash/cache/AssetOverviewCache.java",
+      "sha256": "064fa74530609287b2e8380e8041029eeb1e00b4bd839b38a244a1460aa931e0",
+      "bytes": 7176
+    },
+    {
+      "path": "api/src/main/java/com/grash/configuration/MybatisReadConfig.java",
+      "sha256": "c948071ef57f7e2abe39e87e2b2da6004d6f965ba465f0467e49847f26d2f0b9",
+      "bytes": 1969
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/PartController.java",
+      "sha256": "ba3ea4f2dbadff95a53dd409280a0386abea91e141dcafbb0228039b50620576",
+      "bytes": 4469
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/PartQuantityController.java",
+      "sha256": "d51b123ee75577bb33329353308b11913012cb981c16667b6735efd4a98b5ddd",
+      "bytes": 7175
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/PurchaseOrderController.java",
+      "sha256": "1d24aefc2952d9897db7202c8fba4c44aad475b854487d8de36d8b33bce2c852",
+      "bytes": 12016
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/ReadingController.java",
+      "sha256": "4e0d4c430e79704983267d65943e58e2cbbe5ec9871a72c83e90128878cca166",
+      "bytes": 3070
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/query/MaintenanceQueryController.java",
+      "sha256": "fba9a6509ed04b7bb8b0b959246ed3118b24a3c73c13ed6577c4a98eb7b43577",
+      "bytes": 1450
+    },
+    {
+      "path": "api/src/main/java/com/grash/controller/query/QueryInputExceptionAdvice.java",
+      "sha256": "d643aadd0cc64ff8111d5cd6b8a18654ef7b22e972b9ee817d26a6477f7df32a",
+      "bytes": 1051
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/WorkOrderMeterTriggerPatchDTO.java",
+      "sha256": "bb2d9c03fe6249930c1e5f9f06ac6f20d91346601f0b056e5343d9cb7db835fe",
+      "bytes": 1071
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/WorkOrderMeterTriggerShowDTO.java",
+      "sha256": "b31112459e31c76221d29d1e3c9a2a93efdf5dde8d564a154f56d9c40df3d073",
+      "bytes": 1103
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/AssetWorkOrderOverview.java",
+      "sha256": "fcf707ac1a595a78f4cf87115647a88bf62310ef91f08ff87a7ba3b588c4e7c1",
+      "bytes": 531
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/AuthorizedQueryScope.java",
+      "sha256": "fd1639729a7e48eb5c048da74d4773034ec489e338f3c1a5eed5a85cc10dae39",
+      "bytes": 255
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/LedgerPage.java",
+      "sha256": "4c8bb27321953a356af9995ab358b5c0e9e20791d53b59ef39ba8e234d34b62f",
+      "bytes": 209
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/LedgerQuery.java",
+      "sha256": "cdad017eeed1ddb4f07f8e39f49f6fb293d0e1aaf14404558fbdb7a234ca19b3",
+      "bytes": 1323
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/MaintenanceLedgerRow.java",
+      "sha256": "52840863112a98ab38f176ccf71dd7f9daf1872ee3b30c03599d571f075871b0",
+      "bytes": 610
+    },
+    {
+      "path": "api/src/main/java/com/grash/dto/query/OverviewQuery.java",
+      "sha256": "50454387534c1c0d5194026c3016f358ea549fb8aef71a3d4b2466ae79a09ff9",
+      "bytes": 1406
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/DatabaseConsumerBackoff.java",
+      "sha256": "73f8d974c113d0e223bbf654257153b3a01a352c47a00eecfbdf29b55b47fae5",
+      "bytes": 2038
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/DeliveryPayload.java",
+      "sha256": "85b1ec6a698252cfc380457b230782beeed4c762c6c655ddfcb7c627ae26d803",
+      "bytes": 751
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/DispatchMessage.java",
+      "sha256": "b62b94c13f6e3a8fb502ec4c628c7b5f239f70d61cc27fe1f0e50a442768d7a7",
+      "bytes": 958
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventAccessPolicy.java",
+      "sha256": "ae9299ca8caa9e3e2a2a9e68339ef25c63f1f08748bdd9d5f69d355fc3bc9f4d",
+      "bytes": 3971
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventAdministrationController.java",
+      "sha256": "105d16f3a57d3c2efc0d6b529195e504ae81e457bae827751e8369d37d5d0d15",
+      "bytes": 1647
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventDeliverySender.java",
+      "sha256": "faf13f500e74f4b28d66c2295e3f499dc01c0e1fcdd59454fa273f0f2b331312",
+      "bytes": 10024
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventDeliveryStore.java",
+      "sha256": "74b141506fa5997ce287160ceacce5ec76ad36d64b5aa041cb857541c02e72b4",
+      "bytes": 2316
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventDeliveryWorker.java",
+      "sha256": "9ed791f46dfee56f50b2e8b78ecc14ba75b96191ea77a51751716dff2196283b",
+      "bytes": 1572
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventEnvelope.java",
+      "sha256": "61d14ad6f684f1e2dbc95220e0d641bd92185c5fe5b6255e59eb37c77676722c",
+      "bytes": 999
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventJson.java",
+      "sha256": "6ca1995631d0314516f7c0c33c2f0d38353a91444dc3841ac6f826f97fdd7d72",
+      "bytes": 788
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventMetrics.java",
+      "sha256": "621cba77bd544a25359d41ca589e5c7bd9cd5ac51789bb8cbd8d2a41da0d971b",
+      "bytes": 1781
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventRabbitConfiguration.java",
+      "sha256": "f985123cf14cf249f399162c65e02e187dfff6f005c89572034b903813abf0d0",
+      "bytes": 3687
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventReplayService.java",
+      "sha256": "6587316e6d4cffab29b9eaddc3bea67f62baa4da99d11f2ab1df9f6bea843e98",
+      "bytes": 5308
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/EventStore.java",
+      "sha256": "4ceb8bd1a83b492c9eca4e2f6e2efcd692934b5d7fc0f56d742ee3188c6fab01",
+      "bytes": 11676
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/NotificationCommandService.java",
+      "sha256": "cd3faa0965b320b2e051ea6dae95ece19d7fc36d88e9b0beaf7a646e14431595",
+      "bytes": 4779
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/OutboxPublisher.java",
+      "sha256": "dc967c8a28b2d7711b05ee590f83a47e4bfb7b48bd825b0e66502fc7c7db3124",
+      "bytes": 2975
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/ReliableEventProperties.java",
+      "sha256": "866cbc8d208fd4fc843323775319b27674a8af84e0abce3cce06d351a6451401",
+      "bytes": 1029
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/ReliableEventService.java",
+      "sha256": "0b8e6931ce4918e90e6a70ee5efd05ce65862505bbde5c8dfd6d932890591b1c",
+      "bytes": 12263
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/RetryPolicy.java",
+      "sha256": "af9d394444ae4f1cc4fdacf41ee02385c16be38c5dc670f4f3bdcc9f81824528",
+      "bytes": 652
+    },
+    {
+      "path": "api/src/main/java/com/grash/event/WorkOrderEventListener.java",
+      "sha256": "98d5ce148903244a00c9e582ced2d820e38c363545cda570a142df342d7ce5c3",
+      "bytes": 2830
+    },
+    {
+      "path": "api/src/main/java/com/grash/mapper/WorkOrderMeterTriggerMapper.java",
+      "sha256": "e2ca640adcf331823a9b52a2fe2b6747233299bd15c351ae98323cfe883956ce",
+      "bytes": 1144
+    },
+    {
+      "path": "api/src/main/java/com/grash/model/WorkOrderMeterTrigger.java",
+      "sha256": "718781eda222186b7f245b000fcd026689375c0c588627c4dd78279ed36e5108",
+      "bytes": 2702
+    },
+    {
+      "path": "api/src/main/java/com/grash/model/enums/MeterEpisodePolicy.java",
+      "sha256": "63623cde32599812a2d6f16865db9ce06dae0a36a5d21c159f64eb4c3ae09f8e",
+      "bytes": 160
+    },
+    {
+      "path": "api/src/main/java/com/grash/readmodel/mapper/MaintenanceLedgerMapper.java",
+      "sha256": "2434ccc86210075449764aeefb03987e99bac09182ed21066d658406b20c567c",
+      "bytes": 583
+    },
+    {
+      "path": "api/src/main/java/com/grash/readmodel/typehandler/PriorityCodeTypeHandler.java",
+      "sha256": "a04a72c12fa64a24d31530c1ae75c3de6fa488b900677a0638be94af54afa3b7",
+      "bytes": 1191
+    },
+    {
+      "path": "api/src/main/java/com/grash/readmodel/typehandler/StatusCodeTypeHandler.java",
+      "sha256": "b73e82beb5e3bb26393d705ec51d7e61fcaf2965d1a8b004d5a5e7e7258487ed",
+      "bytes": 1202
+    },
+    {
+      "path": "api/src/main/java/com/grash/readmodel/typehandler/UtcInstantTypeHandler.java",
+      "sha256": "7f176b2300d0d95c90546b2fbb9a847461b13fd023cc319b4a82ab0be0cfbc28",
+      "bytes": 1020
+    },
+    {
+      "path": "api/src/main/java/com/grash/repository/RefreshTokenRepository.java",
+      "sha256": "adc54d79022f623e853882f57289bfa05d434e4e397fc5463c9acefeb4c64f8d",
+      "bytes": 887
+    },
+    {
+      "path": "api/src/main/java/com/grash/security/CurrentUserResolver.java",
+      "sha256": "146d8d9066ee4b60b2eee30a0a1ec732a0b8110c2c7a7fb3f3b2bb844e98e75c",
+      "bytes": 1795
+    },
+    {
+      "path": "api/src/main/java/com/grash/security/FreshMaintenanceActor.java",
+      "sha256": "e30e08c2a3c93161894d930a9e694242abd7397c692b8a3365243fffe3b9c0c8",
+      "bytes": 3221
+    },
+    {
+      "path": "api/src/main/java/com/grash/security/QueryAccessPolicy.java",
+      "sha256": "f4662e8068c84c17adf7dfe68672e3cb58648a09e0f01bc97e1b3088c06d63ea",
+      "bytes": 3373
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/CustomSequenceService.java",
+      "sha256": "8a2cc03ec89dd0442b45614bc7cd0dfc1f9397bdd7b237fa517c4ee4dd76e5f1",
+      "bytes": 3813
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/DomainCommandStore.java",
+      "sha256": "f2f42c67cd980bdd7b635cb39a98c95eb4052fa31ca4f359063eb1bef5236d8b",
+      "bytes": 3809
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/InventoryCommandService.java",
+      "sha256": "7a8a318bf7ef4936e1846d3d0127c750dbe31e71e4134e61e92c4b44cbde4d0b",
+      "bytes": 14575
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/MeterEpisodeRules.java",
+      "sha256": "a016b6516cb892b0809484e136960a5f16a98b1310e13ed50ce311a893f933b6",
+      "bytes": 1149
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/MeterTriggerCommandService.java",
+      "sha256": "befba795c3d1d9af386c845810f5dcc3a96e3acbb8eee7c08e74d507cd09c4c8",
+      "bytes": 6694
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/PartService.java",
+      "sha256": "81a4f3f4262ca91a7b5524742fde55e8c1bd85ee357dce48bc755fa7c25461ac",
+      "bytes": 27082
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/ReadingService.java",
+      "sha256": "1d78f93b02e6a9967edc05b2f05a6aa8ffe097b72638226a7cd958e67d3e3bd5",
+      "bytes": 11315
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/RefreshTokenService.java",
+      "sha256": "5c9a81342c57d2bb194eeaccd3f8d039e08e95752feaece401082c90a4e7e24b",
+      "bytes": 4909
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/WorkOrderMeterTriggerService.java",
+      "sha256": "0ac38728fa1a476d58a8b5253b9c53a1789484a00950437f211fa0d47cd9a1d8",
+      "bytes": 4979
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/WorkOrderService.java",
+      "sha256": "0550820ba532544b2b3e4efce0af8ec30c53ab1d75a242d03103a8729cc1a529",
+      "bytes": 75791
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/query/AssetWorkOrderOverviewRepository.java",
+      "sha256": "61f836cc383f958817afcde59fc487d9d9d8d30aa776e5aae74ae4693f5c3df9",
+      "bytes": 3867
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/query/AssetWorkOrderOverviewService.java",
+      "sha256": "08e60210b0a8df17b119211a555369814f9e783d2f4b9dcf2a0ba67635d33f33",
+      "bytes": 1323
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/query/MaintenanceLedgerJpaRepository.java",
+      "sha256": "4b2ea723c5c76c1b28ab2a0d2b828a9708e926fc5a2f4e34e7f0561bf5be06bc",
+      "bytes": 5450
+    },
+    {
+      "path": "api/src/main/java/com/grash/service/query/MaintenanceLedgerService.java",
+      "sha256": "816823fefdf1b14e0556206e23aa9ab2c9a932b016419009414efcf016fdc1a6",
+      "bytes": 1424
+    },
+    {
+      "path": "api/src/main/resources/application-maintenance-lab.yml",
+      "sha256": "58540e28765d439a83065e7d028a676ffe65c9e5f1158b073f731308d9d9c974",
+      "bytes": 931
+    },
+    {
+      "path": "api/src/main/resources/application.yml",
+      "sha256": "e055be30f0669aa3d018345abf364007bb8947a473dd7b4b83a96daae6f73561",
+      "bytes": 8000
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/2026-11-14-domain-reliability.xml",
+      "sha256": "2e35b5e2d8054c677c6ab05429756e19989dcb63eb8b9b68b9ff28498ebd94b6",
+      "bytes": 2554
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/2026_11_14_00000000003_asset_summary_epoch.xml",
+      "sha256": "631639fb6141867953ed84551c300a9dcdd0889b7bd5ac496ed3b7b665283bca",
+      "bytes": 1076
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/2026_11_14_00000000004_maintenance_query_index.xml",
+      "sha256": "6bab7fb66de5af6fe178c1ace93e4726844904fe14783e886546f8b378a56c23",
+      "bytes": 893
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/2026_11_14_reliable_events.sql",
+      "sha256": "4beb0fe5e340cb9224b9a2585e82bb9da1a560239cfc49c4baa5a1f9bd7483f7",
+      "bytes": 3844
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/2026_11_14_reliable_events.xml",
+      "sha256": "c88a2e106c5c906be3e6e165058c18b6ae112303746ddc717f03e60b4ba8db1c",
+      "bytes": 540
+    },
+    {
+      "path": "api/src/main/resources/db/changelog/sql/asset_summary_epoch.sql",
+      "sha256": "7d87554abcd99c066324fdd23e61f20787f97c84cac55b45d1bd8d4fc24d7212",
+      "bytes": 3246
+    },
+    {
+      "path": "api/src/main/resources/db/master.xml",
+      "sha256": "c1969c5d79e4720828007f47654b059481ae979f830902d933e324bff9a4b0b0",
+      "bytes": 15136
+    },
+    {
+      "path": "api/src/main/resources/mybatis/query/MaintenanceLedgerMapper.xml",
+      "sha256": "70e9becd8f5e14ae99cac3f72773f78e85e4cf8e3bbafbfbe90291e935046a95",
+      "bytes": 2923
+    },
+    {
+      "path": "api/src/main/resources/redis/query-compare-delete.lua",
+      "sha256": "70fd032dd9e1dfb69b6e489e442f30f5bdcce5454f1459709d6c9200478e0098",
+      "bytes": 97
+    },
+    {
+      "path": "api/src/test/java/com/grash/cache/AssetOverviewCacheTest.java",
+      "sha256": "ee6a94e023bffe69b8098bb35949e820e934157384ff3c9b19c79e4f6e600bdd",
+      "bytes": 3859
+    },
+    {
+      "path": "api/src/test/java/com/grash/controller/AbstractControllerTest.java",
+      "sha256": "2259266d4a904c981652ea0fd1692be331eb6ca5e0418d9b244aff1f7b86313d",
+      "bytes": 1219
+    },
+    {
+      "path": "api/src/test/java/com/grash/controller/InventoryFreshActorControllerTest.java",
+      "sha256": "c47012ddcc399194523f6bd5a09310f66c566e886cabe57986c5655976f24aa3",
+      "bytes": 2408
+    },
+    {
+      "path": "api/src/test/java/com/grash/controller/MaintenanceQueryControllerTest.java",
+      "sha256": "8f13c2e94ff5be5800faef073b88bbd94b8beabb9b5622a2846e7f4de649dcb9",
+      "bytes": 3640
+    },
+    {
+      "path": "api/src/test/java/com/grash/controller/PartControllerTest.java",
+      "sha256": "1552300c7f6636fe2f0a1129342b4fc1ae7ad43ffee3acb46481df2712cfcf30",
+      "bytes": 16562
+    },
+    {
+      "path": "api/src/test/java/com/grash/event/EventAccessPolicyTest.java",
+      "sha256": "b22bb962a5a6247edb467cf2b9c25cc7e399531c7f4e7a1e84a4c785980e64ab",
+      "bytes": 3714
+    },
+    {
+      "path": "api/src/test/java/com/grash/event/EventDeliverySenderTest.java",
+      "sha256": "9eca2f4d28e7e689a2c31803e7fa2a71fff15a5bed4a8b2156ff4e62b14f05bc",
+      "bytes": 4404
+    },
+    {
+      "path": "api/src/test/java/com/grash/event/ReliableEventsPostgresIntegrationTest.java",
+      "sha256": "84c3805f5c61d5042f8ae547e575e5c6e923ce53a58f843a046f2757c12880cb",
+      "bytes": 20487
+    },
+    {
+      "path": "api/src/test/java/com/grash/event/WorkOrderEventListenerTest.java",
+      "sha256": "5d05e6ff7594bd5680da1020fd4e400c8cea5ea491cdcefab273bfe423568a0b",
+      "bytes": 3622
+    },
+    {
+      "path": "api/src/test/java/com/grash/integration/DomainReliabilityIntegrationTest.java",
+      "sha256": "14d6cd6a5cead674c45b33d57ab4c7220402c56e15ba476f2e3416ffa0c70364",
+      "bytes": 20187
+    },
+    {
+      "path": "api/src/test/java/com/grash/integration/MaintenanceJpaIntegrationTest.java",
+      "sha256": "2f64cf52ff5a00454def454f4258261007952b72a73af91912c8618723e75535",
+      "bytes": 25897
+    },
+    {
+      "path": "api/src/test/java/com/grash/integration/query/QueryInfrastructureIntegrationTest.java",
+      "sha256": "da0a180fa9e1191c9ba785a3a4e3e50d9bb74911646854e9dec2f7f4335bc3e7",
+      "bytes": 16994
+    },
+    {
+      "path": "api/src/test/java/com/grash/security/FreshMaintenanceActorTest.java",
+      "sha256": "81ceeb227b2e6f34c3d0a2fe4ae1de525b6b266b5fd2f77d83fd1f157229d19a",
+      "bytes": 2952
+    },
+    {
+      "path": "api/src/test/java/com/grash/security/QueryAccessPolicyTest.java",
+      "sha256": "004c3c098c0b65d75621547dce187c71aba1e9e6ab7919cfaf7528f3cce892a3",
+      "bytes": 4550
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/InventoryCommandServiceTest.java",
+      "sha256": "1f7a1a06934f590efd30ce2cc553c53cd9a9cc395623ebb88060c3d8001cc63a",
+      "bytes": 3300
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/MeterEpisodeRulesTest.java",
+      "sha256": "a83cacab8f174f03a704d9cb97a867d33a51b3d8603611e2a56f5e97fe5dd7bd",
+      "bytes": 2035
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/PartServiceTest.java",
+      "sha256": "0f55df2f8aa99799c819487f3682b40d1350299e55f2b59cdaa4a4b2aa633cae",
+      "bytes": 47325
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/RefreshTokenTransactionIntegrationTest.java",
+      "sha256": "42a8afc5e25ef8f1c7ef6537ccc1bb5c4711249d3d3ad882afa848c2ff78b14e",
+      "bytes": 8121
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/WorkOrderServiceTest.java",
+      "sha256": "a3c1eba075041997a4fd44555cc87dce9b8231cbf05fe5a9e771862c883cc3a1",
+      "bytes": 182478
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/query/OverviewQueryTest.java",
+      "sha256": "9ddbbba601bd5db927e9e9427cb525573917adc0c7591669b7d72b7323628864",
+      "bytes": 1735
+    },
+    {
+      "path": "api/src/test/java/com/grash/service/query/QueryServicesTest.java",
+      "sha256": "ef5e4fbe4e8b6f9f9665e6ddbac0061172c5974c5d80be5bf2e8401de64921e2",
+      "bytes": 3676
+    },
+    {
+      "path": "api/src/test/java/queryfixture/Marker.java",
+      "sha256": "d550ba7e5e55f0ed99139dd603a560570942a18da3b6941e00c363d19d939bab",
+      "bytes": 179
+    },
+    {
+      "path": "compose.enhancement-test.yml",
+      "sha256": "11f5640621b16e3c36e46001f8f81ba167e32dafc08d28b046d748696f7507ff",
+      "bytes": 1235
+    },
+    {
+      "path": "docs/audit-evidence/query-plan-benchmark.json",
+      "sha256": "70ba03c72210f81cd7feac6a3b98db456df930f12c41a879f8e6ab9801a3178b",
+      "bytes": 27069
+    },
+    {
+      "path": "docs/java-backend-enhancement-audit.md",
+      "sha256": "30cfc1f9ab7e68f5ad50d08e3097bba06cea30059240c4c5990fc2036577ca04",
+      "bytes": 80627
+    },
+    {
+      "path": "docs/java-campus-stack-enhancement-plan.md",
+      "sha256": "a61079c7b7768cbd8a88da5c57709273cc5d65fec02d8a5ae934b1fcd2d43c66",
+      "bytes": 91278
+    },
+    {
+      "path": "docs/maintenance-domain-reliability.md",
+      "sha256": "302c3da231fd47fe3c49d24816f51d23205e81fb12eb71e27d31cad226c709e1",
+      "bytes": 17253
+    },
+    {
+      "path": "docs/maintenance-enhancement-implementation.md",
+      "sha256": "1a11ca6df868d0b482d3a60c76b785288a1284b5735b15613a98e92f1a6a2776",
+      "bytes": 19976
+    },
+    {
+      "path": "docs/maintenance-query-api.md",
+      "sha256": "4f12f9f974104778b1761b2152dd949b39e5e7eab672486d49db6bb2d863cbc9",
+      "bytes": 9404
+    },
+    {
+      "path": "docs/query-api-contract.md",
+      "sha256": "94a22be301901fab1cbe3cecc7f11cb102fb49ad42f0502b0ac86053af3c4b8c",
+      "bytes": 180
+    },
+    {
+      "path": "docs/reliable-events-implementation.md",
+      "sha256": "468bc628ac09a844fc37a41588c2ae304810a7d7675205644057aa56b2ca6671",
+      "bytes": 8335
+    },
+    {
+      "path": "frontend/src/utils/api.ts",
+      "sha256": "949c28d9d45c803b376d4147546f538d855524128e90c327f2d2abbd2f0d757a",
+      "bytes": 5719
+    },
+    {
+      "path": "frontend/src/utils/idempotentCommand.ts",
+      "sha256": "04f9aa0e6299789f9817d6229d995ff3f140dfa2d033dc194c727eb94990f8a8",
+      "bytes": 1910
+    },
+    {
+      "path": "labs/mysql-maintenance/README.md",
+      "sha256": "f46fe7673dff9040bdeceee3c3224c08308fa3f066789df7906130ee32edae48",
+      "bytes": 809
+    },
+    {
+      "path": "labs/mysql-maintenance/compose.yml",
+      "sha256": "21b7645309551aa642c5b8d5740439eef267edc9c95d49dc95bd485606ece93d",
+      "bytes": 400
+    },
+    {
+      "path": "labs/mysql-maintenance/experiments.sql",
+      "sha256": "fac27d3942b445ea6ddc939b360eb42af44e091f103c49f54d907db613617916",
+      "bytes": 1102
+    },
+    {
+      "path": "labs/mysql-maintenance/schema.sql",
+      "sha256": "b28ae9510a8385ae530e5acbcb6deb34288880a4012d6064742d65de458ce190",
+      "bytes": 769
+    },
+    {
+      "path": "mobile/utils/api.ts",
+      "sha256": "f786ac92f76f16156a46eda9f76bc9123c2b7fb485577f8b9accaae3474b0199",
+      "bytes": 6654
+    },
+    {
+      "path": "mobile/utils/idempotentCommand.ts",
+      "sha256": "04f9aa0e6299789f9817d6229d995ff3f140dfa2d033dc194c727eb94990f8a8",
+      "bytes": 1910
+    },
+    {
+      "path": "perf/asset-overview.js",
+      "sha256": "af6ae4f6c95a77fd0f1f94a1ee16db957e79c56da93544df14ac75d1e070bb9e",
+      "bytes": 1999
+    },
+    {
+      "path": "perf/query_plan_benchmark.py",
+      "sha256": "604297b794c7d39dea441c43a6c434ed439b584e9d5926495c74b32de30f9bdb",
+      "bytes": 3494
+    },
+    {
+      "path": "scripts/start-maintenance-lab.ps1",
+      "sha256": "58a1ee0b9bb956409ac2df4db3923474b902a96ab3e97f1633632da33bbc5db4",
+      "bytes": 2993
+    },
+    {
+      "path": "scripts/stop-maintenance-lab.ps1",
+      "sha256": "90d6b0c65acf9cffe50ecfae7c7c0cbf79e56415da00dc9805e7494fb5ad205b",
+      "bytes": 895
+    },
+    {
+      "path": "scripts/test-maintenance-client.cjs",
+      "sha256": "4ccebb03d5b4e9e54401e29109632ad9439443772a2873a2032cef5f4e7eefe1",
+      "bytes": 4105
+    },
+    {
+      "path": "scripts/test-maintenance.ps1",
+      "sha256": "52bea7c7c604b6354de492305c860a12fbc83e51b8467e60a623250696063b6a",
+      "bytes": 1469
+    }
+  ]
+}

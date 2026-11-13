@@ -51,6 +51,7 @@ class PartServiceTest {
     @InjectMocks
     private PartService partService;
 
+    @Mock private com.grash.event.ReliableEventService reliableEventService;
     @Mock
     private PartRepository partRepository;
     @Mock
@@ -694,42 +695,29 @@ class PartServiceTest {
         }
 
         @Test
-        void consumeZero_deletesLatestTransaction() {
-            Part part = buildPart(1L);
-            part.setQuantity(10);
-            WorkOrder wo = buildWorkOrder();
-            PartTransaction transaction = new PartTransaction(part, wo, 2);
-            transaction.setId(3L);
-            transaction.setCreatedAt(new Date(0L));
-            when(partRepository.findById(1L)).thenReturn(Optional.of(part));
-            when(partTransactionService.findByWorkOrderAndPart(10L, 1L))
-                    .thenReturn(Collections.singletonList(transaction));
-
-            partService.consumePart(1L, 0, wo, Locale.ENGLISH, false);
-
-            verify(partTransactionService).delete(3L);
-            verify(partRepository, never()).save(any());
+        void consumeZero_hasNoPersistenceOrNotificationSideEffects() {
+            partService.consumePart(1L,0,buildWorkOrder(),Locale.ENGLISH,false);
+            verifyNoInteractions(partRepository,partTransactionService,notificationService,webhookDispatchService);
         }
 
         @Test
-        void consumeNegativeWithoutDelete_increasesTransactionQuantity() {
-            Part part = buildPart(1L);
-            part.setQuantity(10);
-            WorkOrder wo = buildWorkOrder();
-            PartTransaction transaction = new PartTransaction(part, wo, 2);
-            transaction.setId(3L);
-            transaction.setCreatedAt(new Date(0L));
+        void consumeNegative_appendsReturnAndPreservesOldAudit() {
+            Part part = buildPart(1L); part.setQuantity(10);
             when(partRepository.findById(1L)).thenReturn(Optional.of(part));
-            when(partTransactionService.findByWorkOrderAndPart(10L, 1L))
-                    .thenReturn(Collections.singletonList(transaction));
             when(partRepository.save(part)).thenReturn(part);
             stubShowDto();
+            partService.consumePart(1L,-1,buildWorkOrder(),Locale.ENGLISH,false);
+            assertEquals(11,part.getQuantity());
+            verify(partTransactionService).create(argThat(t -> t.getQuantity() == -1));
+            verify(partTransactionService,never()).delete(anyLong());
+            verify(partTransactionService,never()).save(any());
+        }
 
-            partService.consumePart(1L, -1, wo, Locale.ENGLISH, false);
-
-            assertEquals(1, transaction.getQuantity());
-            verify(partTransactionService).save(transaction);
-            verify(partTransactionService, never()).delete(anyLong());
+        @Test
+        void nonFiniteDelta_rejectedBeforePersistence() {
+            assertThrows(CustomException.class, () -> partService.consumePart(1L,Double.NaN,buildWorkOrder(),Locale.ENGLISH,false));
+            assertThrows(CustomException.class, () -> partService.consumePart(1L,Double.POSITIVE_INFINITY,buildWorkOrder(),Locale.ENGLISH,false));
+            verifyNoInteractions(partRepository,partTransactionService);
         }
     }
 
@@ -1183,5 +1171,17 @@ class PartServiceTest {
             t.setId(id);
             return t;
         }
+    }
+
+    @Test void reliableConsumptionEnqueuesInTransactionAndDoesNotCallLegacyChannels() {
+        Part value=new Part();value.setId(900L);value.setQuantity(8);value.setMinQuantity(10);
+        Company tenant=new Company();tenant.setId(1L);value.setCompany(tenant);
+        WorkOrder order=new WorkOrder();order.setCompany(tenant);
+        when(partRepository.findById(900L)).thenReturn(Optional.of(value));
+        when(reliableEventService.isEnabled()).thenReturn(true);
+        partService.consumePart(900L,2,order,Locale.ENGLISH,false);
+        assertEquals(6,value.getQuantity());
+        verify(reliableEventService).partQuantityChanged(eq(value),eq(8d),eq(6d),eq(order),any());
+        verifyNoInteractions(notificationService,mailServiceFactory,webhookDispatchService);
     }
 }

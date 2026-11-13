@@ -80,7 +80,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
         ReflectionTestUtils.setField(handler, "cloudVersion", false);
         ReflectionTestUtils.setField(handler, "passwordEncoder", passwordEncoder);
         ReflectionTestUtils.setField(handler, "brandingService", brandingService);
-        lenient().when(refreshTokenService.createRefreshToken(any(User.class))).thenReturn("refresh-token");
+
     }
 
     private User createUser(String email, String ssoProvider, String ssoProviderId) {
@@ -132,7 +132,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             stubOAuthFlow("google", Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "123"));
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(createUser(email, null, null)));
-            when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
 
             String result = handler.determineTargetUrl(request, response, authToken);
 
@@ -150,7 +150,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
-            when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
 
             handler.determineTargetUrl(request, response, authToken);
 
@@ -168,7 +168,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             stubOAuthFlow("google", attrs);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
-            when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
 
             handler.determineTargetUrl(request, response, authToken);
 
@@ -187,7 +187,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
-            when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
 
             handler.determineTargetUrl(request, response, authToken);
 
@@ -259,7 +259,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
             when(userRepository.findBySSOCompany(emailDomain)).thenReturn(List.of());
             lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-            lenient().when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
+            lenient().when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
         }
 
@@ -339,7 +339,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             String msDomain = "outlook.com";
             when(userRepository.findBySSOCompany(msDomain)).thenReturn(List.of());
             lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-            lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
+            lenient().when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
             stubCreateCompany();
 
@@ -367,7 +367,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             String msDomain = "outlook.com";
             when(userRepository.findBySSOCompany(msDomain)).thenReturn(List.of());
             lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-            lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
+            lenient().when(refreshTokenService.createTokenPair(any(User.class))).thenReturn(new com.grash.dto.AuthTokens("jwt-token", "refresh-token", new java.util.Date()));
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
             stubCreateCompany();
 

@@ -13,6 +13,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootTest
+@org.springframework.test.context.ActiveProfiles("test")
 @ResourceLock("cmms-test-db")
 public abstract class AbstractTestContainer {
     private static volatile PostgreSQLContainer<?> postgresqlContainer;
@@ -43,6 +44,7 @@ public abstract class AbstractTestContainer {
 
     @BeforeAll
     protected static synchronized void startContainer() {
+        if (IsolatedTestDatabase.configured()) return;
         PostgreSQLContainer<?> container = getPostgresqlContainer();
         if (!container.isRunning()) {
             container.start();
@@ -51,6 +53,10 @@ public abstract class AbstractTestContainer {
 
     @DynamicPropertySource
     public static void overrideProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
+        if (IsolatedTestDatabase.configured()) {
+            IsolatedTestDatabase.configure(dynamicPropertyRegistry, "legacy");
+            return;
+        }
         PostgreSQLContainer<?> container = getPostgresqlContainer();
         dynamicPropertyRegistry.add("spring.datasource.url", container::getJdbcUrl);
         dynamicPropertyRegistry.add("spring.datasource.username", container::getUsername);

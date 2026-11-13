@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.grash.readmodel.mapper.MaintenanceLedgerMapper">
+ <resultMap id="row" type="com.grash.dto.query.MaintenanceLedgerRow">
+  <id column="id" property="id"/>
+  <result column="custom_id" property="customId"/><result column="title" property="title"/>
+  <result column="asset_id" property="assetId"/><result column="asset_name" property="assetName"/>
+  <result column="status" property="status" typeHandler="com.grash.readmodel.typehandler.StatusCodeTypeHandler"/>
+  <result column="priority" property="priority" typeHandler="com.grash.readmodel.typehandler.PriorityCodeTypeHandler"/>
+  <result column="created_at" property="createdAt" typeHandler="com.grash.readmodel.typehandler.UtcInstantTypeHandler"/>
+  <result column="completed_on" property="completedOn" typeHandler="com.grash.readmodel.typehandler.UtcInstantTypeHandler"/>
+  <result column="archived" property="archived"/><result column="is_demo" property="demo"/>
+  <result column="cycle_seconds" property="cycleSeconds"/>
+  <result column="meter_triggered" property="meterTriggered"/>
+ </resultMap>
+ <sql id="where">
+  WHERE w.company_id=#{company}
+   AND w.created_at &gt;=CAST(#{q.startUtc} AS timestamp) AND w.created_at &lt;CAST(#{q.endUtc} AS timestamp)
+   <if test="!q.includeArchived">AND w.archived=false</if>
+   <if test="!q.includeDemo">AND COALESCE(w.is_demo,false)=false</if>
+   <if test="q.assetId != null">AND w.asset_id=#{q.assetId}</if>
+   <if test="q.status != null">AND w.status=#{q.statusCode}</if>
+   <if test="q.priority != null">AND w.priority=#{q.priorityCode}</if>
+   <if test="q.meterTriggered != null">
+    <choose><when test="q.meterTriggered">AND EXISTS</when><otherwise>AND NOT EXISTS</otherwise></choose>
+    (SELECT 1 FROM meter_trigger_execution me WHERE me.work_order_id=w.id AND me.company_id=w.company_id)
+   </if> </sql>
+ <select id="selectPage" resultMap="row">
+  SELECT w.id,w.custom_id,w.title,a.id AS asset_id,a.name AS asset_name,w.status,w.priority,
+   w.created_at,w.completed_on,w.archived,COALESCE(w.is_demo,false) AS is_demo,
+   CASE WHEN w.status=3 AND w.completed_on IS NOT NULL AND w.completed_on&gt;=w.created_at
+    THEN EXTRACT(EPOCH FROM (w.completed_on-w.created_at)) END AS cycle_seconds,
+   EXISTS(SELECT 1 FROM meter_trigger_execution me WHERE me.work_order_id=w.id AND me.company_id=w.company_id) AS meter_triggered
+  FROM work_order w LEFT JOIN asset a ON a.id=w.asset_id AND a.company_id=w.company_id
+  <include refid="where"/>
+  <choose>
+   <when test="q.sort.name() == 'CREATED_ASC'">ORDER BY w.created_at ASC,w.id ASC</when>
+   <otherwise>ORDER BY w.created_at DESC,w.id DESC</otherwise>
+  </choose>
+ </select>
+ <select id="count" resultType="long">
+  SELECT count(*) FROM work_order w
+  <include refid="where"/>
+ </select>
+</mapper>

@@ -32,11 +32,11 @@ class LdapSyncJobTest {
     }
 
     @Test
-    void execute_whenSyncFails_swallowsException() {
+    void execute_whenSyncFails_reportsFailureToQuartz() {
         doThrow(new RuntimeException("LDAP down")).when(ldapService).syncLdapUsers();
         JobExecutionContext context = mock(JobExecutionContext.class);
 
-        assertDoesNotThrow(() -> ldapSyncJob.execute(context));
+        org.junit.jupiter.api.Assertions.assertThrows(org.quartz.JobExecutionException.class,() -> ldapSyncJob.execute(context));
 
         verify(ldapService).syncLdapUsers();
     }

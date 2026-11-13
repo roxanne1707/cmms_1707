@@ -71,6 +71,14 @@ public class WorkOrder extends WorkOrderBase {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Request parentRequest;
 
+    /** All reports resolved by this repair; the original parentRequest remains its provenance. */
+    @OneToMany(mappedBy = "workOrder", fetch = FetchType.LAZY)
+    @JsonIgnore
+    @NotAudited
+    @lombok.ToString.Exclude
+    @lombok.EqualsAndHashCode.Exclude
+    private List<Request> linkedRequests = new ArrayList<>();
+
     @Schema(description = "Feedback provided upon work order completion")
     private String feedback;
 
@@ -93,7 +101,8 @@ public class WorkOrder extends WorkOrderBase {
 
     @JsonIgnore
     public boolean isCompliant() {
-        return this.getDueDate() == null || this.getCompletedOn().before(this.getDueDate());
+        if (getCompletedOn() == null || getRealCreatedAt() == null || getCompletedOn().before(getRealCreatedAt())) return false;
+        return getDueDate() == null || !getCompletedOn().after(getDueDate());
     }
 
     @JsonIgnore
@@ -127,20 +136,29 @@ public class WorkOrder extends WorkOrderBase {
     //in days
     @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream()
-                .filter(workOrder -> workOrder.getCompletedOn() != null).map(workOrder ->
-                        Helper.getDateDiff(workOrder.getParentRequest() == null ? workOrder.getCreatedAt() :
-                                workOrder.getParentRequest().getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS))
-                .collect(Collectors.toList());
-        return completionTimes.isEmpty() ? 0 :
-                completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
+        double averageMillis = completeWorkOrders.stream()
+                .filter(order -> order.getCompletedOn() != null && order.getRealCreatedAt() != null)
+                .filter(order -> !order.getCompletedOn().before(order.getRealCreatedAt()))
+                .mapToLong(order -> order.getCompletedOn().getTime() - order.getRealCreatedAt().getTime())
+                .average().orElse(0);
+        return (long) (averageMillis / TimeUnit.DAYS.toMillis(1));
     }
 
     public boolean canBeViewedBy(User user) {
+        if (user == null || getCompany() == null || user.getCompany() == null) return false;
+        if (!Objects.equals(getCompany().getId(), user.getCompany().getId())) {
+            // A linked enterprise is evaluated using its child account, never the parent role.
+            return user.getSuperAccountRelations().stream().map(SuperAccountRelation::getChildUser)
+                    .filter(child -> child != null && child.isEnabled() && child.isEnabledInSubscription())
+                    .filter(child -> child.getCompany() != null && Objects.equals(child.getCompany().getId(), getCompany().getId()))
+                    .anyMatch(this::canBeViewedBy);
+        }
         return (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)))
-                || getParentRequest() != null && user.getId().equals(getParentRequest().getCreatedBy())
-                ;
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
+                        || Objects.equals(getCreatedBy(), user.getId()) || isAssignedTo(user)))
+                || getParentRequest() != null && Objects.equals(user.getId(), getParentRequest().getCreatedBy())
+                || linkedRequests.stream().anyMatch(request -> request.getCompany() != null
+                        && Objects.equals(request.getCompany().getId(), getCompany().getId())
+                        && Objects.equals(request.getCreatedBy(), user.getId()));
     }
 }
-

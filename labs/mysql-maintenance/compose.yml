@@ -1,0 +1,15 @@
+name: cmms-mysql-lab
+services:
+  mysql:
+    image: mysql:8.4.7
+    environment:
+      MYSQL_DATABASE: maintenance_lab
+      MYSQL_USER: lab
+      MYSQL_PASSWORD: lab_only_password
+      MYSQL_ROOT_PASSWORD: lab_root_only_password
+    ports: ["127.0.0.1:23306:3306"]
+    volumes:
+      - mysql-lab:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+volumes:
+  mysql-lab:

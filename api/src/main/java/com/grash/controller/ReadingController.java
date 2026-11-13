@@ -52,8 +52,9 @@ public class ReadingController {
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     Reading create(@Parameter(description = "Reading data to create") @Valid @RequestBody Reading readingReq,
-                   @Parameter(hidden = true) @CurrentUser User user) {
-        return readingService.create(readingReq, user);
+                   @Parameter(hidden = true) @CurrentUser User user,
+                   @RequestHeader(value = "Idempotency-Key", required = false) String commandKey) {
+        return readingService.create(readingReq, user, commandKey);
     }
 
     @PatchMapping("/{id}")

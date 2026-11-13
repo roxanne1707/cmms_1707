@@ -1,0 +1,79 @@
+name: Maintenance enhancement verification
+on:
+  pull_request:
+    paths: ['api/**', 'scripts/**', 'frontend/**', 'mobile/utils/**', '.github/workflows/maintenance-tests.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    services:
+      postgres:
+        image: postgres:16.16-alpine
+        env:
+          POSTGRES_DB: cmms_enhancement_test
+          POSTGRES_USER: cmms_test
+          POSTGRES_PASSWORD: cmms_test_local
+        ports: ['25432:5432']
+        options: >-
+          --health-cmd "pg_isready -U cmms_test -d cmms_enhancement_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8.4.0-alpine
+        ports: ['26379:6379']
+      rabbitmq:
+        image: rabbitmq:4.4.0-alpine
+        env:
+          RABBITMQ_DEFAULT_USER: cmms_test
+          RABBITMQ_DEFAULT_PASS: cmms_test_local
+        ports: ['25672:5672']
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 5s --health-timeout 5s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          cache-dependency-path: api/pom.xml
+      - name: Initialize shared test-only PostgreSQL extension
+        run: psql -h 127.0.0.1 -p 25432 -U cmms_test -d cmms_enhancement_test -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;'
+        env:
+          PGPASSWORD: cmms_test_local
+      - name: Full backend regression against isolated services
+        shell: pwsh
+        run: ./scripts/test-maintenance.ps1
+      - name: Save test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintenance-test-reports
+          path: api/target/surefire-reports/
+
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --legacy-peer-deps
+      - run: node ../scripts/test-maintenance-client.cjs
+      - run: node ../scripts/test-session-socket.cjs
+      - run: npx tsc --noEmit --incremental false
+      - run: npm run build
+        env:
+          CI: 'false'
+          GENERATE_SOURCEMAP: 'false'
+          NODE_OPTIONS: --max-old-space-size=4096
+          REACT_APP_API_URL: http://127.0.0.1:28089/

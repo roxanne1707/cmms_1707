@@ -1,0 +1,57 @@
+{
+  "recordedAt": "2026-11-13T21:08:43.406Z",
+  "checks": [
+    {
+      "name": "概览真实接口与四项指标",
+      "status": "PASS",
+      "detail": "company152/asset152: total20 complete5 rate25%; UTC request"
+    },
+    {
+      "name": "设备名称检索、切换与旧结果隐藏",
+      "status": "PASS",
+      "detail": "authorized assets/search; second asset153 total10"
+    },
+    {
+      "name": "非法区间本地拦截",
+      "status": "PASS",
+      "detail": "no query POST for end before start"
+    },
+    {
+      "name": "503 故障提示、清除旧指标与恢复",
+      "status": "PASS",
+      "detail": "503 response deliberately injected in browser; recovery uses real API"
+    },
+    {
+      "name": "台账菜单、真实分页与总数",
+      "status": "PASS",
+      "detail": "30 total; first25, second5; server page=1"
+    },
+    {
+      "name": "状态筛选会回到第一页",
+      "status": "PASS",
+      "detail": "COMPLETE real query total7 and page0"
+    },
+    {
+      "name": "无匹配维修记录的空状态",
+      "status": "PASS",
+      "detail": "meterTriggered=true has no fabricated data"
+    },
+    {
+      "name": "普通账号界面及后端权限",
+      "status": "PASS",
+      "detail": "VIEW_ONLY has no recovery menu/actions; real endpoint403"
+    },
+    {
+      "name": "390px 手机布局与分页",
+      "status": "PASS",
+      "detail": "three pages have no document-wide overflow; ledger next page works"
+    },
+    {
+      "name": "页面身份、非空及运行时错误",
+      "status": "PASS",
+      "detail": "titles/headings verified; no framework overlay; no pageerror"
+    }
+  ],
+  "pageErrors": [],
+  "result": "PASS"
+}

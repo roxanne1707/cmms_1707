@@ -14,6 +14,11 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.repository.ScheduleRepository;
 import com.grash.service.MailService;
 import com.grash.service.ScheduleService;
+import com.grash.service.MaintenanceScheduleExecutor;
+import com.grash.service.MaintenanceScheduleReceipt;
+import com.grash.event.ReliableEventService;
+import jakarta.persistence.EntityManager;
+import static org.mockito.Mockito.lenient;
 import com.grash.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +57,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class PreventiveMaintenanceNotificationJobTest {
 
+    @Mock private com.grash.service.PreventiveMaintenanceService maintenance;
     @Mock
     private ScheduleRepository scheduleRepository;
     @Mock
@@ -65,7 +71,10 @@ class PreventiveMaintenanceNotificationJobTest {
     @Mock
     private MailService mailService;
 
-    @InjectMocks
+    @Mock private MaintenanceScheduleReceipt receipts;
+    @Mock private ReliableEventService events;
+    @Mock private EntityManager em;
+    @InjectMocks private MaintenanceScheduleExecutor executor;
     private PreventiveMaintenanceNotificationJob preventiveMaintenanceNotificationJob;
 
     private Company company;
@@ -76,7 +85,9 @@ class PreventiveMaintenanceNotificationJobTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(preventiveMaintenanceNotificationJob, "frontendUrl", "http://localhost:3000");
+        preventiveMaintenanceNotificationJob=new PreventiveMaintenanceNotificationJob(executor);
+        lenient().when(receipts.claim(org.mockito.ArgumentMatchers.anyLong(),org.mockito.ArgumentMatchers.anyLong(),org.mockito.ArgumentMatchers.anyString(),org.mockito.ArgumentMatchers.any())).thenReturn(true);
+        ReflectionTestUtils.setField(executor, "frontendUrl", "http://localhost:3000");
 
         CompanySettings companySettings = new CompanySettings();
         companySettings.setId(1L);
@@ -113,6 +124,7 @@ class PreventiveMaintenanceNotificationJobTest {
         jobDataMap.put("scheduleId", scheduleId);
         JobExecutionContext context = mock(JobExecutionContext.class);
         when(context.getMergedJobDataMap()).thenReturn(jobDataMap);
+        when(context.getScheduledFireTime()).thenReturn(java.util.Date.from(java.time.Instant.parse("2026-11-14T08:00:00Z")));
         return context;
     }
 
@@ -160,7 +172,7 @@ class PreventiveMaintenanceNotificationJobTest {
     @Test
     void weeklyShouldNotRun_returnsWithoutSendingMail() {
         when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
-        when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(false);
+        when(scheduleService.checkIfWeeklyShouldRun(eq(schedule),org.mockito.ArgumentMatchers.any(java.util.Date.class))).thenReturn(false);
 
         assertDoesNotThrow(() -> preventiveMaintenanceNotificationJob.executeInternal(contextWithScheduleId(1L)));
 
@@ -173,7 +185,7 @@ class PreventiveMaintenanceNotificationJobTest {
         User adminOnly = buildUser(2L, adminRole, true, true);
         preventiveMaintenance.setAssignedTo(new ArrayList<>(List.of(pmUser)));
         when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
-        when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(true);
+        when(scheduleService.checkIfWeeklyShouldRun(eq(schedule),org.mockito.ArgumentMatchers.any(java.util.Date.class))).thenReturn(true);
         when(userService.findWorkersByCompany(1L)).thenReturn(List.of(pmUser, adminOnly));
         stubMailDefaults();
 
@@ -192,7 +204,7 @@ class PreventiveMaintenanceNotificationJobTest {
         User eligible = buildUser(3L, workerRole, true, true);
         preventiveMaintenance.setAssignedTo(new ArrayList<>(List.of(optedOut, disabled, eligible)));
         when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
-        when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(true);
+        when(scheduleService.checkIfWeeklyShouldRun(eq(schedule),org.mockito.ArgumentMatchers.any(java.util.Date.class))).thenReturn(true);
         when(userService.findWorkersByCompany(1L)).thenReturn(Collections.emptyList());
         stubMailDefaults();
 
@@ -210,7 +222,7 @@ class PreventiveMaintenanceNotificationJobTest {
         User eligible = buildUser(1L, workerRole, true, true);
         preventiveMaintenance.setAssignedTo(new ArrayList<>(List.of(eligible)));
         when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
-        when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(true);
+        when(scheduleService.checkIfWeeklyShouldRun(eq(schedule),org.mockito.ArgumentMatchers.any(java.util.Date.class))).thenReturn(true);
         when(userService.findWorkersByCompany(1L)).thenReturn(Collections.emptyList());
         stubMailDefaults();
 
@@ -219,7 +231,7 @@ class PreventiveMaintenanceNotificationJobTest {
         ArgumentCaptor<Map<String, Object>> variablesCaptor = ArgumentCaptor.forClass(Map.class);
         verify(mailService).sendMessageUsingThymeleafTemplate(
                 any(String[].class), eq("Upcoming WO"), variablesCaptor.capture(), eq("coming-work-order.html"),
-                eq(Locale.getDefault()));
+                eq(Locale.ENGLISH));
         assertEquals("http://localhost:3000/app/preventive-maintenances/1",
                 variablesCaptor.getValue().get("pmLink"));
         assertEquals("Engine Check", variablesCaptor.getValue().get("pmTitle"));

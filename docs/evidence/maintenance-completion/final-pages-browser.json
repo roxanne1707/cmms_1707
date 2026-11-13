@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "SPA navigation, heading and title: sessions",
+    "SPA navigation, heading and title: sla",
+    "SPA navigation, heading and title: requests",
+    "SPA navigation, heading and title: overview",
+    "SPA navigation, heading and title: ledger",
+    "SPA navigation, heading and title: recovery",
+    "Mobile header fits and no document overflow: sessions",
+    "Mobile header fits and no document overflow: sla",
+    "Mobile header fits and no document overflow: requests",
+    "Mobile header fits and no document overflow: overview",
+    "Mobile header fits and no document overflow: ledger",
+    "Mobile header fits and no document overflow: recovery"
+  ],
+  "pageErrors": [],
+  "recordedAtUtc": "2026-11-13T21:34:53.761Z",
+  "result": "PASS"
+}

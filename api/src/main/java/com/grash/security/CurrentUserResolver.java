@@ -20,6 +20,10 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     private UserService userService;
 
     @Autowired
+    @Lazy
+    private FreshMaintenanceActor freshMaintenanceActor;
+
+    @Autowired
     public void setDeps(@Lazy UserService userService
     ) {
         this.userService = userService;
@@ -34,6 +38,11 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     public User resolveArgument(@NotNull MethodParameter parameter, ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) throws Exception {
-        return userService.whoami(webRequest.getNativeRequest(HttpServletRequest.class));
+        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        User identity = userService.whoami(request);
+        if (request != null && FreshMaintenanceActor.applies(request.getMethod(), request.getRequestURI())) {
+            return freshMaintenanceActor.load(identity);
+        }
+        return identity;
     }
 }

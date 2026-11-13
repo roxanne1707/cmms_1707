@@ -12,6 +12,9 @@ public class WorkOrderMeterTriggerShowDTO extends WorkOrderBaseShowDTO {
     @Schema(description = "Indicates if the trigger is recurrent")
     private boolean recurrent;
 
+    @Schema(description = "Explicit policy: PER_EPISODE opens again only after recovery; ONCE opens once for this trigger")
+    private com.grash.model.enums.MeterEpisodePolicy episodePolicy;
+
     @Schema(description = "Name of the meter trigger")
     private String name;
 

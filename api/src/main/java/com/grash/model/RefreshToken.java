@@ -42,4 +42,8 @@ public class RefreshToken {
 
     @Schema(description = "Hash of the token that replaced this one after rotation", accessMode = Schema.AccessMode.READ_ONLY)
     private String replacedByTokenHash;
+
+    @Column(name = "session_id")
+    @Schema(description = "Stable login family, preserved across token rotation", accessMode = Schema.AccessMode.READ_ONLY)
+    private java.util.UUID sessionId;
 }

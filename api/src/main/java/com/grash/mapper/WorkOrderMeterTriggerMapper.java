@@ -11,6 +11,7 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring", uses = {PartMapper.class, UserMapper.class, FileMapper.class,
         CustomFieldValueMapper.class})
 public interface WorkOrderMeterTriggerMapper {
+    @org.mapstruct.Mapping(target = "episodePolicy", nullValuePropertyMappingStrategy = org.mapstruct.NullValuePropertyMappingStrategy.IGNORE)
     WorkOrderMeterTrigger updateWorkOrderMeterTrigger(@MappingTarget WorkOrderMeterTrigger entity,
                                                       WorkOrderMeterTriggerPatchDTO dto);
 

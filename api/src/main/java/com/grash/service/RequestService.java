@@ -357,7 +357,7 @@ public class RequestService {
 
     @Transactional
     public Request patch(Long id, RequestPatchDTO request, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
+        Optional<Request> optionalRequest = lockRequest(id, user);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
@@ -371,7 +371,7 @@ public class RequestService {
 
     @Transactional
     public WorkOrder approve(Long id, RequestApproveDTO requestApproveDTO, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
+        Optional<Request> optionalRequest = lockRequest(id, user);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
@@ -380,6 +380,8 @@ public class RequestService {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
+            if (savedRequest.isCancelled())
+                throw new CustomException("A cancelled request cannot be approved", HttpStatus.CONFLICT);
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
                             user.getCompany().getId());
@@ -435,7 +437,7 @@ public class RequestService {
 
     @Transactional
     public Request cancel(Long id, String reason, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
+        Optional<Request> optionalRequest = lockRequest(id, user);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
@@ -446,7 +448,12 @@ public class RequestService {
             }
             if (reason == null || reason.trim().isEmpty())
                 throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
-            savedRequest.setCancellationReason(reason);
+            String normalizedReason = reason.trim();
+            if (savedRequest.isCancelled()) {
+                if (Objects.equals(savedRequest.getCancellationReason(), normalizedReason)) return savedRequest;
+                throw new CustomException("Request was already cancelled with a different reason", HttpStatus.CONFLICT);
+            }
+            savedRequest.setCancellationReason(normalizedReason);
             savedRequest.setCancelled(true);
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED,
@@ -496,14 +503,29 @@ public class RequestService {
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
 
+    @Transactional
     public void deleteByIdAndUser(Long id, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
+        Optional<Request> optionalRequest = lockRequest(id, user);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.canBeDeletedBy(user)) {
                 delete(id);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    private Optional<Request> lockRequest(Long id, User user) {
+        // Preserve changes from earlier commands in the same transaction before refreshing.
+        em.flush();
+        Optional<Request> value = requestRepository.findById(id);
+        value.ifPresent(request -> {
+            em.lock(request, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+            em.refresh(request);
+            if (user == null || user.getCompany() == null || request.getCompany() == null
+                    || !Objects.equals(user.getCompany().getId(), request.getCompany().getId()))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        });
+        return value;
     }
 
     private void onRequestCreation(Request createdRequest, Company company, String requesterName) {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+ <changeSet id="2026_11_14_maintenance_query_index" author="cmms-enhancement" dbms="postgresql">
+  <preConditions onFail="MARK_RAN"><not><indexExists indexName="idx_work_order_company_asset_created" tableName="work_order"/></not></preConditions>
+  <createIndex tableName="work_order" indexName="idx_work_order_company_asset_created">
+   <column name="company_id"/><column name="asset_id"/><column name="created_at"/><column name="id"/>
+  </createIndex>
+  <rollback><dropIndex tableName="work_order" indexName="idx_work_order_company_asset_created"/></rollback>
+ </changeSet>
+</databaseChangeLog>

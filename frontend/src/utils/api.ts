@@ -1,21 +1,76 @@
+import {
+  clearPendingCommands,
+  isMaintenanceCommand,
+  runIdempotentCommand
+} from './idempotentCommand';
 import { apiUrl } from '../config';
 
-type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
+type Options = RequestInit & {
+  raw?: boolean;
+  headers?: HeadersInit;
+  suppressConflictNotification?: boolean;
+};
 
 const REFRESH_URL = `${apiUrl}auth/refresh`;
 
-let refreshPromise: Promise<boolean> | null = null;
+// The token pair identifies a browser session. Only our own refresh may rotate it
+// in place; a login, account switch or logout creates a different session object.
+// This is a client race guard, not an authorization decision.
+type AuthSession = { accessToken: string | null; refreshToken: string | null };
+type RefreshFlight = { session: AuthSession; promise: Promise<boolean> };
+let observedSession: AuthSession | null = null;
+let refreshFlight: RefreshFlight | null = null;
 
-function clearTokens(): void {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+function captureSession(): AuthSession {
+  const accessToken = localStorage.getItem('accessToken');
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (
+    !observedSession ||
+    observedSession.accessToken !== accessToken ||
+    observedSession.refreshToken !== refreshToken
+  ) {
+    if (observedSession) clearPendingCommands();
+    observedSession = { accessToken, refreshToken };
+  }
+  return observedSession;
 }
 
-async function performRefresh(): Promise<boolean> {
-  const refreshToken = localStorage.getItem('refreshToken');
-  if (!refreshToken) {
-    return false;
+/** Opaque client identity is stable only across this helper's own token refresh.
+ * Used to cancel sockets when a login/account switch replaces the browser session. */
+export function getAuthSessionSnapshot(): { identity: object; accessToken: string | null } {
+  const session = captureSession();
+  return { identity: session, accessToken: session.accessToken };
+}
+
+function isCurrentSession(session: AuthSession): boolean {
+  return captureSession() === session;
+}
+
+function assertRequestCurrent(
+  session: AuthSession,
+  signal?: AbortSignal
+): void {
+  if (signal?.aborted) {
+    throw Object.assign(new Error('Request aborted'), { name: 'AbortError' });
   }
+  if (!isCurrentSession(session)) {
+    throw Object.assign(new Error('Authentication session changed'), {
+      status: 401
+    });
+  }
+}
+
+function clearTokens(session: AuthSession): void {
+  // A late failure from a previous account must not sign out the current account.
+  if (!isCurrentSession(session)) return;
+  clearPendingCommands();
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  observedSession = null;
+}
+
+async function performRefresh(session: AuthSession): Promise<boolean> {
+  if (!session.refreshToken || !isCurrentSession(session)) return false;
   try {
     const response = await fetch(REFRESH_URL, {
       method: 'POST',
@@ -23,35 +78,47 @@ async function performRefresh(): Promise<boolean> {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ refreshToken })
+      body: JSON.stringify({ refreshToken: session.refreshToken })
     });
+    if (!isCurrentSession(session)) return false;
     if (!response.ok) {
-      clearTokens();
+      clearTokens(session);
       return false;
     }
     const data = await response.json();
+    // Parsing is asynchronous too: check again immediately before storing tokens.
+    if (!isCurrentSession(session)) return false;
     if (!data?.accessToken) {
-      clearTokens();
+      clearTokens(session);
       return false;
     }
     localStorage.setItem('accessToken', data.accessToken);
-    if (data.refreshToken) {
+    if (data.refreshToken)
       localStorage.setItem('refreshToken', data.refreshToken);
-    }
+    // No await between writing storage and updating the observed pair.
+    session.accessToken = data.accessToken;
+    session.refreshToken = data.refreshToken || session.refreshToken;
     return true;
   } catch {
-    clearTokens();
+    clearTokens(session);
     return false;
   }
 }
 
+function refreshSession(session: AuthSession): Promise<boolean> {
+  if (!isCurrentSession(session)) return Promise.resolve(false);
+  if (refreshFlight?.session === session) return refreshFlight.promise;
+  const flight = { session, promise: null } as RefreshFlight;
+  flight.promise = performRefresh(session).finally(() => {
+    // An older account's completion must not erase a newer account's flight.
+    if (refreshFlight === flight) refreshFlight = null;
+  });
+  refreshFlight = flight;
+  return flight.promise;
+}
+
 export function refreshAccessToken(): Promise<boolean> {
-  if (!refreshPromise) {
-    refreshPromise = performRefresh().finally(() => {
-      refreshPromise = null;
-    });
-  }
-  return refreshPromise;
+  return refreshSession(captureSession());
 }
 
 function isRefreshRequest(url: string): boolean {
@@ -70,19 +137,33 @@ export function setConflictErrorHandler(handler: () => void): () => void {
 async function doFetch<T>(
   url: string,
   options: Options,
-  retried: boolean
+  retried: boolean,
+  session: AuthSession = captureSession()
 ): Promise<T> {
-  const response = await fetch(url, { headers: authHeader(false), ...options });
+  assertRequestCurrent(session, options.signal);
+  const sentAccessToken = session.accessToken;
+  const headers = new Headers(authHeader(false));
+  new Headers(options?.headers).forEach((value, key) =>
+    headers.set(key, value)
+  );
+  const response = await fetch(url, { ...options, headers });
+  assertRequestCurrent(session, options.signal);
   if (!response.ok) {
     if (response.status === 401 && !retried && !isRefreshRequest(url)) {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        return doFetch<T>(url, options, true);
-      }
+      // A delayed 401 may arrive after another request already rotated this session.
+      const refreshed =
+        session.accessToken !== sentAccessToken && !!session.accessToken
+          ? true
+          : await refreshSession(session);
+      assertRequestCurrent(session, options.signal);
+      if (refreshed) return doFetch<T>(url, options, true, session);
     }
     if (response.status === 409) {
-      if (onConflictError) onConflictError();
-      throw new Error('conflict_error');
+      if (onConflictError && !options.suppressConflictNotification)
+        onConflictError();
+      const conflict = new Error('conflict_error');
+      (conflict as any).status = 409;
+      throw conflict;
     }
     let body: any = null;
     try {
@@ -94,12 +175,41 @@ async function doFetch<T>(
     (err as any).status = response.status;
     throw err;
   }
-  if (options?.raw) return response as unknown as Promise<T>;
-  return response.json() as Promise<T>;
+  if (options?.raw) return response as unknown as T;
+  const data = await response.json();
+  assertRequestCurrent(session, options.signal);
+  return data as T;
 }
 
-function api<T>(url: string, options: Options): Promise<T> {
-  return doFetch<T>(url, options, false);
+async function api<T>(url: string, options: Options = {}): Promise<T> {
+  const session = captureSession();
+  if (!isMaintenanceCommand(url, options.method))
+    return doFetch<T>(url, options, false, session);
+  const supplied = new Headers(options.headers).get('Idempotency-Key');
+  if (supplied) return doFetch<T>(url, options, false, session);
+  const auth = new Headers(authHeader(false)).get('Authorization') || '';
+  // The JWT payload is used only to distinguish local retry sessions, never to grant access.
+  const identity = JSON.stringify([
+    url,
+    options.method,
+    options.body,
+    commandSession(auth)
+  ]);
+  return runIdempotentCommand(identity, (key) => {
+    const headers = new Headers(options.headers);
+    headers.set('Idempotency-Key', key);
+    return doFetch<T>(url, { ...options, headers }, false, session);
+  });
+}
+
+function commandSession(auth: string): string {
+  try {
+    const payload = auth.split('.')[1];
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(normalized)).sub || auth;
+  } catch {
+    return auth;
+  }
 }
 
 function get<T>(url, options?: Options) {

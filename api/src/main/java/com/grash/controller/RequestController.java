@@ -32,6 +32,7 @@ public class RequestController {
     private final RequestService requestService;
     private final RequestMapper requestMapper;
     private final WorkOrderMapper workOrderMapper;
+    private final com.grash.security.FreshMaintenanceActor freshActor;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -79,7 +80,7 @@ public class RequestController {
     public RequestShowDTO patch(@Parameter(description = "Request fields to update") @Valid @RequestBody RequestPatchDTO request,
                                 @PathVariable("id") Long id,
                                 @Parameter(hidden = true) @CurrentUser User user) {
-        return requestMapper.toShowDto(requestService.patch(id, request, user));
+        return requestMapper.toShowDto(requestService.patch(id, request, freshActor.load(user)));
     }
 
     @PatchMapping("/{id}/approve")
@@ -87,7 +88,7 @@ public class RequestController {
     public WorkOrderShowDTO approve(@PathVariable("id") Long id,
                                     @Parameter(description = "Request approval data") @RequestBody RequestApproveDTO requestApproveDTO,
                                     @Parameter(hidden = true) @CurrentUser User user) {
-        return workOrderMapper.toShowDto(requestService.approve(id, requestApproveDTO, user));
+        return workOrderMapper.toShowDto(requestService.approve(id, requestApproveDTO, freshActor.load(user)));
     }
 
     @PatchMapping("/{id}/cancel")
@@ -95,14 +96,14 @@ public class RequestController {
     public RequestShowDTO cancel(@PathVariable("id") Long id,
                                  @RequestParam @Parameter(description = "Reason of the request") String reason,
                                  @Parameter(hidden = true) @CurrentUser User user) {
-        return requestMapper.toShowDto(requestService.cancel(id, reason, user));
+        return requestMapper.toShowDto(requestService.cancel(id, reason, freshActor.load(user)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id,
                                                   @Parameter(hidden = true) @CurrentUser User user) {
-        requestService.deleteByIdAndUser(id, user);
+        requestService.deleteByIdAndUser(id, freshActor.load(user));
         return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                 HttpStatus.OK);
     }

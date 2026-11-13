@@ -46,7 +46,7 @@ public class AssetDowntime extends CompanyAudit {
     public long getDateRangeDuration(DateRange dateRange) {
         Date start = new Date(Math.max(startsOn.getTime(), dateRange.getStart().getTime()));
         Date end = new Date(Math.min(getEndsOn().getTime(), dateRange.getEnd().getTime()));
-        return Helper.getDateDiff(start, end, TimeUnit.SECONDS);
+        return Math.max(0, Helper.getDateDiff(start, end, TimeUnit.SECONDS));
     }
 
 }

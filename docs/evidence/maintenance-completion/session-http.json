@@ -1,0 +1,37 @@
+{
+  "recordedAtUtc": "2026-11-13T21:10:50.956412+00:00",
+  "baseUrl": "http://127.0.0.1:28089",
+  "scope": "isolated test account only; no original database or external services",
+  "checks": [
+    {
+      "name": "own sessions only; current device identified",
+      "result": "PASS"
+    },
+    {
+      "name": "cross-user guessed UUID denied and target remains valid",
+      "result": "PASS"
+    },
+    {
+      "name": "refresh rotates credentials but preserves one session identity",
+      "result": "PASS"
+    },
+    {
+      "name": "targeted logout revokes access and refresh without logging out other devices",
+      "result": "PASS"
+    },
+    {
+      "name": "current-device logout immediately invalidates access",
+      "result": "PASS"
+    },
+    {
+      "name": "all-device logout revokes all login families and refreshes",
+      "result": "PASS"
+    },
+    {
+      "name": "immediate new login after all-device logout remains valid",
+      "result": "PASS"
+    }
+  ],
+  "total": 7,
+  "result": "PASS"
+}

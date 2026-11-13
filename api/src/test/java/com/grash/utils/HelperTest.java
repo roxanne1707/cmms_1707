@@ -307,7 +307,7 @@ class HelperTest {
         @Test
         void english() {
             Locale locale = Helper.getLocale(companyWithLanguage(Language.EN));
-            assertEquals(Locale.getDefault(), locale);
+            assertEquals(Locale.ENGLISH, locale);
         }
 
         @Test

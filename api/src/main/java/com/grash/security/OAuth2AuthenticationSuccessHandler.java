@@ -98,9 +98,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             }
 
             // Generate JWT access token and a refresh token
-            String token = jwtTokenProvider.createToken(user.getEmail(),
-                    Collections.singletonList(user.getRole().getRoleType()));
-            String refreshToken = refreshTokenService.createRefreshToken(user);
+            userRepository.flush();
+            com.grash.dto.AuthTokens tokens = refreshTokenService.createTokenPair(user);
+            String token = tokens.getAccessToken();
+            String refreshToken = tokens.getRefreshToken();
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .queryParam("token", token)
                     .queryParam("refreshToken", refreshToken)

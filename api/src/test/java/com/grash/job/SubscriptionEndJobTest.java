@@ -4,6 +4,7 @@ import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.service.SubscriptionService;
+import com.grash.service.SubscriptionExpiryCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,21 +34,23 @@ class SubscriptionEndJobTest {
     @Mock
     private SubscriptionService subscriptionService;
 
-    @InjectMocks
+    @Mock private jakarta.persistence.EntityManager em;
+    @InjectMocks private SubscriptionExpiryCommand command;
     private SubscriptionEndJob subscriptionEndJob;
 
     private Subscription subscription;
 
     @BeforeEach
     void setUp() {
+        subscriptionEndJob=new SubscriptionEndJob(command);
         SubscriptionPlan plan = SubscriptionPlan.builder()
                 .id(1L)
-                .name("Pro")
+                .name("Pro").code("PRO")
                 .features(new HashSet<>())
                 .build();
         subscription = Subscription.builder()
                 .id(1L)
-                .usersCount(10)
+                .usersCount(10).endsOn(new java.util.Date(0))
                 .subscriptionPlan(plan)
                 .build();
     }
@@ -64,7 +67,7 @@ class SubscriptionEndJobTest {
     void subscriptionNotFound_returnsWithoutResetting() {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> subscriptionEndJob.executeInternal(contextWithSubscriptionId(1L)));
+        assertDoesNotThrow(() -> subscriptionEndJob.execute(contextWithSubscriptionId(1L)));
 
         verify(subscriptionService, never()).resetToFreePlan(any());
     }
@@ -74,7 +77,7 @@ class SubscriptionEndJobTest {
         subscription.setPaddleSubscriptionId("pdl_123");
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
 
-        assertDoesNotThrow(() -> subscriptionEndJob.executeInternal(contextWithSubscriptionId(1L)));
+        assertDoesNotThrow(() -> subscriptionEndJob.execute(contextWithSubscriptionId(1L)));
 
         verify(subscriptionService, never()).resetToFreePlan(any());
     }
@@ -83,18 +86,30 @@ class SubscriptionEndJobTest {
     void noPaddleSubscription_resetsToFreePlan() {
         when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
 
-        assertDoesNotThrow(() -> subscriptionEndJob.executeInternal(contextWithSubscriptionId(1L)));
+        assertDoesNotThrow(() -> subscriptionEndJob.execute(contextWithSubscriptionId(1L)));
 
         verify(subscriptionService).resetToFreePlan(subscription);
     }
 
+    @Test void renewedSubscriptionIsNotExpiredByAnOldTrigger() {
+        subscription.setEndsOn(new java.util.Date(System.currentTimeMillis()+86400000));
+        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
+        subscriptionEndJob.execute(contextWithSubscriptionId(1));
+        verify(subscriptionService,never()).resetToFreePlan(any());
+    }
+    @Test void alreadyFreeSubscriptionIsNotResetAgain() {
+        subscription.getSubscriptionPlan().setCode("FREE");
+        when(subscriptionRepository.findById(1L)).thenReturn(Optional.of(subscription));
+        subscriptionEndJob.execute(contextWithSubscriptionId(1));
+        verify(subscriptionService,never()).resetToFreePlan(any());
+    }
     @Test
     void contextWithoutSubscriptionId_propagatesError() {
         JobDataMap jobDataMap = new JobDataMap();
         JobExecutionContext context = mock(JobExecutionContext.class);
         when(context.getMergedJobDataMap()).thenReturn(jobDataMap);
 
-        assertThrows(ClassCastException.class, () -> subscriptionEndJob.executeInternal(context));
+        assertThrows(ClassCastException.class, () -> subscriptionEndJob.execute(context));
 
         verify(subscriptionRepository, never()).findById(anyLong());
         verify(subscriptionService, never()).resetToFreePlan(any());
