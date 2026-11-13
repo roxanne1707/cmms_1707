@@ -17,10 +17,12 @@ import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 
-/** Redis contains disposable DTOs. Locks only suppress rebuilds; PG versions provide freshness. */
+/** Redis contains disposable DTOs. Locks only suppress rebuilds; database versions provide freshness. */
 @Component
 @ConditionalOnProperty(name="enhancement.query.enabled", havingValue="true")
 public class AssetOverviewCache {
+    @org.springframework.beans.factory.annotation.Value("${enhancement.query.cache.namespace:}")
+    private String namespace = "";
     private final StringRedisTemplate redis;
     private final ObjectMapper mapper;
     private final ConcurrentMap<String, CompletableFuture<AssetWorkOrderOverview>> flights = new ConcurrentHashMap<>();
@@ -43,7 +45,7 @@ public class AssetOverviewCache {
 
     public AssetWorkOrderOverview getOrLoad(AuthorizedQueryScope scope, long assetId, long epoch,
                                             OverviewQuery q, Supplier<AssetWorkOrderOverview> loader) {
-        String key=key(scope,assetId,epoch,q);
+        String key=(namespace.isEmpty()?"":namespace+":")+key(scope,assetId,epoch,q);
         AssetWorkOrderOverview hit=read(key,scope,assetId,epoch,q);
         Metrics.counter("cmms.query.cache.requests","result",hit==null?"miss":"hit").increment();
         if (hit!=null) return hit;

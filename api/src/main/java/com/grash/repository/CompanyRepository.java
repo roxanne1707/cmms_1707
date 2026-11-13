@@ -25,10 +25,11 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     Optional<Company> findByIdWithSubscription(@Param("id") Long id);
 
     @Query(value = """
-            select exists(select 1 from company c join work_order wo on c.id = wo.company_id where wo.is_demo=false
-            AND wo.parent_preventive_maintenance_id is null and c.demo=false group by c.id having count(wo.id) >= 5)
+            select CASE WHEN exists(select 1 from company c join work_order wo on c.id = wo.company_id where wo.is_demo=false
+            AND wo.parent_preventive_maintenance_id is null and c.demo=false group by c.id having count(wo.id) >= 5) THEN 1 ELSE 0 END
             """, nativeQuery = true)
-    boolean existsAtLeastOneWithMinWorkOrders();
+    long companyMinWorkOrdersResult();
+    default boolean existsAtLeastOneWithMinWorkOrders() { return companyMinWorkOrdersResult()!=0; }
 
     @Query("SELECT u.company from User u WHERE lower(u.email) = lower(:email) AND u.ownsCompany = true")
     Optional<Company> findByOwnerEmailAndOwnsCompany(@Param("email") String email);

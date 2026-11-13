@@ -21,6 +21,7 @@ import java.util.*;
 @ConditionalOnProperty(name="enhancement.query.enabled",havingValue="true")
 public class MaintenanceLedgerJpaRepository {
     private final EntityManagerFactory entityManagerFactory;
+    private final com.grash.database.DatabasePlatform database;
     public LedgerPage search(AuthorizedQueryScope scope,LedgerQuery q) {
         q.normalizeAndValidate();
         String where=" WHERE w.company_id=:company AND w.created_at>=CAST(:start AS timestamp)"
@@ -41,18 +42,26 @@ public class MaintenanceLedgerJpaRepository {
             FROM work_order w LEFT JOIN asset a ON a.id=w.asset_id AND a.company_id=w.company_id
             """;
         String order=q.getSort()==LedgerQuery.Sort.CREATED_ASC?" ASC":" DESC";
-        try(EntityManager em=entityManagerFactory.createEntityManager()){
+        if(database.isMysql()) {
+            where=where.replace(" AS timestamp)"," AS DATETIME(6))");
+            columns=columns.replace("EXTRACT(EPOCH FROM(w.completed_on-w.created_at))","(TIMESTAMPDIFF(MICROSECOND,w.created_at,w.completed_on)/1000000.0)");
+        }
+        try(EntityManager em=entityManagerFactory.createEntityManager()) {
             em.getTransaction().begin();
             try {
+                // No data statement precedes this transaction characteristic declaration.
                 em.createNativeQuery("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY").executeUpdate();
-                long total=((Number) bind(em.createNativeQuery("SELECT count(*) FROM work_order w"+where),scope,q)
-                        .getSingleResult()).longValue();
+                long total=((Number)bind(em.createNativeQuery("SELECT count(*) FROM work_order w"+where),scope,q).getSingleResult()).longValue();
                 List<?> raw=bind(em.createNativeQuery(columns+where+" ORDER BY w.created_at"+order+",w.id"+order),scope,q)
                         .setFirstResult(q.getPage()*q.getSize()).setMaxResults(q.getSize()).getResultList();
-                List<MaintenanceLedgerRow> rows=raw.stream().map(value->map((Object[]) value)).toList();
+                LedgerPage result=new LedgerPage(raw.stream().map(value->map((Object[])value)).toList(),total,q.getPage(),q.getSize());
+
                 em.getTransaction().commit();
-                return new LedgerPage(rows,total,q.getPage(),q.getSize());
-            }catch(RuntimeException e){if(em.getTransaction().isActive())em.getTransaction().rollback();throw e;}
+                return result;
+            } catch(RuntimeException ex) {
+                if(em.getTransaction().isActive())em.getTransaction().rollback();
+                throw ex;
+            }
         }
     }
     private Query bind(Query sql,AuthorizedQueryScope scope,LedgerQuery q){
@@ -71,12 +80,13 @@ public class MaintenanceLedgerJpaRepository {
             row.setStatus(v[5]==null?null:StatusCodeTypeHandler.decode(((Number)v[5]).intValue()));
             row.setPriority(v[6]==null?null:PriorityCodeTypeHandler.decode(((Number)v[6]).intValue()));
             row.setCreatedAt(instant(v[7]));row.setCompletedOn(instant(v[8]));
-            row.setArchived(Boolean.TRUE.equals(v[9]));row.setDemo(Boolean.TRUE.equals(v[10]));
+            row.setArchived(truth(v[9]));row.setDemo(truth(v[10]));
             row.setCycleSeconds(v[11]==null?null:new BigDecimal(v[11].toString()));
-            row.setMeterTriggered(Boolean.TRUE.equals(v[12]));
+            row.setMeterTriggered(truth(v[12]));
             return row;
         }catch(SQLException e){throw new IllegalStateException("Invalid persisted ledger enum",e);}
     }
+    private static boolean truth(Object value) {return Boolean.TRUE.equals(value) || value instanceof Number number && number.intValue()!=0;}
     private static Instant instant(Object value){
         if(value==null)return null;
         if(value instanceof Timestamp timestamp)return timestamp.toLocalDateTime().toInstant(ZoneOffset.UTC);

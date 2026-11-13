@@ -20,6 +20,7 @@ import java.util.*;
 public class NotificationCommandService {
     private final EventStore store;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     private final EventJson json;
     private final EventAccessPolicy access;
     private final SimpMessageSendingOperations sockets;
@@ -34,13 +35,18 @@ public class NotificationCommandService {
             boolean mayReceive=access.canReceive(event,target);
             boolean excludeActor=!target.purpose().equals("REQUEST_STATUS") && Objects.equals(event.actorId(),target.userId());
             if(target.userId()!=null && !excludeActor && mayReceive) {
-                List<Long> ids=jdbc.query("""
+                long notificationId=database.nextNotificationId();
+                int inserted=jdbc.update(database.sql("""
                         INSERT INTO notification(id,created_at,updated_at,created_by,updated_by,message,notification_type,resource_id,seen,user_id,event_id,event_company_id,event_purpose)
-                        VALUES(nextval('notification_seq'),CURRENT_TIMESTAMP,CURRENT_TIMESTAMP,?,?,?,?,?,false,?,?,?,?)
-                        ON CONFLICT(event_company_id,event_id,user_id,event_purpose) WHERE event_id IS NOT NULL DO NOTHING RETURNING id
-                        """,(rs,n)->rs.getLong(1),event.actorId(),event.actorId(),truncate(target.message()),
+                        VALUES(?,CURRENT_TIMESTAMP(6),CURRENT_TIMESTAMP(6),?,?,?,?,?,false,?,?,?,?)
+                        ON CONFLICT(event_company_id,event_id,user_id,event_purpose) WHERE event_id IS NOT NULL DO NOTHING
+                        """, """
+                        INSERT INTO notification(id,created_at,updated_at,created_by,updated_by,message,notification_type,resource_id,seen,user_id,event_id,event_company_id,event_purpose)
+                        VALUES(?,CURRENT_TIMESTAMP(6),CURRENT_TIMESTAMP(6),?,?,?,?,?,false,?,?,?,?)
+                        ON DUPLICATE KEY UPDATE id=id
+                        """),notificationId,event.actorId(),event.actorId(),truncate(target.message()),
                         NotificationType.valueOf(target.notificationType()).ordinal(),target.resourceId(),target.userId(),event.eventId(),event.companyId(),target.purpose());
-                if(!ids.isEmpty()) afterCommitNotice(ids.get(0),target);
+                if(inserted==1) afterCommitNotice(notificationId,target);
             }
             String destination=target.userId()==null?"contact:"+digest(target.email()):"user:"+target.userId();
             if(target.emailAllowed()) addDelivery(event,"EMAIL",destination,target.purpose(),DeliveryPayload.forTarget(event,target));
@@ -51,10 +57,13 @@ public class NotificationCommandService {
         store.completeAttempt(attempt);
     }
     private void addDelivery(EventEnvelope event,String channel,String destination,String purpose,DeliveryPayload payload) {
-        jdbc.update("""
+        jdbc.update(database.sql("""
                 INSERT INTO event_delivery(id,company_id,event_id,channel,destination_id,purpose,payload)
                 VALUES(?,?,?,?,?,?,?) ON CONFLICT(company_id,event_id,channel,destination_id,purpose) DO NOTHING
-                """,UUID.randomUUID(),event.companyId(),event.eventId(),channel,destination,purpose,json.write(payload));
+                ""","""
+                INSERT INTO event_delivery(id,company_id,event_id,channel,destination_id,purpose,payload)
+                VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=id
+                """),UUID.randomUUID(),event.companyId(),event.eventId(),channel,destination,purpose,json.write(payload));
     }
     private void afterCommitNotice(long id,EventEnvelope.Target target) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

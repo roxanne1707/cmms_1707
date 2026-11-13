@@ -31,6 +31,12 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     @Value("${cloud-version}")
     private boolean cloudVersion;
 
+    // Only used on an empty installation; existing accounts and passwords are never overwritten.
+    @Value("${cmms.bootstrap.admin-email:superadmin@test.com}")
+    private String initialAdminEmail;
+    @Value("${cmms.bootstrap.admin-password:pls_change_me}")
+    private String initialAdminPassword;
+
     @Override
     public void afterSingletonsInstantiated() {
         log.info("Starting application initialization...");
@@ -142,11 +148,11 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
 
 
     @NotNull
-    private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
+    private UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
         UserSignupRequest signupRequest = new UserSignupRequest();
         signupRequest.setRole(savedSuperAdminRole);
-        signupRequest.setEmail("superadmin@test.com");
-        signupRequest.setPassword("pls_change_me");
+        signupRequest.setEmail(initialAdminEmail);
+        signupRequest.setPassword(initialAdminPassword);
         signupRequest.setFirstName("Super");
         signupRequest.setLastName("Admin");
         signupRequest.setPhone("");

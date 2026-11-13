@@ -15,7 +15,7 @@
  </resultMap>
  <sql id="where">
   WHERE w.company_id=#{company}
-   AND w.created_at &gt;=CAST(#{q.startUtc} AS timestamp) AND w.created_at &lt;CAST(#{q.endUtc} AS timestamp)
+   AND w.created_at &gt;=<choose><when test="_databaseId == 'mysql'">CAST(#{q.startUtc} AS DATETIME(6))</when><otherwise>CAST(#{q.startUtc} AS timestamp)</otherwise></choose> AND w.created_at &lt;<choose><when test="_databaseId == 'mysql'">CAST(#{q.endUtc} AS DATETIME(6))</when><otherwise>CAST(#{q.endUtc} AS timestamp)</otherwise></choose>
    <if test="!q.includeArchived">AND w.archived=false</if>
    <if test="!q.includeDemo">AND COALESCE(w.is_demo,false)=false</if>
    <if test="q.assetId != null">AND w.asset_id=#{q.assetId}</if>
@@ -29,7 +29,7 @@
   SELECT w.id,w.custom_id,w.title,a.id AS asset_id,a.name AS asset_name,w.status,w.priority,
    w.created_at,w.completed_on,w.archived,COALESCE(w.is_demo,false) AS is_demo,
    CASE WHEN w.status=3 AND w.completed_on IS NOT NULL AND w.completed_on&gt;=w.created_at
-    THEN EXTRACT(EPOCH FROM (w.completed_on-w.created_at)) END AS cycle_seconds,
+    THEN <choose><when test="_databaseId == 'mysql'">(TIMESTAMPDIFF(MICROSECOND,w.created_at,w.completed_on) / 1000000.0)</when><otherwise>EXTRACT(EPOCH FROM (w.completed_on-w.created_at))</otherwise></choose> END AS cycle_seconds,
    EXISTS(SELECT 1 FROM meter_trigger_execution me WHERE me.work_order_id=w.id AND me.company_id=w.company_id) AS meter_triggered
   FROM work_order w LEFT JOIN asset a ON a.id=w.asset_id AND a.company_id=w.company_id
   <include refid="where"/>

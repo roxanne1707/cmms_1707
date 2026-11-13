@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
  * Narrow JDBC-backed repository/EntityManager doubles isolate this module from app startup/external channels.
  * These tests DO NOT prove Hibernate mappings or the complete application migration; those require the app integration suite.
  */
-@EnabledIfSystemProperty(named="cmms.test.jdbc-url", matches=".+")
+@EnabledIfSystemProperty(named="cmms.test.jdbc-url", matches="jdbc:postgresql://127\\.0\\.0\\.1:25432/cmms_enhancement_test.*")
 class DomainReliabilityIntegrationTest {
     JdbcTemplate jdbc; String schema; DataSourceTransactionManager manager; TransactionTemplate tx;
     InventoryCommandService inventory; ReadingService readingService; DomainCommandStore commands;
@@ -94,14 +94,14 @@ class DomainReliabilityIntegrationTest {
         ReflectionTestUtils.setField(partService,"partRepository",partRepo);ReflectionTestUtils.setField(partService,"partTransactionService",transactions);
         ReflectionTestUtils.setField(partService,"messageSource",mock(MessageSource.class));ReflectionTestUtils.setField(partService,"licenseService",mock(LicenseService.class));
         ReflectionTestUtils.setField(partService,"partMapper",mock(PartMapper.class));ReflectionTestUtils.setField(partService,"webhookDispatchService",mock(WebhookDispatchService.class));
-        commands=proxy(new DomainCommandStore(jdbc,new ObjectMapper()));
+        commands=proxy(new DomainCommandStore(jdbc,new com.grash.database.DatabasePlatform("postgresql",jdbc),new ObjectMapper()));
         inventory=proxy(new InventoryCommandService(em,quantities,mapper,partService,commands,mock(PurchaseOrderMapper.class)));
         WorkOrderMeterTriggerRepository triggerRepo=mock(WorkOrderMeterTriggerRepository.class);when(triggerRepo.findByMeter_Id(1L)).thenReturn(List.of(trigger));
         workOrders=mock(WorkOrderService.class);when(workOrders.getWorkOrderFromWorkOrderBase(any())).thenReturn(new WorkOrderPostDTO());
         when(workOrders.create(any(),any())).thenAnswer(i->{WorkOrder wo=new WorkOrder();wo.setCompany(company);wo.setId(jdbc.queryForObject("INSERT INTO work_order(company_id,title) VALUES(1,'Meter repair') RETURNING id",Long.class));return wo;});
         ReliableEventService events=mock(ReliableEventService.class);when(events.isEnabled()).thenReturn(true);
         doAnswer(i->{if(failEvent.get()) throw new IllegalStateException("injected event failure");jdbc.update("INSERT INTO event_probe(work_order_id) VALUES(?)",((WorkOrder)i.getArgument(3)).getId());return null;}).when(events).meterEpisodeOpened(any(),any(),anyDouble(),any(),anyLong(),anyString());
-        MeterTriggerCommandService triggerService=proxy(new MeterTriggerCommandService(triggerRepo,workOrders,jdbc,em,events,mock(NotificationService.class),mock(WebhookDispatchService.class),mock(WorkOrderMapper.class),mock(MessageSource.class)));
+        MeterTriggerCommandService triggerService=proxy(new MeterTriggerCommandService(triggerRepo,workOrders,jdbc,new com.grash.database.DatabasePlatform("postgresql",jdbc),em,events,mock(NotificationService.class),mock(WebhookDispatchService.class),mock(WorkOrderMapper.class),mock(MessageSource.class)));
         ReadingRepository readingRepo=mock(ReadingRepository.class);
         when(readingRepo.findFirstByMeter_IdOrderByCreatedAtDesc(1L)).thenAnswer(i->jdbc.query("SELECT * FROM reading WHERE meter_id=1 ORDER BY id DESC LIMIT 1",(rs,n)->sample(rs.getLong("id"),rs.getDouble("value"),rs.getTimestamp("created_at"))).stream().findFirst());
         when(readingRepo.saveAndFlush(any())).thenAnswer(i->{Reading value=i.getArgument(0);Date date=new Date(System.currentTimeMillis()-172800000L);value.setId(jdbc.queryForObject("INSERT INTO reading(meter_id,value,created_at) VALUES(?,?,?) RETURNING id",Long.class,1L,value.getValue(),new Timestamp(date.getTime())));value.setCreatedAt(date);value.setUpdatedAt(date);return value;});

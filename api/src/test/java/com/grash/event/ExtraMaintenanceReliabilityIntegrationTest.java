@@ -43,7 +43,7 @@ class ExtraMaintenanceReliabilityIntegrationTest {
         jdbc.execute("CREATE TABLE generated_order(id BIGINT PRIMARY KEY,company_id BIGINT)");
         new ResourceDatabasePopulator(new ClassPathResource("db/changelog/2026_11_14_reliable_events.sql"),new ClassPathResource("db/changelog/2026_11_14_reliability_completion.sql")).execute(source);
         jdbc.update("INSERT INTO company VALUES(1),(2)");
-        context=new AnnotationConfigApplicationContext();context.register(Transactions.class);
+        context=new AnnotationConfigApplicationContext();context.register(com.grash.database.DatabasePlatform.class,Transactions.class);
         context.registerBean(DataSource.class,()->source);context.registerBean(JdbcTemplate.class,()->jdbc);
         context.registerBean(ObjectMapper.class,()->new ObjectMapper().findAndRegisterModules());
         context.registerBean(ReliableEventProperties.class,ReliableEventProperties::new);

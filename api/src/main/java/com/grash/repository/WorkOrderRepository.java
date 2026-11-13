@@ -79,8 +79,9 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);
 
     @Query(value = """
+            /* cmms-query:WorkOrderRepository-findTopNAssetsByIncompleteWO */
             SELECT a.id, a.name, COUNT(wo.id) AS cnt,
-                   COALESCE(AVG(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - wo.created_at)) / 86400), 0) AS avg_age
+                   COALESCE(AVG(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP(6) - wo.created_at)) / 86400), 0) AS avg_age
             FROM work_order wo
             INNER JOIN asset a ON wo.asset_id = a.id
             WHERE wo.company_id = :companyId
@@ -89,13 +90,14 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             GROUP BY a.id, a.name
             ORDER BY cnt DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsByIncompleteWO(@Param("companyId") Long companyId,
                                                 @Param("start") Date start,
                                                 @Param("end") Date end,
                                                 @Param("limit") int limit);
 
     @Query(value = """
+            /* cmms-query:WorkOrderRepository-findTopNAssetsTimeCost */
             WITH wo_agg AS (
               SELECT
                 wo.asset_id,
@@ -141,13 +143,14 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
                    + SUM(wo_agg.part_cost)
                    + SUM(wo_agg.additional_cost) DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsTimeCost(@Param("companyId") Long companyId,
                                           @Param("start") Date start,
                                           @Param("end") Date end,
                                           @Param("limit") int limit);
 
     @Query(value = """
+            /* cmms-query:WorkOrderRepository-findWOCostsByDateRange */
             SELECT wo.id, wo.completed_on,
               COALESCE(labor_stats.total_labor_cost, 0) AS labor_cost,
               COALESCE(part_stats.total_part_cost, 0) AS part_cost,
@@ -174,12 +177,13 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
               AND wo.completed_on BETWEEN :start AND :end
               AND wo.status = 3
             ORDER BY wo.completed_on
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findWOCostsByDateRange(@Param("companyId") Long companyId,
                                           @Param("start") Date start,
                                           @Param("end") Date end);
 
     @Query(value = """
+            /* cmms-query:WorkOrderRepository-findTopNAssetsRepairTime */
             SELECT a.id, a.name,
               COALESCE(AVG(EXTRACT(DAY FROM (wo.completed_on - COALESCE(pr.created_at, wo.created_at)))), 0) AS avg_duration
             FROM work_order wo
@@ -192,13 +196,14 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             GROUP BY a.id, a.name
             ORDER BY avg_duration DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsRepairTime(@Param("companyId") Long companyId,
                                             @Param("start") Date start,
                                             @Param("end") Date end,
                                             @Param("limit") int limit);
 
     @Query(value = """
+            /* cmms-query:WorkOrderRepository-findTotalWOCosts */
             WITH wo_costs AS (
               SELECT wo.id, wo.asset_id,
                 COALESCE(labor_stats.total_labor_cost, 0) AS labor_cost,
@@ -232,7 +237,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
               COALESCE(SUM(CASE WHEN a.acquisition_cost IS NOT NULL THEN wo_costs.additional_cost ELSE 0 END), 0)
             FROM wo_costs
             JOIN asset a ON wo_costs.asset_id = a.id
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTotalWOCosts(@Param("companyId") Long companyId,
                                     @Param("start") Date start,
                                     @Param("end") Date end);

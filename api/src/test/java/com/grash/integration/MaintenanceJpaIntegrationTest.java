@@ -61,6 +61,7 @@ class MaintenanceJpaIntegrationTest {
 
     @Autowired EntityManager em;
     @Autowired JdbcTemplate jdbc;
+    @Autowired com.grash.database.DatabasePlatform database;
     @Autowired PlatformTransactionManager transactionManager;
     @Autowired InventoryCommandService inventory;
     @Autowired ReadingService readings;
@@ -71,6 +72,14 @@ class MaintenanceJpaIntegrationTest {
     @Autowired EventStore eventStore;
     @Autowired EventJson eventJson;
     @Autowired NotificationCommandService notifications;
+    @Autowired com.grash.service.query.MaintenanceLedgerJpaRepository ledgerBaseline;
+    @Autowired com.grash.readmodel.mapper.MaintenanceLedgerMapper ledgerMapper;
+    @Autowired EventReplayService replay;
+    @Autowired com.grash.writemodel.mapper.NotificationReplayAuditMapper replayAudits;
+    @Autowired com.grash.security.SessionRegistry sessions;
+    @Autowired com.grash.repository.WorkOrderRepository orderRepository;
+    @Autowired com.grash.repository.AssetDowntimeRepository downtimeRepository;
+
     @MockitoBean MailServiceFactory mailServiceFactory;
     @MockitoBean WebhookDispatchService webhooks;
     @MockitoBean MinioService minio;
@@ -145,9 +154,9 @@ class MaintenanceJpaIntegrationTest {
     @Test @Order(1)
     void fullContextAndMasterMigrationAreUsable() {
         assertTrue(reliableEvents.isEnabled());
-        assertTrue(jdbc.queryForObject("SELECT count(*) FROM databasechangelog WHERE id='2026-11-14-domain-reliability'", Long.class) > 0);
-        assertNotNull(jdbc.queryForObject("SELECT to_regclass('meter_trigger_state')::text", String.class));
-        assertNotNull(jdbc.queryForObject("SELECT to_regclass('asset_summary_epoch')::text", String.class));
+        assertTrue(jdbc.queryForObject(database.sql("SELECT count(*) FROM databasechangelog WHERE id='2026-11-14-domain-reliability'","SELECT count(*) FROM databasechangelog WHERE id='mysql-fresh-baseline-20261114'"), Long.class) > 0);
+        assertNotNull(jdbc.queryForObject(database.sql("SELECT to_regclass('meter_trigger_state')::text","SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='meter_trigger_state'"), String.class));
+        assertNotNull(jdbc.queryForObject(database.sql("SELECT to_regclass('asset_summary_epoch')::text","SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='asset_summary_epoch'"), String.class));
     }
 
     @Test @Order(2)
@@ -324,6 +333,67 @@ class MaintenanceJpaIntegrationTest {
             em.flush(); em.clear(); return meter.getId();
         });
     }
+
+    @Test @Order(12)
+    void mybatisLedgerMatchesJpaOnTheSelectedDatabase() {
+        var query=new com.grash.dto.query.LedgerQuery();query.setStart(Instant.now().minusSeconds(86400));query.setEnd(Instant.now().plusSeconds(86400));query.setSize(1);
+        var scope=new com.grash.dto.query.AuthorizedQueryScope(actorId,companyId);
+        for(int page=0;page<3;page++) {
+            query.setPage(page);var expected=ledgerBaseline.search(scope,query);
+            var rows=ledgerMapper.selectPage(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(page+1L,1,false),companyId,query);
+            assertEquals(expected.content(),rows);assertEquals(expected.total(),ledgerMapper.count(companyId,query));
+        }
+        assertTrue(ledgerMapper.selectPage(new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(1,10,false),-1,query).isEmpty());
+    }
+
+    @Test @Order(13)
+    void replayAndMybatisAuditCommitAndRollbackTogether() {
+        UUID eventId=UUID.randomUUID();
+        tx.executeWithoutResult(status->eventStore.append(new EventEnvelope(1,eventId,companyId,"WORK_ORDER_CREATED",firstWorkOrderId,actorId,Instant.now(),List.of(),List.of(),Map.of())));
+        jdbc.update("UPDATE event_retry SET state='DEAD' WHERE company_id=? AND event_id=?",companyId,eventId);
+        long outboxBefore=companyCount("domain_event_outbox");
+        assertThrows(IllegalStateException.class,()->tx.executeWithoutResult(status->{
+            replay.replayEvent(actor,eventId,"Synthetic rollback proof");throw new IllegalStateException("rollback probe");
+        }));
+        assertEquals(0,companyCount("event_replay_audit"));assertEquals(outboxBefore,companyCount("domain_event_outbox"));
+        replay.replayEvent(actor,eventId,"Synthetic recovery proof");
+        assertEquals(1,companyCount("event_replay_audit"));assertEquals(outboxBefore+1,companyCount("domain_event_outbox"));
+        var wrapper=new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<com.grash.writemodel.NotificationReplayAudit>()
+                .eq(com.grash.writemodel.NotificationReplayAudit::getCompanyId,companyId);
+        var audit=replayAudits.selectOne(wrapper);assertEquals(eventId,audit.getResourceId());assertEquals(actorId,audit.getActorId());
+        assertThrows(CustomException.class,()->replay.replayEvent(actor,eventId,"Duplicate pending replay"));
+        assertEquals(1,companyCount("event_replay_audit"));
+    }
+
+    @Test @Order(14)
+    void sessionUuidPersistenceAndRevocationWorkOnTheSelectedDatabase() {
+        UUID id=sessions.create(actorId,Date.from(Instant.now().plusSeconds(3600)));
+        sessions.assertActive(id,actorId);
+        assertTrue(sessions.list(actorId,id).stream().anyMatch(row->row.id().equals(id)&&row.current()));
+        sessions.revoke(id,actorId);assertThrows(CustomException.class,()->sessions.assertActive(id,actorId));
+    }
+
+    @Test @Order(15)
+    void nativeAnalyticsSqlIsExecutableWithTenantScope() {
+        Date start=Date.from(Instant.now().minusSeconds(86400)),end=Date.from(Instant.now().plusSeconds(86400));
+        assertNotNull(orderRepository.findTopNAssetsByIncompleteWO(companyId,start,end,5));
+        assertNotNull(orderRepository.findTopNAssetsTimeCost(companyId,start,end,5));
+        assertNotNull(orderRepository.findWOCostsByDateRange(companyId,start,end));
+        assertNotNull(orderRepository.findTopNAssetsRepairTime(companyId,start,end,5));
+        assertNotNull(orderRepository.findTotalWOCosts(companyId,start,end));
+        assertNotNull(downtimeRepository.findTopNAssetsByDowntime(companyId,start,end,5));
+        assertNotNull(downtimeRepository.findTopNAssetsForMTBF(companyId,start,end,5));
+        assertNotNull(downtimeRepository.findTopNAssetsDowntimeAndCosts(companyId,start,end,5));
+    }
+
+    @Test @Order(16)
+    void hierarchyCycleCannotCommit() {
+        assertThrows(RuntimeException.class,()->tx.executeWithoutResult(status->{
+            Asset a=em.find(Asset.class,assetId);a.setParentAsset(a);em.flush();
+        }));
+        assertNull(jdbc.queryForObject("SELECT parent_asset_id FROM asset WHERE id=?",Long.class,assetId));
+    }
+
     private void raceMeterCommands(Long secondMeterId, boolean preloadSequence) throws Exception {
         ExecutorService workers = Executors.newFixedThreadPool(2); CyclicBarrier gate = new CyclicBarrier(2);
         try {
@@ -355,12 +425,35 @@ class MaintenanceJpaIntegrationTest {
         assertEquals(2, ids.size()); assertEquals(2, new HashSet<>(ids).size());
         assertEquals(Set.of("WO000001", "WO000002"), new HashSet<>(ids));
     }
+    @Test @Order(17)
+    void jdbcNotificationIdBlocksDoNotOverlapHibernatePooledIds() {
+        Set<Long> allocated=new HashSet<>();
+        for(int round=0;round<3;round++) {
+            long direct=tx.execute(status->database.nextNotificationId());
+            assertTrue(allocated.add(direct));
+            List<Long> orm=tx.execute(status->{
+                List<Long> ids=new ArrayList<>();
+                for(int i=0;i<60;i++) {
+                    Notification notification=new Notification("Synthetic ID allocation",em.getReference(User.class,actorId),NotificationType.WORK_ORDER,firstWorkOrderId);
+                    em.persist(notification);ids.add(notification.getId());
+                }
+                em.flush();return ids;
+            });
+            for(Long id:orm)assertTrue(allocated.add(id),"JDBC and Hibernate must reserve disjoint blocks");
+        }
+        assertEquals(183,allocated.size());
+    }
+
     private DispatchMessage latestMeterDispatch() {
-        String dispatch = jdbc.queryForObject("""
+        String dispatch = jdbc.queryForObject(database.sql("""
                 SELECT o.dispatch FROM domain_event_outbox o JOIN event_retry r ON r.id=o.retry_id
                 WHERE o.company_id=? AND r.envelope::jsonb->>'eventType'='METER_EPISODE_OPENED'
                 ORDER BY o.created_at DESC LIMIT 1
-                """, String.class, companyId);
+                ""","""
+                SELECT o.dispatch FROM domain_event_outbox o JOIN event_retry r ON r.id=o.retry_id
+                WHERE o.company_id=? AND JSON_UNQUOTE(JSON_EXTRACT(r.envelope,'$.eventType'))='METER_EPISODE_OPENED'
+                ORDER BY o.created_at DESC LIMIT 1
+                """), String.class, companyId);
         return eventJson.read(dispatch, DispatchMessage.class);
     }
     private int notificationCount(UUID eventId, Long userId) {
@@ -390,7 +483,7 @@ class MaintenanceJpaIntegrationTest {
     }
     private void ageLatestReading() {
         // Advance only synthetic sample dates to exercise multiple accepted cycles without weakening production frequency checks.
-        jdbc.update("UPDATE reading SET created_at=CURRENT_TIMESTAMP-INTERVAL '2 days' WHERE meter_id=?", meterId);
+        jdbc.update(database.sql("UPDATE reading SET created_at=CURRENT_TIMESTAMP-INTERVAL '2 days' WHERE meter_id=?","UPDATE reading SET created_at=TIMESTAMPADD(DAY,-2,CURRENT_TIMESTAMP) WHERE meter_id=?"), meterId);
     }
     private double stock() { return jdbc.queryForObject("SELECT quantity FROM part WHERE id=?", Double.class, partId); }
     private long companyCount(String table) { return jdbc.queryForObject("SELECT count(*) FROM " + table + " WHERE company_id=?", Long.class, companyId); }

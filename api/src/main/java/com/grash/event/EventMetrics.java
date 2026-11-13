@@ -13,9 +13,10 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name="cmms.events.enabled",havingValue="true")
 public class EventMetrics implements MeterBinder {
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     @Override public void bindTo(MeterRegistry registry) {
         gauge(registry,"cmms.events.outbox.pending","SELECT count(*) FROM domain_event_outbox WHERE status<>'PUBLISHED'");
-        gauge(registry,"cmms.events.outbox.oldest.seconds","SELECT coalesce(extract(epoch FROM CURRENT_TIMESTAMP-min(created_at)),0) FROM domain_event_outbox WHERE status<>'PUBLISHED'");
+        gauge(registry,"cmms.events.outbox.oldest.seconds",database.sql("SELECT coalesce(extract(epoch FROM CURRENT_TIMESTAMP(6)-min(created_at)),0) FROM domain_event_outbox WHERE status<>'PUBLISHED'", "SELECT coalesce(TIMESTAMPDIFF(MICROSECOND,min(created_at),CURRENT_TIMESTAMP(6))/1000000.0,0) FROM domain_event_outbox WHERE status<>'PUBLISHED'"));
         gauge(registry,"cmms.events.consumer.dead","""
                 SELECT count(*) FROM event_retry r WHERE r.state='DEAD'
                 AND NOT EXISTS (SELECT 1 FROM event_retry newer

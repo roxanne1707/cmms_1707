@@ -26,6 +26,7 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
             "end") Date end);
 
     @Query(value = """
+            /* cmms-query:AssetDowntimeRepository-findTopNAssetsByDowntime */
             SELECT a.id, a.name,
               COUNT(ad.id) AS cnt,
               COALESCE(SUM(GREATEST(0, EXTRACT(EPOCH FROM (
@@ -43,13 +44,14 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
             HAVING COUNT(ad.id) > 0
             ORDER BY cnt DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsByDowntime(@Param("companyId") Long companyId,
                                             @Param("start") Date start,
                                             @Param("end") Date end,
                                             @Param("limit") int limit);
 
     @Query(value = """
+            /* cmms-query:AssetDowntimeRepository-findTopNAssetsForMTBF */
             SELECT a.id, a.name, COUNT(ad.id) AS cnt
             FROM asset a
             LEFT JOIN asset_downtime ad ON ad.asset_id = a.id AND ad.starts_on BETWEEN :start AND :end
@@ -58,13 +60,14 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
             HAVING COUNT(ad.id) >= 2
             ORDER BY cnt DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsForMTBF(@Param("companyId") Long companyId,
                                          @Param("start") Date start,
                                          @Param("end") Date end,
                                          @Param("limit") int limit);
 
     @Query(value = """
+            /* cmms-query:AssetDowntimeRepository-findTopNAssetsDowntimeAndCosts */
             WITH wo_costs AS (
               SELECT wo_data.asset_id,
                 COALESCE(SUM(wo_data.labor_cost), 0) AS labor_cost,
@@ -118,7 +121,7 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
               AND (wo_costs.asset_id IS NOT NULL OR downtime_agg.asset_id IS NOT NULL)
             ORDER BY duration DESC
             LIMIT :limit
-            """, nativeQuery = true)
+            """, nativeQuery = true, queryRewriter = com.grash.database.MysqlAnalyticsQueryRewriter.class)
     List<Object[]> findTopNAssetsDowntimeAndCosts(@Param("companyId") Long companyId,
                                                   @Param("start") Date start,
                                                   @Param("end") Date end,

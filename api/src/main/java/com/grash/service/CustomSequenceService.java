@@ -17,6 +17,7 @@ public class CustomSequenceService {
     private final CustomSequenceRepository customSequenceRepository;
     private final EntityManager entityManager;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
 
     public CustomSequence findByCompanyId(Long companyId) {
         return customSequenceRepository.findByCompanyId(companyId)
@@ -37,7 +38,7 @@ public class CustomSequenceService {
         // FOR UPDATE lock would conflict with FK KEY SHARE locks already taken by concurrent commands.
         long lockKey = Long.parseUnsignedLong(
                 DomainCommandStore.hash("CUSTOM_SEQUENCE:" + company.getId()).substring(0, 16), 16);
-        jdbc.queryForList("SELECT pg_advisory_xact_lock(?)", lockKey);
+        database.lock("CUSTOM_SEQUENCE:" + company.getId());
         CustomSequence customSequence = findByCompanyId(company.getId());
         if (customSequence == null) {
             return customSequenceRepository.saveAndFlush(new CustomSequence(company));

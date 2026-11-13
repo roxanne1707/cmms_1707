@@ -10,10 +10,11 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class MaintenanceScheduleReceipt {
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     @Transactional(propagation=Propagation.MANDATORY)
     public boolean claim(long companyId,long scheduleId,String kind,Instant scheduledAt) {
         if(scheduledAt==null || !java.util.Set.of("CREATE","REMINDER").contains(kind)) throw new IllegalArgumentException("Invalid schedule occurrence");
-        return jdbc.update("INSERT INTO maintenance_schedule_execution(company_id,schedule_id,execution_kind,scheduled_at) VALUES(?,?,?,?) ON CONFLICT DO NOTHING",
+        return jdbc.update(database.sql("INSERT INTO maintenance_schedule_execution(company_id,schedule_id,execution_kind,scheduled_at) VALUES(?,?,?,?) ON CONFLICT DO NOTHING","INSERT INTO maintenance_schedule_execution(company_id,schedule_id,execution_kind,scheduled_at) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE company_id=company_id"),
                 companyId,scheduleId,kind,Timestamp.from(scheduledAt))==1;
     }
     @Transactional(propagation=Propagation.MANDATORY)

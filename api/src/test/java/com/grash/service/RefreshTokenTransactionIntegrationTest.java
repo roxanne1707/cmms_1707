@@ -27,12 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-/** Tests the real Spring transaction interceptor against an isolated PostgreSQL table.
+/** Tests the real Spring transaction interceptor against an isolated database table.
  * Repository operations use JDBC test doubles: this does not prove Hibernate's entity fetch plan. */
 @EnabledIfSystemProperty(named = "cmms.test.jdbc-url", matches = ".+")
 class RefreshTokenTransactionIntegrationTest {
     private JdbcTemplate jdbc;
     private String schema;
+    private boolean mysql;
     private RefreshTokenService target;
     private RefreshTokenService service;
     private DataSourceTransactionManager manager;
@@ -41,14 +42,17 @@ class RefreshTokenTransactionIntegrationTest {
 
     @BeforeEach void setUp() {
         String url = System.getProperty("cmms.test.jdbc-url");
-        assertTrue(url.startsWith("jdbc:postgresql://127.0.0.1:25432/cmms_enhancement_test"),
+        mysql=url.equals("jdbc:mysql://127.0.0.1:23306/cmms_mysql_test");
+        assertTrue(mysql || url.startsWith("jdbc:postgresql://127.0.0.1:25432/cmms_enhancement_test"),
                 "These tests only accept the dedicated local test instance");
-        schema = "refresh_test_" + UUID.randomUUID().toString().replace("-", "");
+        schema = (mysql?"cmms_mysql_refresh_":"refresh_test_") + UUID.randomUUID().toString().replace("-", "");
         DriverManagerDataSource ds = new DriverManagerDataSource(url,
                 System.getProperty("cmms.test.jdbc-user", "cmms_test"),
                 System.getProperty("cmms.test.jdbc-password", "cmms_test_local"));
         jdbc = new JdbcTemplate(ds);
-        jdbc.execute("CREATE SCHEMA " + schema);
+        jdbc.execute(mysql?"CREATE DATABASE "+schema+" CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs":"CREATE SCHEMA " + schema);
+        if(mysql) jdbc.execute("CREATE TABLE "+schema+".token(id BIGINT AUTO_INCREMENT PRIMARY KEY,hash VARCHAR(64) UNIQUE,revoked BOOLEAN NOT NULL,created_at DATETIME(6),expires_at DATETIME(6),replacement VARCHAR(64))");
+        else
         jdbc.execute("CREATE TABLE " + schema + ".token (id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY, hash text UNIQUE," +
                 " revoked boolean NOT NULL, created_at timestamp, expires_at timestamp, replacement text)");
         manager = new DataSourceTransactionManager(ds);
@@ -67,9 +71,10 @@ class RefreshTokenTransactionIntegrationTest {
         when(repo.save(any(RefreshToken.class))).thenAnswer(inv -> {
             RefreshToken t = inv.getArgument(0);
             if (t.getId() == null) {
-                t.setId(jdbc.queryForObject("INSERT INTO " + schema + ".token(hash,revoked,created_at,expires_at,replacement)" +
-                                " VALUES(?,?,?,?,?) RETURNING id", Long.class, t.getTokenHash(),t.isRevoked(),
-                        new Timestamp(t.getCreatedAt().getTime()),new Timestamp(t.getExpiresAt().getTime()),t.getReplacedByTokenHash()));
+                String insert="INSERT INTO "+schema+".token(hash,revoked,created_at,expires_at,replacement) VALUES(?,?,?,?,?)";
+                Object[] values={t.getTokenHash(),t.isRevoked(),new Timestamp(t.getCreatedAt().getTime()),new Timestamp(t.getExpiresAt().getTime()),t.getReplacedByTokenHash()};
+                if(mysql){jdbc.update(insert,values);t.setId(jdbc.queryForObject("SELECT id FROM "+schema+".token WHERE hash=?",Long.class,t.getTokenHash()));}
+                else t.setId(jdbc.queryForObject(insert+" RETURNING id",Long.class,values));
             } else jdbc.update("UPDATE " + schema + ".token SET revoked=?, replacement=? WHERE id=?",
                     t.isRevoked(),t.getReplacedByTokenHash(),t.getId());
             return t;
@@ -96,7 +101,7 @@ class RefreshTokenTransactionIntegrationTest {
     }
     private int active() { return jdbc.queryForObject("SELECT count(*) FROM " + schema + ".token WHERE NOT revoked",Integer.class); }
     @AfterEach void cleanup() {
-        if (jdbc != null && schema != null && schema.matches("refresh_test_[a-f0-9]{32}"))
+        if (!mysql && jdbc != null && schema != null && schema.matches("refresh_test_[a-f0-9]{32}"))
             jdbc.execute("DROP SCHEMA " + schema + " CASCADE");
     }
     @Test void legacyRollbackRuleReproducesRevocationLoss() {

@@ -87,7 +87,7 @@ class MaintenanceSlaRequestIntegrationTest {
     private int count(String table){return jdbc.queryForObject("SELECT count(*) FROM "+table+" WHERE company_id=?",Integer.class,companyId);}
     private long anotherRequest(){return tx.execute(s->{Request r=new Request();r.setCompany(em.find(Company.class,companyId));r.setAsset(em.find(Asset.class,assetId));r.setTitle("Pump repeated noise");em.persist(r);em.flush();return r.getId();});}
     private void enablePolicy(){sla.savePolicy(Priority.HIGH,1,2,true,actor);}
-    private void makeDue(){jdbc.update("UPDATE maintenance_sla_case SET started_at=CURRENT_TIMESTAMP-INTERVAL '5 minutes',response_due_at=CURRENT_TIMESTAMP-INTERVAL '4 minutes',repair_due_at=CURRENT_TIMESTAMP-INTERVAL '3 minutes' WHERE company_id=?",companyId);}
+    private void makeDue(){jdbc.update("UPDATE maintenance_sla_case SET started_at=?,response_due_at=?,repair_due_at=? WHERE company_id=?",Timestamp.from(Instant.now().minusSeconds(300)),Timestamp.from(Instant.now().minusSeconds(240)),Timestamp.from(Instant.now().minusSeconds(180)),companyId);}
 
     @Test void manyRequestsShareOneOrderAndDuplicateLinkHasOneAuditAndEvent(){
         long extra=anotherRequest();

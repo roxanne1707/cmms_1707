@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Explicit opt-in only. Never reads the application's deployed datasource configuration. */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches=".+")
+@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches="jdbc:postgresql://127\\.0\\.0\\.1:25432/cmms_enhancement_test.*")
 class QueryInfrastructureIntegrationTest {
     private DriverManagerDataSource dataSource;
     private JdbcTemplate jdbc,admin;
@@ -81,7 +81,7 @@ class QueryInfrastructureIntegrationTest {
         redis=new StringRedisTemplate(redisFactory);redis.afterPropertiesSet();
         try(var connection=redis.getConnectionFactory().getConnection()){assertEquals("PONG",connection.ping());}
         cache=new AssetOverviewCache(redis,new ObjectMapper().findAndRegisterModules());
-        overview=new AssetWorkOrderOverviewRepository(emf,jdbc);
+        overview=new AssetWorkOrderOverviewRepository(emf,jdbc,new com.grash.database.DatabasePlatform("postgresql",jdbc));
     }
     private LettuceConnectionFactory redisFactory(int port){
         RedisStandaloneConfiguration configuration=new RedisStandaloneConfiguration(
@@ -142,7 +142,7 @@ class QueryInfrastructureIntegrationTest {
 
     @Test void mybatisMatchesJpaAndPreservesNullAssetsAndStablePagination(){
         var scope=scope();var q=ledger();
-        var baseline=new MaintenanceLedgerJpaRepository(emf);
+        var baseline=new MaintenanceLedgerJpaRepository(emf,new com.grash.database.DatabasePlatform("postgresql",jdbc));
         try(var session=sqlSessionFactory.openSession()){
             var mapper=session.getMapper(com.grash.readmodel.mapper.MaintenanceLedgerMapper.class);
             assertEquals(5,mapper.count(11,q));

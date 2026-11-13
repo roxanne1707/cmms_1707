@@ -29,6 +29,7 @@ public class MeterTriggerCommandService {
     private final WorkOrderMeterTriggerRepository triggers;
     private final WorkOrderService workOrders;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     private final EntityManager em;
     private final ReliableEventService events;
     private final NotificationService notifications;
@@ -44,7 +45,7 @@ public class MeterTriggerCommandService {
         for (WorkOrderMeterTrigger rule : rules) {
             em.refresh(rule, LockModeType.PESSIMISTIC_WRITE);
             String ruleHash = DomainCommandStore.hash(rule.getTriggerCondition() + ":" + rule.getValue() + ":" + rule.getWaitBefore() + ":" + rule.getEpisodePolicy());
-            jdbc.update("INSERT INTO meter_trigger_state(trigger_id,company_id) VALUES (?,?) ON CONFLICT (trigger_id) DO NOTHING", rule.getId(), meter.getCompany().getId());
+            jdbc.update(database.sql("INSERT INTO meter_trigger_state(trigger_id,company_id) VALUES (?,?) ON CONFLICT (trigger_id) DO NOTHING","INSERT INTO meter_trigger_state(trigger_id,company_id) VALUES (?,?) ON DUPLICATE KEY UPDATE trigger_id=trigger_id"), rule.getId(), meter.getCompany().getId());
             State state = jdbc.queryForObject("SELECT abnormal,opened,episode,opened_count,first_abnormal_at,rule_hash FROM meter_trigger_state WHERE trigger_id=? FOR UPDATE",
                     (rs,n) -> new State(rs.getBoolean(1),rs.getBoolean(2),rs.getLong(3),rs.getLong(4),rs.getTimestamp(5)==null?null:rs.getTimestamp(5).toInstant(),rs.getString(6)),rule.getId());
             boolean abnormal = MeterEpisodeRules.abnormal(reading.getValue(), rule.getValue(), rule.getTriggerCondition());

@@ -22,6 +22,7 @@ import java.util.Optional;
 @Transactional(propagation = Propagation.MANDATORY)
 public class DomainCommandStore {
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     private final ObjectMapper json;
     public record Stored(String payloadHash, Long actorId, String subjectType, Long subjectId, String responseJson) {}
 
@@ -32,7 +33,7 @@ public class DomainCommandStore {
         long companyId = user.getCompany().getId();
         byte[] digest = digest(namespace + ":" + companyId + ":" + key);
         // Database transaction scoped; even a hash collision merely serializes unrelated commands.
-        jdbc.queryForList("SELECT pg_advisory_xact_lock(?)", ByteBuffer.wrap(digest).getLong());
+        database.lock(namespace + ":" + companyId + ":" + key);
         List<Stored> rows = jdbc.query("SELECT payload_hash,actor_id,subject_type,subject_id,response_json FROM domain_command WHERE company_id=? AND namespace=? AND command_key=?",
                 (rs, n) -> new Stored(rs.getString(1), rs.getLong(2), rs.getString(3), rs.getLong(4), rs.getString(5)), companyId, namespace, key);
         if (rows.isEmpty()) return Optional.empty();

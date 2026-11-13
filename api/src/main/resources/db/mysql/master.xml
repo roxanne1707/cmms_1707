@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+ <preConditions onFail="HALT"><dbms type="mysql"/></preConditions>
+ <changeSet id="mysql-fresh-baseline-20261114" author="cmms-contributors">
+  <sqlFile path="schema.sql" relativeToChangelogFile="true" splitStatements="true"/>
+ </changeSet>
+ <changeSet id="mysql-reference-20261114" author="cmms-contributors"><sqlFile path="reference-data.sql" relativeToChangelogFile="true"/></changeSet>
+ <changeSet id="mysql-triggers-20261114" author="cmms-contributors"><sqlFile path="triggers.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false" endDelimiter="-- end-trigger"/></changeSet>
+ <changeSet id="mysql-overview-cover-20261114" author="cmms-contributors"><sqlFile path="overview-index.sql" relativeToChangelogFile="true"/></changeSet>
+</databaseChangeLog>

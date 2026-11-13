@@ -1,0 +1,231 @@
+{
+  "recordedAtUtc": "2026-11-13T23:37:29.436102+00:00",
+  "version": "8.0.33",
+  "database": "cmms_mysql_perf_4e4580f849af4051885634e3b41082d8",
+  "rows": 100000,
+  "purpose": "Compare the same overview SQL before and after the actual covering-index migration plus a targeted index hint. Forced full scan is a diagnostic control, not the previous product implementation. Single-session EXPLAIN ANALYZE excludes HTTP/Redis/auth/network. No triggers during bulk generation, no application on this database.",
+  "runs": [
+    {
+      "cohort": "sparse",
+      "mode": "optimizer",
+      "repeat": 1,
+      "rootActualMs": 0.26,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=53.6 rows=1) (actual time=0.26..0.26 rows=1 loops=1)\\n    -> Filter: ((work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=53.3 rows=2.78) (actual time=0.152..0.227 rows=100 loops=1)\\n        -> Index lookup on work_order using fkp4hbmaa9hcp6myymsfyxg6fo2 (asset_id=102)  (cost=53.3 rows=100) (actual time=0.148..0.203 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "full_scan",
+      "repeat": 1,
+      "rootActualMs": 39.4,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33919 rows=1) (actual time=39.4..39.4 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33653 rows=2666) (actual time=0.0716..39.4 rows=100 loops=1)\\n        -> Table scan on work_order  (cost=33653 rows=96006) (actual time=0.0647..35.7 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "full_scan",
+      "repeat": 2,
+      "rootActualMs": 37.4,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=37.4..37.4 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.109..37.3 rows=100 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.1..33.5 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "optimizer",
+      "repeat": 2,
+      "rootActualMs": 0.188,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=25.6 rows=1) (actual time=0.188..0.188 rows=1 loops=1)\\n    -> Filter: ((work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=25.3 rows=2.78) (actual time=0.0856..0.154 rows=100 loops=1)\\n        -> Index lookup on work_order using fkp4hbmaa9hcp6myymsfyxg6fo2 (asset_id=102)  (cost=25.3 rows=100) (actual time=0.0811..0.133 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "optimizer",
+      "repeat": 3,
+      "rootActualMs": 0.217,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=25.6 rows=1) (actual time=0.217..0.217 rows=1 loops=1)\\n    -> Filter: ((work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=25.3 rows=2.78) (actual time=0.109..0.185 rows=100 loops=1)\\n        -> Index lookup on work_order using fkp4hbmaa9hcp6myymsfyxg6fo2 (asset_id=102)  (cost=25.3 rows=100) (actual time=0.105..0.161 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "full_scan",
+      "repeat": 3,
+      "rootActualMs": 78.2,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=78.2..78.2 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=2.76..78.2 rows=100 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=2.75..74.4 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "full_scan",
+      "repeat": 4,
+      "rootActualMs": 38.4,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=38.4..38.4 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0492..38.4 rows=100 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0416..34.7 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "optimizer",
+      "repeat": 4,
+      "rootActualMs": 0.187,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=25.6 rows=1) (actual time=0.187..0.187 rows=1 loops=1)\\n    -> Filter: ((work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=25.3 rows=2.78) (actual time=0.0829..0.155 rows=100 loops=1)\\n        -> Index lookup on work_order using fkp4hbmaa9hcp6myymsfyxg6fo2 (asset_id=102)  (cost=25.3 rows=100) (actual time=0.079..0.133 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "optimizer",
+      "repeat": 5,
+      "rootActualMs": 0.192,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=25.6 rows=1) (actual time=0.192..0.192 rows=1 loops=1)\\n    -> Filter: ((work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=25.3 rows=2.78) (actual time=0.0857..0.158 rows=100 loops=1)\\n        -> Index lookup on work_order using fkp4hbmaa9hcp6myymsfyxg6fo2 (asset_id=102)  (cost=25.3 rows=100) (actual time=0.0814..0.135 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "full_scan",
+      "repeat": 5,
+      "rootActualMs": 37.4,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=37.4..37.4 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0521..37.4 rows=100 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0444..33.6 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "optimizer",
+      "repeat": 1,
+      "rootActualMs": 76.3,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=1542 rows=1) (actual time=76.3..76.3 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=1408 rows=1333) (actual time=0.152..63.7 rows=49900 loops=1)\\n        -> Index lookup on work_order using idx_work_order_company_id (company_id=1)  (cost=1408 rows=48003) (actual time=0.0807..54.8 rows=50000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "full_scan",
+      "repeat": 1,
+      "rootActualMs": 60.1,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=60.1..60.1 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0778..47.1 rows=49900 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0403..35.4 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "full_scan",
+      "repeat": 2,
+      "rootActualMs": 56.9,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=56.9..56.9 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.077..44.7 rows=49900 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0415..34 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "optimizer",
+      "repeat": 2,
+      "rootActualMs": 73.0,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=1542 rows=1) (actual time=73..73 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=1408 rows=1333) (actual time=0.149..60.8 rows=49900 loops=1)\\n        -> Index lookup on work_order using idx_work_order_company_id (company_id=1)  (cost=1408 rows=48003) (actual time=0.079..52.2 rows=50000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "optimizer",
+      "repeat": 3,
+      "rootActualMs": 75.6,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=1542 rows=1) (actual time=75.6..75.6 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=1408 rows=1333) (actual time=0.151..63 rows=49900 loops=1)\\n        -> Index lookup on work_order using idx_work_order_company_id (company_id=1)  (cost=1408 rows=48003) (actual time=0.0809..53.8 rows=50000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "full_scan",
+      "repeat": 3,
+      "rootActualMs": 59.4,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=59.4..59.4 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0771..46.5 rows=49900 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0409..35.2 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "full_scan",
+      "repeat": 4,
+      "rootActualMs": 61.8,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=61.8..61.8 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0742..49.1 rows=49900 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.0403..37.8 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "optimizer",
+      "repeat": 4,
+      "rootActualMs": 78.6,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=1542 rows=1) (actual time=78.6..78.6 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=1408 rows=1333) (actual time=0.152..65.3 rows=49900 loops=1)\\n        -> Index lookup on work_order using idx_work_order_company_id (company_id=1)  (cost=1408 rows=48003) (actual time=0.0793..56.1 rows=50000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "optimizer",
+      "repeat": 5,
+      "rootActualMs": 75.6,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=1542 rows=1) (actual time=75.6..75.6 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=1408 rows=1333) (actual time=0.156..62.8 rows=49900 loops=1)\\n        -> Index lookup on work_order using idx_work_order_company_id (company_id=1)  (cost=1408 rows=48003) (actual time=0.0836..53.7 rows=50000 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "full_scan",
+      "repeat": 5,
+      "rootActualMs": 60.1,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=33869 rows=1) (actual time=60.1..60.1 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=33602 rows=2666) (actual time=0.0795..47.1 rows=49900 loops=1)\\n        -> Table scan on work_order  (cost=33602 rows=96006) (actual time=0.045..35.8 rows=100000 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "covering",
+      "repeat": 1,
+      "rootActualMs": 0.122,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=26.6 rows=1) (actual time=0.122..0.122 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=21.6 rows=50) (actual time=0.0243..0.0876 rows=100 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 102 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=21.6 rows=100) (actual time=0.0197..0.0633 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "covering",
+      "repeat": 2,
+      "rootActualMs": 0.12,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=26.6 rows=1) (actual time=0.12..0.12 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=21.6 rows=50) (actual time=0.0226..0.0857 rows=100 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 102 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=21.6 rows=100) (actual time=0.0179..0.0617 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "covering",
+      "repeat": 3,
+      "rootActualMs": 0.135,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=26.6 rows=1) (actual time=0.135..0.135 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=21.6 rows=50) (actual time=0.0217..0.101 rows=100 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 102 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=21.6 rows=100) (actual time=0.0173..0.0762 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "covering",
+      "repeat": 4,
+      "rootActualMs": 0.179,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=26.6 rows=1) (actual time=0.179..0.179 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=21.6 rows=50) (actual time=0.058..0.138 rows=100 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 102 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=21.6 rows=100) (actual time=0.0515..0.11 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "sparse",
+      "mode": "covering",
+      "repeat": 5,
+      "rootActualMs": 0.122,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=26.6 rows=1) (actual time=0.122..0.122 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 102) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=21.6 rows=50) (actual time=0.0213..0.0859 rows=100 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 102 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=21.6 rows=100) (actual time=0.0172..0.0616 rows=100 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "covering",
+      "repeat": 1,
+      "rootActualMs": 41.2,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=14119 rows=1) (actual time=41.2..41.2 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=11358 rows=27604) (actual time=0.0221..27.9 rows=49900 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 101 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=11358 rows=55209) (actual time=0.0174..18.3 rows=49900 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "covering",
+      "repeat": 2,
+      "rootActualMs": 50.7,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=14119 rows=1) (actual time=50.7..50.7 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=11358 rows=27604) (actual time=0.0215..34.6 rows=49900 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 101 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=11358 rows=55209) (actual time=0.0175..23.1 rows=49900 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "covering",
+      "repeat": 3,
+      "rootActualMs": 41.1,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=14119 rows=1) (actual time=41.1..41.1 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=11358 rows=27604) (actual time=0.0237..28 rows=49900 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 101 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=11358 rows=55209) (actual time=0.0189..18.3 rows=49900 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "covering",
+      "repeat": 4,
+      "rootActualMs": 42.2,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=14119 rows=1) (actual time=42.2..42.2 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=11358 rows=27604) (actual time=0.0214..28.6 rows=49900 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 101 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=11358 rows=55209) (actual time=0.0172..18.9 rows=49900 loops=1)\\n"
+    },
+    {
+      "cohort": "hot",
+      "mode": "covering",
+      "repeat": 5,
+      "rootActualMs": 44.8,
+      "plan": "-> Aggregate: count(0), count((case when (work_order.`status` = 3) then 1 end)), avg((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then (timestampdiff(MICROSECOND,work_order.created_at,work_order.completed_on) / 1000000.0) end)), count((case when ((work_order.`status` = 3) and (work_order.completed_on is not null) and (work_order.completed_on >= work_order.created_at)) then 1 end)), count((case when ((work_order.`status` = 3) and ((work_order.completed_on is null) or (work_order.completed_on < work_order.created_at))) then 1 end))  (cost=14119 rows=1) (actual time=44.8..44.8 rows=1 loops=1)\\n    -> Filter: ((work_order.asset_id = 101) and (work_order.company_id = 1) and (work_order.created_at >= <cache>(cast('2026-01-01' as datetime(6)))) and (work_order.created_at < <cache>(cast('2027-01-01' as datetime(6)))) and (work_order.archived = false) and (coalesce(work_order.is_demo,false) = false))  (cost=11358 rows=27604) (actual time=0.0265..30.5 rows=49900 loops=1)\\n        -> Covering index range scan on work_order using ix_work_order_overview_cover over (company_id = 1 AND asset_id = 101 AND '2026-01-01 00:00:00.000000' <= created_at <= '2027-01-01 00:00:00.000000' AND 0 <= archived)  (cost=11358 rows=55209) (actual time=0.0222..20.2 rows=49900 loops=1)\\n"
+    }
+  ],
+  "summary": {
+    "sparse": {
+      "optimizer": 0.192,
+      "full_scan": 38.4,
+      "covering": 0.122
+    },
+    "hot": {
+      "optimizer": 75.6,
+      "full_scan": 60.1,
+      "covering": 42.2
+    }
+  }
+}

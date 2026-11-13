@@ -18,13 +18,15 @@ import java.util.*;
 public class EventReplayService {
     private final UserRepository users;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     private final EventStore store;
     private final EventJson json;
+    private final com.grash.writemodel.mapper.NotificationReplayAuditMapper audits;
 
     @Transactional
     public void replayEvent(User caller,UUID eventId,String reason) {
         User user=authorize(caller); long company=user.getCompany().getId(); validateReason(reason);
-        jdbc.queryForList("SELECT pg_advisory_xact_lock(hashtextextended(?,0))",company+":"+eventId);
+        database.lock("EVENT_REPLAY:"+company+":"+eventId);
         if(Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM consumer_receipt WHERE company_id=? AND event_id=? AND handler=?)",
                 Boolean.class,company,eventId,EventEnvelope.HANDLER))) throw new CustomException("Event already consumed; retry a failed delivery instead",HttpStatus.CONFLICT);
         List<Map<String,Object>> rows=jdbc.queryForList("""
@@ -52,7 +54,7 @@ public class EventReplayService {
         if(!states.get(0).equals("DEAD")) throw new CustomException("Only DEAD deliveries can be retried",HttpStatus.CONFLICT);
         jdbc.update("""
                 UPDATE event_delivery SET state='READY',attempt=0,replay_generation=replay_generation+1,
-                claim_token=NULL,lease_until=NULL,next_attempt_at=CURRENT_TIMESTAMP,last_error=NULL WHERE id=? AND company_id=?
+                claim_token=NULL,lease_until=NULL,next_attempt_at=CURRENT_TIMESTAMP(6),last_error=NULL WHERE id=? AND company_id=?
                 """,deliveryId,user.getCompany().getId());
         audit(user,deliveryId,"DELIVERY",reason);
     }
@@ -81,8 +83,10 @@ public class EventReplayService {
         return user;
     }
     private void audit(User user,UUID id,String type,String reason) {
-        jdbc.update("INSERT INTO event_replay_audit(id,company_id,actor_id,resource_id,resource_type,reason) VALUES(?,?,?,?,?,?)",
-                UUID.randomUUID(),user.getCompany().getId(),user.getId(),id,type,reason.trim());
+        var audit=new com.grash.writemodel.NotificationReplayAudit();
+        audit.setId(UUID.randomUUID());audit.setCompanyId(user.getCompany().getId());audit.setActorId(user.getId());
+        audit.setResourceId(id);audit.setResourceType(type);audit.setReason(reason.trim());
+        if(audits.insert(audit)!=1)throw new IllegalStateException("Recovery audit was not persisted");
     }
     private void validateReason(String reason) {
         if(reason==null || reason.trim().length()<5 || reason.length()>500) throw new CustomException("Provide a reason of 5-500 characters",HttpStatus.BAD_REQUEST);

@@ -42,11 +42,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /** Explicit isolated database only; never falls back to the application's datasource. */
-@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches="jdbc:postgresql://127\\.0\\.0\\.1:[0-9]+/cmms_enhancement_test.*")
+@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches="jdbc:(postgresql://127\\.0\\.0\\.1:25432/cmms_enhancement_test.*|mysql://127\\.0\\.0\\.1:23306/cmms_mysql_test)")
 class ReliableEventsPostgresIntegrationTest {
     private AnnotationConfigApplicationContext context;
     private JdbcTemplate jdbc,bootstrap;
     private String schema;
+    private boolean mysql;
+    private com.grash.database.DatabasePlatform platform;
     private EventStore store;
     private NotificationCommandService notifications;
     private EventDeliveryStore deliveries;
@@ -64,18 +66,41 @@ class ReliableEventsPostgresIntegrationTest {
         String username=System.getProperty("cmms.test.jdbc-user","cmms_test");
         String password=System.getProperty("cmms.test.jdbc-password","cmms_test_local");
         bootstrap=new JdbcTemplate(new DriverManagerDataSource(url,username,password));
+        mysql=url.startsWith("jdbc:mysql:");
+        DataSource source;
+        if(mysql) {
+            schema="cmms_mysql_events_"+UUID.randomUUID().toString().replace("-","");
+            bootstrap.execute("CREATE DATABASE "+schema+" CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs");
+            source=new DriverManagerDataSource("jdbc:mysql://127.0.0.1:23306/"+schema+"?useAffectedRows=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true",username,password);
+            jdbc=new com.grash.database.MysqlJdbcConfiguration().jdbcTemplate(source);
+            jdbc.execute("CREATE TABLE company(id BIGINT PRIMARY KEY)");
+            jdbc.execute("CREATE TABLE own_user(id BIGINT PRIMARY KEY,company_id BIGINT, FOREIGN KEY(company_id) REFERENCES company(id) ON DELETE CASCADE)");
+            // Reuse the actual MySQL DDL for all event tables/constraints; only parent fixtures are minimal.
+            try(var in=new ClassPathResource("db/mysql/schema.sql").getInputStream()) {
+                String ddl=new String(in.readAllBytes(),StandardCharsets.UTF_8).replaceAll("(?m)^--.*$","");
+                Set<String> tables=Set.of("notification","notification_seq","consumer_receipt","domain_event_outbox","event_retry","event_delivery","event_replay_audit","event_quarantine","cmms_transaction_lock");
+                var tableName=java.util.regex.Pattern.compile("(?is)^(?:CREATE TABLE|INSERT INTO|ALTER TABLE|CREATE (?:UNIQUE )?INDEX \\S+ ON)\\s+`?(\\w+)`?");
+                for(String statement:ddl.split(";")) {
+                    String sql=statement.trim();var match=tableName.matcher(sql);
+                    if(match.find() && tables.contains(match.group(1)))jdbc.execute(sql);
+                }
+            } catch(java.io.IOException ex){throw new IllegalStateException(ex);}
+        } else {
         schema="events_it_"+UUID.randomUUID().toString().replace("-","");
         bootstrap.execute("CREATE SCHEMA "+schema);
-        DataSource source=new DriverManagerDataSource(url+(url.contains("?")?"&":"?")+"currentSchema="+schema,username,password);
+        source=new DriverManagerDataSource(url+(url.contains("?")?"&":"?")+"currentSchema="+schema,username,password);
         jdbc=new JdbcTemplate(source);
         jdbc.execute("CREATE TABLE company(id BIGINT PRIMARY KEY)");
         jdbc.execute("CREATE TABLE own_user(id BIGINT PRIMARY KEY,company_id BIGINT REFERENCES company(id) ON DELETE CASCADE)");
         jdbc.execute("CREATE SEQUENCE notification_seq INCREMENT BY 50");
         jdbc.execute("CREATE TABLE notification(id BIGINT PRIMARY KEY,created_at TIMESTAMP NOT NULL,updated_at TIMESTAMP NOT NULL,created_by BIGINT,updated_by BIGINT,message VARCHAR(255) NOT NULL,notification_type INTEGER,resource_id BIGINT,seen BOOLEAN NOT NULL,user_id BIGINT REFERENCES own_user(id) ON DELETE CASCADE)");
         new ResourceDatabasePopulator(new ClassPathResource("db/changelog/2026_11_14_reliable_events.sql")).execute(source);
+        }
+        platform=new com.grash.database.DatabasePlatform(mysql?"mysql":"postgresql",jdbc);
         jdbc.update("INSERT INTO company VALUES(1),(2)");jdbc.update("INSERT INTO own_user VALUES(11,1),(12,1),(21,2)");
         context=new AnnotationConfigApplicationContext();
-        context.register(Transactions.class);
+        context.register(com.grash.configuration.MybatisReadConfig.class,Transactions.class);
+        context.registerBean(com.grash.database.DatabasePlatform.class,()->platform);
         context.registerBean(DataSource.class,()->source);
         context.registerBean(JdbcTemplate.class,()->jdbc);
         context.registerBean(ObjectMapper.class,()->new ObjectMapper().findAndRegisterModules());
@@ -93,7 +118,7 @@ class ReliableEventsPostgresIntegrationTest {
     }
     @AfterEach void cleanup() {
         if(context!=null) context.close();
-        if(bootstrap!=null && schema!=null && schema.matches("events_it_[a-f0-9]+")) bootstrap.execute("DROP SCHEMA "+schema+" CASCADE");
+        if(!mysql && bootstrap!=null && schema!=null && schema.matches("events_it_[a-f0-9]+")) bootstrap.execute("DROP SCHEMA "+schema+" CASCADE");
     }
     @Test void transactionRollbackLeavesNoEventAndNoAttempt() {
         EventEnvelope event=event(false);
@@ -130,11 +155,11 @@ class ReliableEventsPostgresIntegrationTest {
     @Test void stalePublicationAndConsumerTokensCannotCommit() {
         EventEnvelope event=event(false);append(event);
         var first=store.claimPublications().get(0);
-        jdbc.update("UPDATE domain_event_outbox SET lease_until=CURRENT_TIMESTAMP-INTERVAL '1 second'");
+        jdbc.update("UPDATE domain_event_outbox SET lease_until=?",java.sql.Timestamp.from(Instant.now().minusSeconds(1)));
         var second=store.claimPublications().get(0);
         assertFalse(store.publicationResult(first,true,null));assertTrue(store.publicationResult(second,true,null));
         var firstAttempt=store.claimAttempt(DispatchMessage.original(event)).orElseThrow();
-        jdbc.update("UPDATE event_retry SET lease_until=CURRENT_TIMESTAMP-INTERVAL '1 second'");
+        jdbc.update("UPDATE event_retry SET lease_until=?",java.sql.Timestamp.from(Instant.now().minusSeconds(1)));
         var secondAttempt=store.claimAttempt(DispatchMessage.original(event)).orElseThrow();
         assertThrows(IllegalStateException.class,()->notifications.consume(firstAttempt));
         assertEquals(0,count("consumer_receipt"));notifications.consume(secondAttempt);assertEquals(1,count("notification"));
@@ -153,9 +178,9 @@ class ReliableEventsPostgresIntegrationTest {
         store.failAttempt(attempt,new IllegalStateException("duplicate"),false);assertEquals(2,count("event_retry"));
         DispatchMessage next=new DispatchMessage(1,event.eventId(),1,EventEnvelope.HANDLER,0,1);
         // Control the persisted clock boundary instead of racing the real one-second backoff on a busy CI host.
-        jdbc.update("UPDATE event_retry SET next_attempt_at=CURRENT_TIMESTAMP+INTERVAL '1 hour' WHERE business_attempt=1");
+        jdbc.update("UPDATE event_retry SET next_attempt_at=? WHERE business_attempt=1",java.sql.Timestamp.from(Instant.now().plusSeconds(3600)));
         assertTrue(store.claimAttempt(next).isEmpty());
-        jdbc.update("UPDATE event_retry SET next_attempt_at=CURRENT_TIMESTAMP-INTERVAL '1 second' WHERE business_attempt=1");
+        jdbc.update("UPDATE event_retry SET next_attempt_at=? WHERE business_attempt=1",java.sql.Timestamp.from(Instant.now().minusSeconds(1)));
         doReturn(true).when(access).canReceive(any(),any());
         notifications.consume(store.claimAttempt(next).orElseThrow());assertEquals(2,count("notification"));
     }
@@ -171,7 +196,7 @@ class ReliableEventsPostgresIntegrationTest {
         EventEnvelope event=event(false);append(event);
         var publication=store.claimPublications().get(0);store.publicationResult(publication,true,null);
         store.claimAttempt(DispatchMessage.original(event)).orElseThrow();
-        jdbc.update("UPDATE event_retry SET lease_until=CURRENT_TIMESTAMP-INTERVAL '1 second'");
+        jdbc.update("UPDATE event_retry SET lease_until=?",java.sql.Timestamp.from(Instant.now().minusSeconds(1)));
         store.recoverExpiredAttempts();
         assertEquals("PENDING",jdbc.queryForObject("SELECT status FROM domain_event_outbox",String.class));
         notifications.consume(store.claimAttempt(DispatchMessage.original(event)).orElseThrow());assertEquals(1,count("notification"));
@@ -215,11 +240,12 @@ class ReliableEventsPostgresIntegrationTest {
     @Test void deadEventGaugeCountsOnlyLatestUnconsumedAttempt() {
         var registry=new io.micrometer.core.instrument.simple.SimpleMeterRegistry();
         try {
-            new EventMetrics(jdbc).bindTo(registry);
+            new EventMetrics(jdbc,platform).bindTo(registry);
             var gauge=registry.get("cmms.events.consumer.dead").gauge();
             properties.setMaxAttempts(1);EventEnvelope event=event(false);append(event);
             User admin=admin(11,1);when(users.findByIdAndCompany_Id(11L,1L)).thenReturn(Optional.of(admin));
             assertEquals(0d,gauge.value());
+            assertTrue(Double.isFinite(registry.get("cmms.events.outbox.oldest.seconds").gauge().value()));
             store.failAttempt(store.claimAttempt(DispatchMessage.original(event)).orElseThrow(),new IllegalStateException("first failure"),false);
             assertEquals(1d,gauge.value());
             replay.replayEvent(admin,event.eventId(),"Repair and replay one");assertEquals(0d,gauge.value());
@@ -245,7 +271,7 @@ class ReliableEventsPostgresIntegrationTest {
             EventDeliverySender sender=new EventDeliverySender(properties,access,json,env,mock(SpringTemplateEngine.class),mock(BrandingService.class),mock(JavaMailSender.class),mock(ReportAttachmentStore.class));
             EventDeliveryWorker worker=new EventDeliveryWorker(deliveries,sender,json);
             worker.deliverOne();assertEquals("RETRY",jdbc.queryForObject("SELECT state FROM event_delivery",String.class));
-            jdbc.update("UPDATE event_delivery SET next_attempt_at=CURRENT_TIMESTAMP-INTERVAL '1 second'");worker.deliverOne();
+            jdbc.update("UPDATE event_delivery SET next_attempt_at=?",java.sql.Timestamp.from(Instant.now().minusSeconds(1)));worker.deliverOne();
             assertEquals("SENT",jdbc.queryForObject("SELECT state FROM event_delivery",String.class));
             assertEquals(2,calls.get());assertEquals(1,ids.size());assertEquals(1,count("notification"));
         } finally {server.stop(0);}

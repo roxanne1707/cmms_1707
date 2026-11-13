@@ -1,0 +1,49 @@
+{
+  "recordedAtUtc": "2026-11-13T23:42:18.600006+00:00",
+  "backend": [
+    {
+      "name": "MySQL 全量（索引优化前）",
+      "total": 2172,
+      "passed": 2147,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 25,
+      "log": "mysql-full-2.log",
+      "logSha256": "705e445a94e159a31d9f963f5ba23da0a700530649726a22709eebdc09915b8d",
+      "buildSuccess": true
+    },
+    {
+      "name": "PostgreSQL 全量",
+      "total": 2172,
+      "passed": 2172,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "postgres-full-package.log",
+      "logSha256": "c83cf92288de6287f8888616b35da246a8d0d57b5e2426eb2ad18f830b2b255d",
+      "buildSuccess": false,
+      "note": "All tests passed; subsequent packaging could not rename the jar held by an existing test process. Separate app-mysql artifact packaged successfully later."
+    },
+    {
+      "name": "MySQL 最终关键链路与打包",
+      "total": 59,
+      "passed": 59,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "log": "mysql-final-package.log",
+      "logSha256": "29d569e0daa35ec887a2169a1d4318bf6676060dbb9a6eea7fdadf0ce7fe1e9e",
+      "buildSuccess": true
+    }
+  ],
+  "frontend": {
+    "clientCases": 25,
+    "socketCases": 12,
+    "passed": 37
+  },
+  "notes": [
+    "Totals are separate runs; do not add repeated test executions as unique tests.",
+    "25 PostgreSQL-specific tests are not counted as MySQL passes.",
+    "Final 59 tests include the covering-index migration and all changed critical business/security/event paths."
+  ]
+}

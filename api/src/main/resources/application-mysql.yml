@@ -1,0 +1,32 @@
+# Opt-in database backend. No default deployment connection is changed.
+cmms:
+  database: mysql
+spring:
+  datasource:
+    url: ${MYSQL_JDBC_URL}
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      data-source-properties:
+        useAffectedRows: true
+        connectionTimeZone: UTC
+        forceConnectionTimeZoneToSession: true
+      transaction-isolation: TRANSACTION_READ_COMMITTED
+      connection-init-sql: "SET time_zone = '+00:00'"
+  liquibase:
+    change-log: classpath:/db/mysql/master.xml
+  jpa:
+    properties:
+      hibernate:
+        dialect: com.grash.database.CmmsMySqlDialect
+        jdbc.time_zone: UTC
+        type.preferred_uuid_jdbc_type: CHAR
+  quartz:
+    properties:
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+      org.quartz.jobStore.tablePrefix: QRTZ_
+enhancement:
+  query:
+    cache:
+      namespace: ${MYSQL_CACHE_NAMESPACE:cmms-mysql}

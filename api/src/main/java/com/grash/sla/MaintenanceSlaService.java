@@ -22,6 +22,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class MaintenanceSlaService {
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     private final FreshMaintenanceActor actors;
     private final WorkOrderRepository workOrders;
     private final UserRepository users;
@@ -49,13 +50,19 @@ public class MaintenanceSlaService {
         User actor=manager(identity);
         if(priority==null || response<1 || repair<response || repair>525600)
             throw new CustomException("Response and repair minutes must be 1..525600, repair >= response",HttpStatus.BAD_REQUEST);
-        jdbc.update("""
+        jdbc.update(database.sql("""
           INSERT INTO maintenance_sla_policy(company_id,priority,response_minutes,repair_minutes,enabled,updated_by)
           VALUES(?,?,?,?,?,?) ON CONFLICT(company_id,priority) DO UPDATE SET
            response_minutes=EXCLUDED.response_minutes,repair_minutes=EXCLUDED.repair_minutes,enabled=EXCLUDED.enabled,
-           effective_from=CASE WHEN maintenance_sla_policy.enabled AND EXCLUDED.enabled THEN maintenance_sla_policy.effective_from ELSE CURRENT_TIMESTAMP END,
-           updated_by=EXCLUDED.updated_by,updated_at=CURRENT_TIMESTAMP
-          """,actor.getCompany().getId(),priority.ordinal(),response,repair,active,actor.getId());
+           effective_from=CASE WHEN maintenance_sla_policy.enabled AND EXCLUDED.enabled THEN maintenance_sla_policy.effective_from ELSE CURRENT_TIMESTAMP(6) END,
+           updated_by=EXCLUDED.updated_by,updated_at=CURRENT_TIMESTAMP(6)
+          ""","""
+          INSERT INTO maintenance_sla_policy(company_id,priority,response_minutes,repair_minutes,enabled,updated_by)
+          VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE
+           response_minutes=VALUES(response_minutes),repair_minutes=VALUES(repair_minutes),
+           effective_from=CASE WHEN maintenance_sla_policy.enabled AND VALUES(enabled) THEN maintenance_sla_policy.effective_from ELSE CURRENT_TIMESTAMP(6) END,
+           enabled=VALUES(enabled),updated_by=VALUES(updated_by),updated_at=CURRENT_TIMESTAMP(6)
+          """),actor.getCompany().getId(),priority.ordinal(),response,repair,active,actor.getId());
         return policies(actor).stream().filter(p->p.priority()==priority).findFirst().orElseThrow();
     }
 
@@ -66,7 +73,7 @@ public class MaintenanceSlaService {
         List<Long> locked=jdbc.query("SELECT id FROM work_order WHERE id=? AND company_id=? FOR UPDATE",(rs,n)->rs.getLong(1),orderId,actor.getCompany().getId());
         if(locked.isEmpty()) throw new CustomException("Work order not found",HttpStatus.NOT_FOUND);
         if(Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM maintenance_sla_case WHERE work_order_id=? AND company_id=?)",Boolean.class,orderId,actor.getCompany().getId()))) return;
-        int changed=jdbc.update("""
+        int changed=jdbc.update(database.sql("""
           INSERT INTO maintenance_sla_case(work_order_id,company_id,priority,started_at,response_due_at,repair_due_at,responded_at,enrolled_by,enrollment_reason)
           SELECT w.id,w.company_id,w.priority,w.created_at AT TIME ZONE 'UTC',
            (w.created_at AT TIME ZONE 'UTC')+make_interval(mins=>p.response_minutes),
@@ -75,7 +82,16 @@ public class MaintenanceSlaService {
           FROM work_order w JOIN maintenance_sla_policy p ON p.company_id=w.company_id AND p.priority=w.priority
           WHERE w.id=? AND w.company_id=? AND p.enabled AND NOT w.archived AND NOT w.is_demo AND w.status<>?
           ON CONFLICT(work_order_id) DO NOTHING
-          """,actor.getId(),reason.trim(),orderId,actor.getCompany().getId(),Status.COMPLETE.ordinal());
+          ""","""
+          INSERT INTO maintenance_sla_case(work_order_id,company_id,priority,started_at,response_due_at,repair_due_at,responded_at,enrolled_by,enrollment_reason)
+          SELECT w.id,w.company_id,w.priority,w.created_at,
+           TIMESTAMPADD(MINUTE,p.response_minutes,w.created_at),
+           TIMESTAMPADD(MINUTE,p.repair_minutes,w.created_at),
+           CASE WHEN w.first_time_to_react>=w.created_at THEN w.first_time_to_react ELSE NULL END,?,?
+          FROM work_order w JOIN maintenance_sla_policy p ON p.company_id=w.company_id AND p.priority=w.priority
+          WHERE w.id=? AND w.company_id=? AND p.enabled AND NOT w.archived AND NOT w.is_demo AND w.status<>?
+          ON DUPLICATE KEY UPDATE work_order_id=work_order_id
+          """),actor.getId(),reason.trim(),orderId,actor.getCompany().getId(),Status.COMPLETE.ordinal());
         if(changed==0) throw new CustomException("An enabled priority policy and an active non-demo work order are required",HttpStatus.CONFLICT);
     }
 
@@ -94,9 +110,9 @@ public class MaintenanceSlaService {
            },company,size,(long)page*size);
         Map<String,Object> summary=jdbc.queryForMap("""
            SELECT count(*) AS total,
-            count(*) FILTER (WHERE COALESCE(responded_at,?)>response_due_at) AS response,
-            count(*) FILTER (WHERE COALESCE(completed_at,?)>repair_due_at) AS repair,
-            count(*) FILTER (WHERE completed_at IS NOT NULL) AS completed
+            count(CASE WHEN COALESCE(responded_at,?)>response_due_at THEN 1 END) AS response,
+            count(CASE WHEN COALESCE(completed_at,?)>repair_due_at THEN 1 END) AS repair,
+            count(CASE WHEN completed_at IS NOT NULL THEN 1 END) AS completed
            FROM maintenance_sla_case WHERE company_id=?
            """,Timestamp.from(now),Timestamp.from(now),company);
         return new Board(rows,((Number)summary.get("total")).longValue(),page,size,((Number)summary.get("response")).longValue(),((Number)summary.get("repair")).longValue(),((Number)summary.get("completed")).longValue());
@@ -107,13 +123,18 @@ public class MaintenanceSlaService {
     public int processDue() {
         if(!enabled || !eventProperties.isEnabled()) return 0;
         Instant now=now();
-        List<Due> due=jdbc.query("""
+        List<Due> due=jdbc.query(database.sql("""
           SELECT c.* FROM work_order w JOIN maintenance_sla_case c ON c.work_order_id=w.id AND c.company_id=w.company_id
           WHERE NOT w.archived AND ((c.response_event_id IS NULL AND COALESCE(c.responded_at,?)>c.response_due_at)
              OR (c.repair_event_id IS NULL AND COALESCE(c.completed_at,?)>c.repair_due_at))
           ORDER BY c.repair_due_at,c.work_order_id LIMIT 100 FOR UPDATE OF w,c SKIP LOCKED
-          """,(rs,n)->new Due(rs.getLong("work_order_id"),rs.getLong("company_id"),instant(rs.getTimestamp("response_due_at")),instant(rs.getTimestamp("repair_due_at")),
-               instant(rs.getTimestamp("responded_at")),instant(rs.getTimestamp("completed_at")),rs.getObject("response_event_id",UUID.class),rs.getObject("repair_event_id",UUID.class)),Timestamp.from(now),Timestamp.from(now));
+          ""","""
+          SELECT c.* FROM work_order w JOIN maintenance_sla_case c ON c.work_order_id=w.id AND c.company_id=w.company_id
+          WHERE NOT w.archived AND ((c.response_event_id IS NULL AND COALESCE(c.responded_at,?)>c.response_due_at)
+             OR (c.repair_event_id IS NULL AND COALESCE(c.completed_at,?)>c.repair_due_at))
+          ORDER BY c.repair_due_at,c.work_order_id LIMIT 100 FOR UPDATE SKIP LOCKED
+          """),(rs,n)->new Due(rs.getLong("work_order_id"),rs.getLong("company_id"),instant(rs.getTimestamp("response_due_at")),instant(rs.getTimestamp("repair_due_at")),
+               instant(rs.getTimestamp("responded_at")),instant(rs.getTimestamp("completed_at")),com.grash.database.DatabasePlatform.uuid(rs,"response_event_id"),com.grash.database.DatabasePlatform.uuid(rs,"repair_event_id")),Timestamp.from(now),Timestamp.from(now));
         int emitted=0;
         for(Due row:due) {
             WorkOrder order=workOrders.findByIdAndCompany_Id(row.workOrderId(),row.companyId()).orElseThrow();
@@ -126,7 +147,7 @@ public class MaintenanceSlaService {
 
     private void emit(WorkOrder order,String kind,Instant deadline,Instant now) {
         UUID id=UUID.nameUUIDFromBytes((order.getCompany().getId()+":sla:"+order.getId()+":"+kind).getBytes(StandardCharsets.UTF_8));
-        int inserted=jdbc.update("INSERT INTO maintenance_sla_escalation(company_id,work_order_id,kind,event_id) VALUES(?,?,?,?) ON CONFLICT(work_order_id,kind) DO NOTHING",
+        int inserted=jdbc.update(database.sql("INSERT INTO maintenance_sla_escalation(company_id,work_order_id,kind,event_id) VALUES(?,?,?,?) ON CONFLICT(work_order_id,kind) DO NOTHING","INSERT INTO maintenance_sla_escalation(company_id,work_order_id,kind,event_id) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE company_id=company_id"),
                 order.getCompany().getId(),order.getId(),kind,id);
         if(inserted>0) {
             Map<Long,User> recipients=new LinkedHashMap<>();
@@ -152,6 +173,6 @@ public class MaintenanceSlaService {
         return actor;
     }
     static boolean breached(Instant deadline,Instant achieved,Instant now) {return (achieved==null?now:achieved).isAfter(deadline);}
-    private Instant now(){return jdbc.queryForObject("SELECT CURRENT_TIMESTAMP",Timestamp.class).toInstant();}
+    private Instant now(){return jdbc.queryForObject("SELECT CURRENT_TIMESTAMP(6)",Timestamp.class).toInstant();}
     private static Instant instant(Timestamp value){return value==null?null:value.toInstant();}
 }

@@ -22,6 +22,7 @@ import java.time.Instant;
 public class AssetWorkOrderOverviewRepository {
     private final EntityManagerFactory entityManagerFactory;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     public static final String SQL = """
         SELECT count(*),
           count(*) FILTER (WHERE status=3),
@@ -36,7 +37,22 @@ public class AssetWorkOrderOverviewRepository {
           AND (:demo=true OR COALESCE(is_demo,false)=false)
         """;
 
-    /** Must use the primary PG database; neither an asynchronous replica nor Redis is authoritative. */
+    // This aggregate reads only covered columns. MySQL 8.0.33 otherwise misestimates the
+    // correlated company/asset cohort and selects a non-covering single-column FK index.
+    // Recheck EXPLAIN ANALYZE when upgrading MySQL or changing this query/index.
+    private static final String MYSQL_SQL = """
+        SELECT count(*),count(CASE WHEN status=3 THEN 1 END),
+          avg(CASE WHEN status=3 AND completed_on IS NOT NULL AND completed_on>=created_at
+              THEN TIMESTAMPDIFF(MICROSECOND,created_at,completed_on)/1000000.0 END),
+          count(CASE WHEN status=3 AND completed_on IS NOT NULL AND completed_on>=created_at THEN 1 END),
+          count(CASE WHEN status=3 AND (completed_on IS NULL OR completed_on<created_at) THEN 1 END)
+        FROM work_order FORCE INDEX(ix_work_order_overview_cover)
+        WHERE company_id=:company AND asset_id=:asset
+          AND created_at>=CAST(:start AS DATETIME(6)) AND created_at<CAST(:end AS DATETIME(6))
+          AND (:archived=true OR archived=false) AND (:demo=true OR COALESCE(is_demo,false)=false)
+        """;
+
+    /** Must use the primary database; neither an asynchronous replica nor Redis is authoritative. */
     public long epoch(long companyId, long assetId) {
         var versions = jdbc.queryForList("""
                 SELECT e.epoch FROM asset_summary_epoch e
@@ -52,7 +68,7 @@ public class AssetWorkOrderOverviewRepository {
         Instant generatedAt = Instant.now();
         try (EntityManager em = entityManagerFactory.createEntityManager()) {
             em.unwrap(Session.class).setCacheMode(CacheMode.IGNORE);
-            Object[] row = (Object[]) em.createNativeQuery(SQL)
+            Object[] row = (Object[]) em.createNativeQuery(database.sql(SQL,MYSQL_SQL))
                     .setParameter("company", scope.companyId()).setParameter("asset", assetId)
                     .setParameter("start", query.getStartUtc()).setParameter("end", query.getEndUtc())
                     .setParameter("archived", query.isIncludeArchived()).setParameter("demo", query.isIncludeDemo())

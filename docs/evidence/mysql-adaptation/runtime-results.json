@@ -1,0 +1,45 @@
+{
+  "recordedAtUtc": "2026-11-13T23:42:18.311244+00:00",
+  "result": "PASS",
+  "database": {
+    "version": "8.0.33",
+    "changelog": "4",
+    "triggers": "11",
+    "triggerMetadataNote": "Read with the migration account; DML-only runtime users cannot enumerate trigger definitions.",
+    "quartzJobs": "2",
+    "outbox": "PUBLISHED\t3",
+    "attempts": "DONE\t3",
+    "ddlDenied": true
+  },
+  "metrics": [
+    "cmms_events_consumer_dead 0.0",
+    "cmms_events_outbox_oldest_seconds 0.0",
+    "cmms_events_outbox_pending 0.0",
+    "cmms_query_cache_requests_total{result=\"hit\"} 1.0",
+    "cmms_query_cache_requests_total{result=\"miss\"} 2.0"
+  ],
+  "portReachable": {
+    "3089": true,
+    "18089": true,
+    "3289": true,
+    "28089": true,
+    "3389": true,
+    "28189": true
+  },
+  "previewHttp": 200,
+  "anonymousApiDenied": true,
+  "libraries": [
+    "mysql-connector-j-9.7.0.jar",
+    "mybatis-plus-core-3.5.18.jar",
+    "hibernate-core-6.6.53.Final.jar",
+    "spring-data-jpa-3.5.13.jar",
+    "liquibase-core-5.0.3.jar",
+    "quartz-2.5.2.jar"
+  ],
+  "environment": {
+    "os": "Windows-10-10.0.19045-SP0",
+    "cpu": "Intel64 Family 6 Model 141 Stepping 1, GenuineIntel",
+    "logicalCpus": 12
+  },
+  "externalDeliveryEnabled": false
+}

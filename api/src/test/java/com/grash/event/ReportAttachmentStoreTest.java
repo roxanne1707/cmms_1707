@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 class ReportAttachmentStoreTest {
     private final JdbcTemplate jdbc=mock(JdbcTemplate.class);
-    private final ReportAttachmentStore store=new ReportAttachmentStore(jdbc);
+    private final ReportAttachmentStore store=new ReportAttachmentStore(jdbc,new com.grash.database.DatabasePlatform("postgresql",jdbc));
     @Test void oversizedAndEmptyAttachmentsNeverReachTheDatabase() {
         assertThrows(CustomException.class,()->store.save(1,UUID.randomUUID(),"report.pdf",new byte[ReportAttachmentStore.MAX_BYTES+1]));
         assertThrows(CustomException.class,()->store.save(1,UUID.randomUUID(),"report.pdf",new byte[0]));

@@ -15,6 +15,7 @@ import java.util.*;
 public class ReportAttachmentStore {
     public static final int MAX_BYTES=10*1024*1024;
     private final JdbcTemplate jdbc;
+    private final com.grash.database.DatabasePlatform database;
     public record Attachment(String filename,byte[] content) {}
     @Transactional(propagation=Propagation.MANDATORY)
     public void save(long companyId,UUID eventId,String filename,byte[] pdf) {
@@ -33,8 +34,9 @@ public class ReportAttachmentStore {
     /** Explicit maintenance operation. Unsent/failed reports are retained for recovery. */
     @Transactional
     public int purgeCompletedOlderThan90Days() {
-        return jdbc.update("""
-            DELETE FROM event_report_attachment a WHERE a.created_at<CURRENT_TIMESTAMP-INTERVAL '90 days'
+        return jdbc.update(database.sql("DELETE FROM event_report_attachment a WHERE a.created_at<CURRENT_TIMESTAMP(6)-INTERVAL '90 days'",
+            "DELETE a FROM event_report_attachment a WHERE a.created_at<TIMESTAMPADD(DAY,-90,CURRENT_TIMESTAMP(6))") + """
+
             AND EXISTS(SELECT 1 FROM consumer_receipt r WHERE r.company_id=a.company_id AND r.event_id=a.event_id)
             AND EXISTS(SELECT 1 FROM event_delivery d WHERE d.company_id=a.company_id AND d.event_id=a.event_id)
             AND NOT EXISTS(SELECT 1 FROM event_delivery d WHERE d.company_id=a.company_id AND d.event_id=a.event_id AND d.state NOT IN ('SENT','SKIPPED'))

@@ -63,7 +63,7 @@ public class RequestLinkCommandService {
         request.setWorkOrder(order);
         // parentRequest remains the original source. A duplicate report must not overwrite it.
         em.flush();
-        Instant linkedAt=jdbc.queryForObject("SELECT CURRENT_TIMESTAMP",java.sql.Timestamp.class).toInstant();
+        Instant linkedAt=jdbc.queryForObject("SELECT CURRENT_TIMESTAMP(6)",java.sql.Timestamp.class).toInstant();
         jdbc.update("INSERT INTO request_link_audit(request_id,company_id,work_order_id,actor_id,reason,linked_at) VALUES(?,?,?,?,?,?)",
                 requestId,actor.getCompany().getId(),workOrderId,actor.getId(),reason.trim(),java.sql.Timestamp.from(linkedAt));
         if(eventProperties.isEnabled()) publish(request,order,actor,linkedAt);

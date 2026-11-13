@@ -47,12 +47,13 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
             "(:emailDomain))")
     List<User> findBySSOCompany(@Param("emailDomain") String emailDomain);
 
-    @Query(value = "SELECT EXISTS(SELECT 1 FROM own_user RIGHT JOIN company" +
+    @Query(value = "SELECT CASE WHEN EXISTS(SELECT 1 FROM own_user RIGHT JOIN company" +
             " ON own_user.company_id = company.id RIGHT JOIN role ON own_user.role_id = role.id" +
             " WHERE own_user.enabled AND role.paid=true AND " +
             "role.role_type!=0 AND " +
-            "company.demo=false OFFSET :threshold LIMIT 1)", nativeQuery = true)
-    boolean hasMorePaidUsersThan(@Param("threshold") int threshold);
+            "company.demo=false LIMIT 1 OFFSET :threshold) THEN 1 ELSE 0 END", nativeQuery = true)
+    long paidUsersThresholdResult(@Param("threshold") int threshold);
+    default boolean hasMorePaidUsersThan(int threshold) { return paidUsersThresholdResult(threshold)!=0; }
 
     List<User> findByIdInAndCompany_Id(Collection<Long> longs, Long id);
 
