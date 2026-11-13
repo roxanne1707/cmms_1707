@@ -8,3 +8,26 @@ docker-compose-dev.yml
 logo
 *.lic
 docker-compose-minio.yml
+
+# Local deployment, secrets and generated data (never migrate from a running instance)
+/local-runtime/
+**/.env
+**/.env.*
+!**/.env.example
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.jks
+**/id_rsa
+**/id_ed25519
+**/*.dump
+**/*.backup
+**/*.sql.gz
+**/*.sqlite
+**/*.sqlite3
+**/*.db
+/pgdata/
+/data/
+**/.idea/
+**/.vscode/

@@ -1,0 +1,6 @@
+[INFO] Compiling 773 source files with javac [debug release 17] to target\classes
+[INFO] Compiling 93 source files with javac [debug release 17] to target\test-classes
+[INFO] Tests run: 474, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+[INFO] Total time:  01:08 min
+[INFO] Finished at: 2026-11-13T21:52:23+08:00

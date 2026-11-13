@@ -1,0 +1,5 @@
+CONFIRMED key collision: two distinct exact ranges share key 7_1200000000_1202400000
+CONFIRMED 20-hour cycle average returned 0 whole days
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+CONFIRMED trigger core creates twice for 15 then 16 with recurrent=false and waitBefore=999 (mocked repositories, no DB/concurrency claim)
+CONFIRMED stock consume call precedes permission rejection (mocked service; persisted side effect still needs isolated DB test)

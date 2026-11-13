@@ -1,0 +1,40 @@
+BEGIN
+                           version
+-------------------------------------------------------------
+ PostgreSQL 16.16, compiled by Visual C++ build 1944, 64-bit
+(1 row)
+
+ migration_count
+-----------------
+             815
+(1 row)
+
+        tablename         |                indexname                |                                                     indexdef
+--------------------------+-----------------------------------------+------------------------------------------------------------------------------------------------------------------
+ part                     | idx_part_company_id                     | CREATE INDEX idx_part_company_id ON public.part USING btree (company_id)
+ part                     | part_pkey                               | CREATE UNIQUE INDEX part_pkey ON public.part USING btree (id)
+ part                     | uq_part_company_barcode                 | CREATE UNIQUE INDEX uq_part_company_barcode ON public.part USING btree (company_id, barcode)
+ part_quantity            | idx_part_quantity_company_id            | CREATE INDEX idx_part_quantity_company_id ON public.part_quantity USING btree (company_id)
+ part_quantity            | part_quantity_pkey                      | CREATE UNIQUE INDEX part_quantity_pkey ON public.part_quantity USING btree (id)
+ reading                  | reading_pkey                            | CREATE UNIQUE INDEX reading_pkey ON public.reading USING btree (id)
+ refresh_token            | refresh_token_pkey                      | CREATE UNIQUE INDEX refresh_token_pkey ON public.refresh_token USING btree (id)
+ refresh_token            | refresh_token_token_hash_key            | CREATE UNIQUE INDEX refresh_token_token_hash_key ON public.refresh_token USING btree (token_hash)
+ request                  | idx_request_company_id                  | CREATE INDEX idx_request_company_id ON public.request USING btree (company_id)
+ request                  | request_pkey                            | CREATE UNIQUE INDEX request_pkey ON public.request USING btree (id)
+ schedule                 | schedule_pkey                           | CREATE UNIQUE INDEX schedule_pkey ON public.schedule USING btree (id)
+ work_order               | idx_work_order_company_id               | CREATE INDEX idx_work_order_company_id ON public.work_order USING btree (company_id)
+ work_order               | work_order_pkey                         | CREATE UNIQUE INDEX work_order_pkey ON public.work_order USING btree (id)
+ work_order_meter_trigger | idx_work_order_meter_trigger_company_id | CREATE INDEX idx_work_order_meter_trigger_company_id ON public.work_order_meter_trigger USING btree (company_id)
+ work_order_meter_trigger | work_order_meter_trigger_pkey           | CREATE UNIQUE INDEX work_order_meter_trigger_pkey ON public.work_order_meter_trigger USING btree (id)
+(15 rows)
+
+ tbl | conname | pg_get_constraintdef
+-----+---------+----------------------
+(0 rows)
+
+ work_order_count
+------------------
+                8
+(1 row)
+
+COMMIT
