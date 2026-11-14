@@ -41,7 +41,7 @@ public final class JdbcLab implements AutoCloseable {
     public void mysqlTables(String... names) {
         String ddl=resource("db/mysql/schema.sql");
         for(String name:names) {
-            var m=Pattern.compile("(?ms)^CREATE TABLE `"+Pattern.quote(name)+"` \\(.*?;").matcher(ddl);
+            var m=Pattern.compile("(?ms)^CREATE TABLE `?"+Pattern.quote(name)+"`?\\s*\\(.*?;").matcher(ddl);
             if(!m.find()) throw new IllegalArgumentException("Missing table "+name);
             jdbc.execute(m.group());
         }
