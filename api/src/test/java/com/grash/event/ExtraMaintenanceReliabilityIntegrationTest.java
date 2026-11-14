@@ -40,7 +40,7 @@ class ExtraMaintenanceReliabilityIntegrationTest {
         jdbc.execute("CREATE TABLE notification(id BIGINT PRIMARY KEY,user_id BIGINT)");
         jdbc.execute("CREATE TABLE generated_order(id BIGINT PRIMARY KEY,company_id BIGINT)");
         if(lab.mysql) {
-            lab.mysqlTables("domain_event_outbox","event_retry","consumer_receipt","event_delivery","event_replay_audit","event_report_attachment","maintenance_schedule_execution");
+            lab.mysqlTables("cmms_transaction_lock","domain_event_outbox","event_retry","consumer_receipt","event_delivery","event_replay_audit","event_report_attachment","maintenance_schedule_execution");
         } else new ResourceDatabasePopulator(new ClassPathResource("db/changelog/2026_11_14_reliable_events.sql"),new ClassPathResource("db/changelog/2026_11_14_reliability_completion.sql")).execute(source);
         jdbc.update("INSERT INTO company VALUES(1),(2)");
         context=new AnnotationConfigApplicationContext();context.register(Transactions.class);context.registerBean(com.grash.database.DatabasePlatform.class,()->lab.database);
