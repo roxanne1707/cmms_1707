@@ -1,5 +1,8 @@
 name: Maintenance enhancement verification
 on:
+  push:
+    branches: ['feat/mysql-maintenance']
+    paths: ['api/**', 'scripts/**', 'frontend/**', 'mobile/utils/**', '.github/workflows/maintenance-tests.yml']
   pull_request:
     paths: ['api/**', 'scripts/**', 'frontend/**', 'mobile/utils/**', '.github/workflows/maintenance-tests.yml']
   workflow_dispatch:
