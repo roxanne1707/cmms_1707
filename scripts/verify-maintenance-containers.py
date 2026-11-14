@@ -229,14 +229,16 @@ try:
         assert signup['success']
         token=login(port);me=request(port,'/auth/me',token=token);assert me['email']==admin_email
         worker_email='container-technician@example.invalid'
-        invitation=request(port,'/users/invite',{'role':{'id':me['role']['id']},'emails':[worker_email],'disableSendingEmail':True},token)
+        technician_role=next(role for role in request(port,'/roles',token=token) if role['code']=='TECHNICIAN')
+        invitation=request(port,'/users/invite',{'role':{'id':technician_role['id']},'emails':[worker_email],'disableSendingEmail':True},token)
         assert invitation['success']
         worker_signup=request(port,'/auth/signup',{'email':worker_email,'password':admin_password,
-            'firstName':'Container','lastName':'Technician','phone':'00000000001','role':{'id':me['role']['id']}})
+            'firstName':'Container','lastName':'Technician','phone':'00000000001','role':{'id':technician_role['id']}})
         assert worker_signup['success']
         worker_token=request(port,'/auth/signin',{'email':worker_email,'password':admin_password})['accessToken']
         worker=request(port,'/auth/me',token=worker_token)
         assert worker['companyId']==me['companyId']
+        assert worker['role']['code']=='TECHNICIAN'
         name=f'Container maintenance pump {engine}'
         asset=request(port,'/assets',{'name':name,'status':'OPERATIONAL'},token)
         work=request(port,'/work-orders',{'title':'Container repair verification','asset':{'id':asset['id']},'priority':'MEDIUM','primaryUser':{'id':worker['id']}},token)
