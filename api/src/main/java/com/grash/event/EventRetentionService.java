@@ -83,8 +83,12 @@ public class EventRetentionService {
                 batch,company,actor,dryRun,reason.trim(),Timestamp.from(cutoff));
         long start=System.nanoTime(),bytes=0;int selected=0,archived=0,skipped=0,failed=0;String state="COMPLETED",error=null;
         try {
-            var candidates=candidates(company,cutoff);selected=candidates.size();candidateSample.set(selected);
-            overdueSeconds.set(candidates.isEmpty()?0:Math.max(0,Duration.between(candidates.get(0).completedAt(),cutoff).toSeconds()));
+            var candidates=candidates(company,cutoff);selected=candidates.size();
+            // A tenant administrator's preview must not overwrite the global scheduler's backlog sample.
+            if(company==null) {
+                candidateSample.set(selected);
+                overdueSeconds.set(candidates.isEmpty()?0:Math.max(0,Duration.between(candidates.get(0).completedAt(),cutoff).toSeconds()));
+            }
             if(!dryRun) for(Candidate candidate:candidates) {
                 if(TimeUnit.NANOSECONDS.toMillis(System.nanoTime()-start)>=properties.getBudgetMillis()){state="PARTIAL";break;}
                 try {
@@ -106,7 +110,7 @@ public class EventRetentionService {
         Metrics.counter("cmms.events.retention.archived").increment(archived);
         Metrics.counter("cmms.events.retention.payload.bytes").increment(bytes);
         Metrics.timer("cmms.events.retention.duration","mode",mode).record(System.nanoTime()-start,TimeUnit.NANOSECONDS);
-        if(!dryRun&&failed==0&&state.equals("COMPLETED"))lastSuccess.set(clock.getEpochSecond());
+        if(company==null&&!dryRun&&failed==0&&state.equals("COMPLETED"))lastSuccess.set(clock.getEpochSecond());
         return new BatchResult(batch,dryRun,state,selected,archived,skipped,failed,bytes);
     }
     private Retired retire(Candidate c,Instant cutoff) {

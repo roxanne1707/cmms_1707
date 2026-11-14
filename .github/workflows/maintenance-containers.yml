@@ -2,7 +2,7 @@ name: Maintenance container verification
 on:
   push:
     branches: ['feat/mysql-maintenance']
-    paths: ['api/**', 'scripts/**', 'compose.maintenance-verification.yml', '.github/workflows/maintenance-containers.yml']
+    paths: ['api/**', 'scripts/**', 'observability/**', 'compose.maintenance-verification.yml', '.github/workflows/maintenance-containers.yml']
   workflow_dispatch:
 permissions:
   contents: read

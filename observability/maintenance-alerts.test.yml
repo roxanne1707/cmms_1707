@@ -27,3 +27,41 @@ tests:
       - eval_time: 6m
         alertname: CMMSDeliveryDead
         exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'cmms_events_retention_runs_total{job="cmms-lab",instance="app",mode="execute",outcome="failed"}'
+        values: '0 0 1 1'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: CMMSRetentionFailed
+        exp_alerts:
+          - exp_labels: {severity: warning, job: cmms-lab, instance: app, mode: execute, outcome: failed}
+            exp_annotations: {summary: '通知载荷清理失败，检查批次审计'}
+  - interval: 1m
+    input_series:
+      - series: 'cmms_events_retention_overdue_seconds{job="cmms-lab",instance="app"}'
+        values: '90000+0x120 0'
+      - series: 'cmms_events_retention_enabled{job="cmms-lab",instance="app"}'
+        values: '1+0x121'
+    alert_rule_test:
+      - eval_time: 120m
+        alertname: CMMSRetentionOverdue
+        exp_alerts:
+          - exp_labels: {severity: warning, job: cmms-lab, instance: app}
+            exp_annotations: {summary: '通知清理候选持续超期，检查预算和批次记录'}
+      - eval_time: 121m
+        alertname: CMMSRetentionOverdue
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'up{job="cmms-lab",instance="app"}'
+        values: '0 0 0 1'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: CMMSNotificationMetricsUnavailable
+        exp_alerts:
+          - exp_labels: {severity: critical, job: cmms-lab, instance: app}
+            exp_annotations: {summary: '维修通知指标无法读取或应用失联'}
+      - eval_time: 3m
+        alertname: CMMSNotificationMetricsUnavailable
+        exp_alerts: []
