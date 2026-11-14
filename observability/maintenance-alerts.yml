@@ -1,0 +1,27 @@
+groups:
+  - name: cmms-reliable-notifications
+    rules:
+      - alert: CMMSOutboxStalled
+        expr: cmms_events_outbox_oldest_seconds > 300
+        for: 2m
+        labels: {severity: warning}
+        annotations: {summary: '维修通知 Outbox 积压超过五分钟'}
+      - alert: CMMSDeliveryDead
+        expr: cmms_events_delivery_dead > 0
+        for: 5m
+        labels: {severity: warning}
+        annotations: {summary: '存在需要人工修复并补投的维修通知'}
+      - alert: CMMSRetentionFailed
+        expr: increase(cmms_events_retention_runs_total{outcome="failed"}[1h]) > 0
+        labels: {severity: warning}
+        annotations: {summary: '通知载荷清理失败，检查批次审计'}
+      - alert: CMMSRetentionOverdue
+        expr: (cmms_events_retention_overdue_seconds > 86400) and on(job,instance) (cmms_events_retention_enabled == 1)
+        for: 2h
+        labels: {severity: warning}
+        annotations: {summary: '通知清理候选持续超期，检查预算和批次记录'}
+      - alert: CMMSNotificationMetricsUnavailable
+        expr: (cmms_events_outbox_pending != cmms_events_outbox_pending) or (up{job="cmms-lab"} == 0)
+        for: 2m
+        labels: {severity: critical}
+        annotations: {summary: '维修通知指标无法读取或应用失联'}

@@ -75,7 +75,8 @@ public class EventReplayService {
                 WHERE company_id=? AND state IN ('DEAD','SKIPPED') ORDER BY created_at DESC LIMIT 100
                 """,company));
     }
-    private User authorize(User caller) {
+    @Transactional(readOnly=true)
+    public User authorize(User caller) {
         User user=users.findByIdAndCompany_Id(caller.getId(),caller.getCompany().getId())
                 .orElseThrow(()->new CustomException("Access denied",HttpStatus.FORBIDDEN));
         if(!user.isEnabled() || !user.isEnabledInSubscription() || !(user.isOwnsCompany() || user.getRole().getCode()==RoleCode.ADMIN))

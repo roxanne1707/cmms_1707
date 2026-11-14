@@ -249,4 +249,5 @@
     <include file="changelog/2026_11_14_request_link.xml" relativeToChangelogFile="true"/>
     <include file="changelog/2026_11_14_reliability_completion.xml" relativeToChangelogFile="true"/>
     <include file="changelog/2026_11_14_maintenance_sla.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/2026_11_14_event_retention.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

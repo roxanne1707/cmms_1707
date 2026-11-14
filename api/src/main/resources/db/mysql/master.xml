@@ -11,4 +11,5 @@
   <sqlFile path="epoch-counter.sql" relativeToChangelogFile="true" splitStatements="true"/>
   <sqlFile path="epoch-counter-triggers.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false" endDelimiter="-- end-trigger"/>
  </changeSet>
+ <include file="../changelog/2026_11_14_event_retention.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

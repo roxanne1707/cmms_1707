@@ -22,10 +22,12 @@ jobs:
         shell: bash
         run: |
           date -u +%Y-%m-%dT%H:%M:%SZ > "$RUNNER_TEMP/container-start.txt"
-          mvn -B -f api/pom.xml '-Dtest=RoleIntegrationTest,DeliveryProtocolContainerIT,SharedRateLimitContainerIT' test > "$RUNNER_TEMP/container-maven.log" 2>&1
+          mvn -B -f api/pom.xml '-Dtest=RoleIntegrationTest,DeliveryProtocolContainerIT,SharedRateLimitContainerIT,EventRetentionContainerIT' test > "$RUNNER_TEMP/container-maven.log" 2>&1
       - name: Require all explicit container tests to pass without skips
         if: always()
-        run: python scripts/summarize-maintenance-tests.py --since "$(cat "$RUNNER_TEMP/container-start.txt")" --log "$RUNNER_TEMP/container-maven.log" --min-tests 34 --require-no-skips --output "$RUNNER_TEMP/testcontainers-summary.json"
+        run: python scripts/summarize-maintenance-tests.py --since "$(cat "$RUNNER_TEMP/container-start.txt")" --log "$RUNNER_TEMP/container-maven.log" --min-tests 50 --require-no-skips --output "$RUNNER_TEMP/testcontainers-summary.json"
+      - name: Verify alert expressions, firing and resolution
+        run: docker run --rm --entrypoint /bin/promtool -v "$PWD/observability:/rules:ro" -w /rules prom/prometheus:v3.16.0 test rules maintenance-alerts.test.yml
       - uses: actions/upload-artifact@v4
         if: always()
         with:

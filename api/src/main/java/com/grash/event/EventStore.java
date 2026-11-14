@@ -26,6 +26,10 @@ public class EventStore {
     @Transactional(propagation = Propagation.MANDATORY)
     public void append(EventEnvelope event) {
         DispatchMessage message = DispatchMessage.original(event);
+        message.validate();
+        // Serialize duplicate append with retention/replay; a completed event must never recreate retired payloads.
+        database.lock("EVENT_REPLAY:"+event.companyId()+":"+event.eventId());
+        if(completed(message)) return;
         UUID attemptId = UUID.randomUUID();
         jdbc.update(database.sql("""
                 INSERT INTO event_retry(id,company_id,event_id,handler,replay_generation,business_attempt,envelope)
@@ -89,11 +93,16 @@ public class EventStore {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Optional<Attempt> claimAttempt(DispatchMessage message) {
         message.validate();
+        if(completed(message)) return Optional.empty();
         List<StoredAttempt> rows = jdbc.query("""
                 SELECT id,state,claim_token,lease_until,next_attempt_at,envelope FROM event_retry
                 WHERE company_id=? AND event_id=? AND handler=? AND replay_generation=? AND business_attempt=? FOR UPDATE
                 """, this::mapAttempt, message.companyId(),message.eventId(),message.handler(),message.replayGeneration(),message.businessAttempt());
-        if (rows.isEmpty()) throw new IllegalArgumentException("Unknown durable attempt");
+        if (rows.isEmpty()) {
+            // Completion/retention may have committed between the first receipt read and row lookup.
+            if(completed(message)) return Optional.empty();
+            throw new IllegalArgumentException("Unknown durable attempt");
+        }
         StoredAttempt row=rows.get(0);
         // All non-claimable states have a durable owner/recovery path; no in-memory handoff is relied on.
         if (!row.state().equals("READY") && !row.state().equals("PROCESSING")) return Optional.empty();
@@ -201,5 +210,9 @@ public class EventStore {
     private StoredAttempt mapAttempt(ResultSet rs,int row) throws SQLException {
         return new StoredAttempt(com.grash.database.DatabasePlatform.uuid(rs,1),rs.getString(2),com.grash.database.DatabasePlatform.uuid(rs,3),
                 rs.getTimestamp(4)==null?null:rs.getTimestamp(4).toInstant(),rs.getTimestamp(5).toInstant(),rs.getString(6));
+    }
+    private boolean completed(DispatchMessage message) {
+        return Boolean.TRUE.equals(jdbc.queryForObject("SELECT EXISTS(SELECT 1 FROM consumer_receipt WHERE company_id=? AND event_id=? AND handler=?)",
+                Boolean.class,message.companyId(),message.eventId(),message.handler()));
     }
 }

@@ -19,6 +19,8 @@ password=(repo/'local-runtime/maintenance-lab-28089/metrics.key').read_text().st
 (runtime/'scrape.key').write_text(password)
 (runtime/'prometheus.yml').write_text(f'''global:
   scrape_interval: 5s
+rule_files:
+  - {str(repo/'observability/maintenance-alerts.yml').replace(chr(92),'/')}
 scrape_configs:
   - job_name: cmms-lab
     metrics_path: /actuator/prometheus

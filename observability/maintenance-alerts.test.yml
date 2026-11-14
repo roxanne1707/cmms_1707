@@ -1,0 +1,29 @@
+rule_files: [maintenance-alerts.yml]
+evaluation_interval: 1m
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'cmms_events_outbox_oldest_seconds{job="cmms-lab",instance="app"}'
+        values: '400 400 400 0 0'
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: CMMSOutboxStalled
+        exp_alerts:
+          - exp_labels: {severity: warning, job: cmms-lab, instance: app}
+            exp_annotations: {summary: '维修通知 Outbox 积压超过五分钟'}
+      - eval_time: 4m
+        alertname: CMMSOutboxStalled
+        exp_alerts: []
+  - interval: 1m
+    input_series:
+      - series: 'cmms_events_delivery_dead{job="cmms-lab",instance="app"}'
+        values: '1 1 1 1 1 1 0'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: CMMSDeliveryDead
+        exp_alerts:
+          - exp_labels: {severity: warning, job: cmms-lab, instance: app}
+            exp_annotations: {summary: '存在需要人工修复并补投的维修通知'}
+      - eval_time: 6m
+        alertname: CMMSDeliveryDead
+        exp_alerts: []
