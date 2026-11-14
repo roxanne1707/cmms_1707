@@ -41,6 +41,8 @@ services:
       retries: 40
   mysql:
     image: mysql:8.0.33
+    # This instance contains only generated CI data; runtime user receives no SUPER grant.
+    command: [--log-bin-trust-function-creators=1]
     environment:
       MYSQL_DATABASE: cmms_container_mysql
       MYSQL_USER: cmms_ci

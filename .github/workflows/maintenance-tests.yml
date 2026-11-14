@@ -62,6 +62,11 @@ jobs:
         run: psql -h 127.0.0.1 -p 25432 -U cmms_test -d cmms_enhancement_test -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;'
         env:
           PGPASSWORD: cmms_test_local
+      - name: Allow trusted migrations to create triggers in this disposable MySQL
+        if: matrix.database == 'mysql'
+        shell: bash
+        run: |
+          docker exec -e MYSQL_PWD=cmms_ci_root_local '${{ job.services.mysql.id }}' mysql -uroot -e "SET GLOBAL log_bin_trust_function_creators=1;"
       - name: Grant access only to disposable MySQL test databases
         if: matrix.database == 'mysql'
         shell: bash

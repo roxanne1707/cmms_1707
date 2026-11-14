@@ -47,7 +47,7 @@ if not log_path.exists() or log_path.stat().st_mtime < start or '[INFO] BUILD SU
     problems.append('Stale, incomplete or failed Maven build')
 passed=totals['tests']-totals['failures']-totals['errors']-totals['skipped']
 ok=(not problems and totals['tests']>=a.min_tests and not totals['failures'] and not totals['errors'] and (not a.require_no_skips or not totals['skipped']))
-result={'startedAt':a.since,'recordedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'totals':totals,'xmlTotals':xml_totals,'countSource':'Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases','passed':passed,'result':'PASS' if ok else 'FAIL','suites':suites,'problems':problems,'failedCases':failures}
+result={'startedAt':a.since,'recordedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'totals':totals,'xmlTotals':xml_totals,'countSource':'Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases','passed':passed,'result':'PASS' if ok else 'FAIL','suites':suites,'problems':problems,'failedCases':failures,'diagnosticFlags':{'mysqlTriggerBinlogPrivilege': 'log_bin_trust_function_creators' in log}}
 Path(a.output).write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
 print(json.dumps({'totals':totals,'xmlTotals':xml_totals,'countSource':'Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases','passed':passed,'result':result['result']}))
 raise SystemExit(0 if ok else 1)

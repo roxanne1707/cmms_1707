@@ -105,6 +105,7 @@ finally:
     except Exception:pass
     if log_file.exists():
         raw=log_file.read_text(encoding='utf-8',errors='replace')
+        result['diagnosticFlags']={'mysqlTriggerBinlogPrivilege':'log_bin_trust_function_creators' in raw}
         result['exceptionTypes']=sorted(set(re.findall(r'Caused by: ([A-Za-z0-9_.$]+)',raw)))
         result['schemaErrors']=re.findall(r'Schema-validation: (?:missing|wrong)[^\r\n]{0,160}',raw)[:10]
     try:
