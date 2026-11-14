@@ -16,7 +16,7 @@ repo=Path(__file__).resolve().parents[1];out=Path(os.environ['RUNNER_TEMP'])
 env_file=out/'cmms-container.env';log_file=out/'cmms-container-private.log'
 summary=out/'cmms-container-summary.json'
 admin_email='container-admin@example.invalid';admin_password=secrets.token_urlsafe(30)
-config={'CI_DB_PASSWORD':secrets.token_hex(24),'CI_ADMIN_EMAIL':'container-bootstrap@example.invalid',
+config={'CI_DB_PASSWORD':secrets.token_hex(24),'CI_METRICS_PASSWORD':secrets.token_hex(24),'CI_ADMIN_EMAIL':'container-bootstrap@example.invalid',
         'CI_ADMIN_PASSWORD':admin_password,'CI_JWT_SECRET':base64.b64encode(secrets.token_bytes(48)).decode(),
         'CI_IMAGE_TAG':os.environ['GITHUB_SHA'][:12]}
 env_file.write_text(''.join(f'{k}={v}\n' for k,v in config.items()),encoding='utf-8')
@@ -35,6 +35,8 @@ def request(port,path,body=None,token=None):
         raise ValueError('Only disposable loopback API destinations are allowed')
     headers={'Content-Type':'application/json'}
     if token:headers['Authorization']='Bearer '+token
+    if path.startswith('/actuator/'):
+        headers['Authorization']='Basic '+base64.b64encode(('cmms-metrics:'+config['CI_METRICS_PASSWORD']).encode()).decode()
     data=None if body is None else json.dumps(body).encode()
     req=urllib.request.Request(f'http://127.0.0.1:{port}'+path,data=data,headers=headers)
     with urllib.request.urlopen(req,timeout=15) as reply:
@@ -99,6 +101,7 @@ try:
 except Exception as e:
     # Exception bodies and application logs can contain passwords. Record type only.
     result['errorType']=type(e).__name__
+    if isinstance(e,urllib.error.HTTPError):result['httpStatus']=e.code
     print('Container verification failed; collecting safe exception locations',flush=True)
 finally:
     try:command(compose+['logs','--no-color'],30)

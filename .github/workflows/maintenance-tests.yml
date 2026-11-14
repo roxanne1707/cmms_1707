@@ -66,7 +66,16 @@ jobs:
         if: matrix.database == 'mysql'
         shell: bash
         run: |
-          docker exec -e MYSQL_PWD=cmms_ci_root_local '${{ job.services.mysql.id }}' mysql -uroot -e "SET GLOBAL log_bin_trust_function_creators=1;"
+          container='${{ job.services.mysql.id }}'
+          docker exec -e MYSQL_PWD=cmms_mysql_test_local "$container" mysql -ucmms_mysql_test cmms_mysql_test -e "CREATE TABLE ci_trigger_probe(value INT);"
+          if docker exec -e MYSQL_PWD=cmms_mysql_test_local "$container" mysql -ucmms_mysql_test cmms_mysql_test -e "CREATE TRIGGER ci_trigger_probe_insert BEFORE INSERT ON ci_trigger_probe FOR EACH ROW SET NEW.value=NEW.value;" > "$RUNNER_TEMP/mysql-trigger-before.log" 2>&1; then
+            echo "Expected the unconfigured restricted account to reject trigger creation"; exit 1
+          fi
+          grep -q 'ERROR 1419' "$RUNNER_TEMP/mysql-trigger-before.log"
+          echo "Verified MySQL binlog trigger privilege error 1419 before initialization"
+          docker exec -e MYSQL_PWD=cmms_ci_root_local "$container" mysql -uroot -e "SET GLOBAL log_bin_trust_function_creators=1;"
+          docker exec -e MYSQL_PWD=cmms_mysql_test_local "$container" mysql -ucmms_mysql_test cmms_mysql_test -e "CREATE TRIGGER ci_trigger_probe_insert BEFORE INSERT ON ci_trigger_probe FOR EACH ROW SET NEW.value=NEW.value; INSERT INTO ci_trigger_probe VALUES(1); DROP TABLE ci_trigger_probe;"
+          echo "Verified trigger creation and execution without granting SUPER to the test account"
       - name: Grant access only to disposable MySQL test databases
         if: matrix.database == 'mysql'
         shell: bash
