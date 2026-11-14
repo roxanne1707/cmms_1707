@@ -3,7 +3,7 @@
 No database ports, host data mounts, external delivery or production destinations.
 Only this run's validated Compose project may be removed.
 """
-import base64, datetime, json, os, re, secrets, subprocess, time, urllib.request, urllib.error
+import base64, datetime, ipaddress, json, os, re, secrets, subprocess, time, urllib.request, urllib.error
 from pathlib import Path
 
 if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('RUNNER_OS') != 'Linux':
@@ -30,6 +30,20 @@ def command(args,timeout=900):
         p=subprocess.run(args,cwd=repo,stdout=log,stderr=subprocess.STDOUT,timeout=timeout)
     if p.returncode: raise RuntimeError(f'Container command failed with exit {p.returncode}')
 
+targets={}
+opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+def discover_targets():
+    for service,port in [('app-pg',38089),('app-mysql',38189)]:
+        cid=subprocess.check_output(compose+['ps','-q',service],text=True).strip()
+        if not re.fullmatch(r'[a-f0-9]{12,64}',cid):raise ValueError('Expected one running application container')
+        info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
+        labels=info['Config']['Labels']
+        assert labels['com.docker.compose.project']==project and labels['com.docker.compose.service']==service
+        address=info['NetworkSettings']['Networks'][project+'_default']['IPAddress']
+        if not ipaddress.ip_address(address).is_private:raise ValueError('Only this project internal IP is allowed')
+        targets[port]=address
+    result['transport']='HTTP from ephemeral runner to label-verified internal container IPs, port 8080'
+
 def request(port,path,body=None,token=None):
     if port not in (38089,38189) or not path.startswith('/') or '://' in path:
         raise ValueError('Only disposable loopback API destinations are allowed')
@@ -38,8 +52,9 @@ def request(port,path,body=None,token=None):
     if path.startswith('/actuator/'):
         headers['Authorization']='Basic '+base64.b64encode(('cmms-metrics:'+config['CI_METRICS_PASSWORD']).encode()).decode()
     data=None if body is None else json.dumps(body).encode()
-    req=urllib.request.Request(f'http://127.0.0.1:{port}'+path,data=data,headers=headers)
-    with urllib.request.urlopen(req,timeout=15) as reply:
+    result['lastRequest']={'logicalPort':port,'path':path,'method':'POST' if body is not None else 'GET'}
+    req=urllib.request.Request(f'http://{targets[port]}:8080'+path,data=data,headers=headers)
+    with opener.open(req,timeout=15) as reply:
         return json.load(reply)
 
 def ready(port):
@@ -47,7 +62,8 @@ def ready(port):
     while time.monotonic()<deadline:
         try:
             if request(port,'/actuator/health').get('status')=='UP':return
-        except (urllib.error.URLError,TimeoutError,ConnectionError):pass
+        except (urllib.error.URLError,TimeoutError,ConnectionError) as error:
+            result['lastReadinessError']={'type':type(error).__name__,'status':getattr(error,'code',None)}
         time.sleep(2)
     raise RuntimeError(f'Health timeout on disposable port {port}')
 
@@ -62,9 +78,11 @@ try:
     result['checks'].append('executable Docker image built')
     print('Starting fresh isolated services and both database backends',flush=True)
     command(compose+['up','-d','--no-build'],360)
+    discover_targets()
     saved={}
     for engine,port in [('postgresql',38089),('mysql',38189)]:
         ready(port)
+        result['checks'].append(f'{engine}: authenticated health is UP')
         try:request(port,'/auth/me');raise AssertionError('Anonymous identity endpoint accepted')
         except urllib.error.HTTPError as e:
             assert e.code in (401,403)
@@ -90,6 +108,7 @@ try:
                                  f'{engine}: create/read asset and linked work order'])
     print('Restarting app containers and checking persisted maintenance data',flush=True)
     command(compose+['restart','app-pg','app-mysql'],120)
+    discover_targets()
     for port,(asset_id,work_id,name) in saved.items():
         ready(port);token=login(port)
         assert request(port,f'/assets/{asset_id}',token=token)['name']==name
@@ -104,10 +123,17 @@ except Exception as e:
     if isinstance(e,urllib.error.HTTPError):result['httpStatus']=e.code
     print('Container verification failed; collecting safe exception locations',flush=True)
 finally:
+    try:
+        status=subprocess.check_output(compose+['ps','--all','--format','json'],text=True)
+        rows=json.loads(status) if status.lstrip().startswith('[') else [json.loads(line) for line in status.splitlines() if line.strip()]
+        result['containerStates']=[{k:row.get(k) for k in ('Service','State','Health','ExitCode')} for row in rows]
+    except Exception:pass
     try:command(compose+['logs','--no-color'],30)
     except Exception:pass
     if log_file.exists():
         raw=log_file.read_text(encoding='utf-8',errors='replace')
+        result['bootCompletedCount']=len(re.findall(r'Started ApiApplication in ',raw))
+        result['boundPorts']=re.findall(r'Tomcat started on port ([0-9]+)',raw)
         result['diagnosticFlags']={'mysqlTriggerBinlogPrivilege':'log_bin_trust_function_creators' in raw}
         result['exceptionTypes']=sorted(set(re.findall(r'Caused by: ([A-Za-z0-9_.$]+)',raw)))
         result['schemaErrors']=re.findall(r'Schema-validation: (?:missing|wrong)[^\r\n]{0,160}',raw)[:10]

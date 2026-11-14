@@ -158,7 +158,7 @@ class MaintenanceJpaIntegrationTest {
     @Test @Order(1)
     void fullContextAndMasterMigrationAreUsable() {
         assertTrue(reliableEvents.isEnabled());
-        assertTrue(jdbc.queryForObject(database.sql("SELECT count(*) FROM databasechangelog WHERE id='2026-11-14-domain-reliability'","SELECT count(*) FROM databasechangelog WHERE id='mysql-fresh-baseline-20261114'"), Long.class) > 0);
+        assertTrue(jdbc.queryForObject(database.sql("SELECT count(*) FROM databasechangelog WHERE id='2026-11-14-domain-reliability'","SELECT count(*) FROM DATABASECHANGELOG WHERE id='mysql-fresh-baseline-20261114'"), Long.class) > 0);
         assertNotNull(jdbc.queryForObject(database.sql("SELECT to_regclass('meter_trigger_state')::text","SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='meter_trigger_state'"), String.class));
         assertNotNull(jdbc.queryForObject(database.sql("SELECT to_regclass('asset_summary_epoch')::text","SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='asset_summary_epoch'"), String.class));
     }
