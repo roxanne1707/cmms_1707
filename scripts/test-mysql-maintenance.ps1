@@ -1,4 +1,4 @@
-param([string]$Maven='mvn',[string]$Settings='',[Parameter(Mandatory=$true)][string]$CredentialFile,[string]$Tests='*')
+param([string]$Maven='mvn',[string]$Settings='',[Parameter(Mandatory=$true)][string]$CredentialFile,[string]$Tests='*Test,*Tests')
 $ErrorActionPreference='Stop'
 $access=Get-Content -LiteralPath $CredentialFile -Raw | ConvertFrom-Json
 if($access.username -ne 'cmms_mysql_test'){throw 'Only the isolated MySQL test account is accepted.'}

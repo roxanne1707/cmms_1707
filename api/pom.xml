@@ -20,7 +20,7 @@
         <lombok.version>1.18.30</lombok.version>
         <liquibase.version>5.0.3</liquibase.version>
         <liquibase.propertyFile>src/main/resources/liquibase/liquibase-local.properties</liquibase.propertyFile>
-        <testcontainers.version>1.19.3</testcontainers.version>
+        <testcontainers.version>1.21.4</testcontainers.version>
         <jjwt-api.version>0.13.0</jjwt-api.version>
     </properties>
     <dependencies>
