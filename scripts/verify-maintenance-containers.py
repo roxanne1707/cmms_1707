@@ -4,6 +4,7 @@ No database ports, host data mounts, external delivery or production destination
 Only this run's validated Compose project may be removed.
 """
 import base64, concurrent.futures, datetime, ipaddress, json, math, os, re, secrets, subprocess, time, urllib.request, urllib.error
+import traceback
 from pathlib import Path
 
 if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('RUNNER_OS') != 'Linux':
@@ -129,6 +130,7 @@ def retention_verification(tokens,saved):
         assert scalar(engine,f'SELECT COUNT(*) FROM event_archive_summary WHERE company_id={company}')==0
         start=time.monotonic()
         execution=request(port,'/reliable-events/retention/runs',{'dryRun':False,'reason':'Retire only synthetic completed notification payloads'},token)
+        result.setdefault('retentionExecution',{})[engine]=execution
         elapsed=(time.monotonic()-start)*1000
         assert execution['archived']==before and execution['failed']==0
         assert scalar(engine,f'SELECT COUNT(*) FROM consumer_receipt WHERE company_id={company}')==before
@@ -314,6 +316,7 @@ try:
 except Exception as e:
     # Exception bodies and application logs can contain passwords. Record type only.
     result['errorType']=type(e).__name__
+    result['failureLocations']=[{'function':frame.name,'line':frame.lineno} for frame in traceback.extract_tb(e.__traceback__) if Path(frame.filename).name==Path(__file__).name]
     if isinstance(e,urllib.error.HTTPError):result['httpStatus']=e.code
     print('Container verification failed; collecting safe exception locations',flush=True)
 finally:

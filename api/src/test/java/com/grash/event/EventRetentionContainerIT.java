@@ -49,7 +49,8 @@ class EventRetentionContainerIT {
             String name="retention_"+UUID.randomUUID().toString().replace("-","");DataSource source;
             if(engine.equals("mysql")) {
                 String base="jdbc:mysql://"+mysql.getHost()+":"+mysql.getMappedPort(3306)+"/";
-                new JdbcTemplate(new DriverManagerDataSource(base,"root","isolated-retention-only")).execute("CREATE DATABASE "+name+" CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_as_cs");
+                // Intentionally differ from the case-sensitive event tables: new DDL must be explicit.
+                new JdbcTemplate(new DriverManagerDataSource(base,"root","isolated-retention-only")).execute("CREATE DATABASE "+name+" CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci");
                 source=new DriverManagerDataSource(base+name+"?useAffectedRows=true&connectionTimeZone=UTC","root","isolated-retention-only");
                 jdbc=new MysqlJdbcConfiguration().jdbcTemplate(source);
             } else {
@@ -66,7 +67,7 @@ class EventRetentionContainerIT {
                 var pattern=java.util.regex.Pattern.compile("(?is)^(?:CREATE TABLE|INSERT INTO|ALTER TABLE|CREATE (?:UNIQUE )?INDEX \\S+ ON)\\s+`?(\\w+)`?");
                 for(String statement:ddl.split(";")){String sql=statement.trim();var match=pattern.matcher(sql);if(match.find()&&tables.contains(match.group(1)))jdbc.execute(sql);}
             }
-            jdbc.execute("CREATE TABLE event_report_attachment(company_id BIGINT,event_id "+(engine.equals("mysql")?"CHAR(36)":"UUID")+")");
+            jdbc.execute("CREATE TABLE event_report_attachment(company_id BIGINT,event_id "+(engine.equals("mysql")?"CHAR(36)":"UUID")+")"+(engine.equals("mysql")?" ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs":""));
             new ResourceDatabasePopulator(new ClassPathResource("db/changelog/sql/event_retention_"+engine+".sql")).execute(source);
             jdbc.update("INSERT INTO company VALUES(1),(2)");
             settings.setEnabled(true);settings.setDryRun(false);
@@ -127,7 +128,7 @@ class EventRetentionContainerIT {
         try(var f=new Fixture(engine)){f.old(1);
             f.jdbc.execute("ALTER TABLE event_retry ADD CONSTRAINT block_retirement CHECK (1=1)");
             // A real FK rejects the DELETE after the archive INSERT, proving transaction rollback.
-            f.jdbc.execute("CREATE TABLE cleanup_block(retry_id "+(engine.equals("mysql")?"CHAR(36)":"UUID")+" REFERENCES event_retry(id))");
+            f.jdbc.execute("CREATE TABLE cleanup_block(retry_id "+(engine.equals("mysql")?"CHAR(36)":"UUID")+" REFERENCES event_retry(id))"+(engine.equals("mysql")?" ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_as_cs":""));
             if(engine.equals("mysql"))f.jdbc.execute("ALTER TABLE cleanup_block ADD FOREIGN KEY(retry_id) REFERENCES event_retry(id)");
             f.jdbc.update("INSERT INTO cleanup_block SELECT id FROM event_retry");
             assertEquals(1,f.run(false).failed());assertEquals(0,f.count("event_archive_summary"));assertEquals(1,f.count("domain_event_outbox"));assertEquals(1,f.count("event_retry"));
