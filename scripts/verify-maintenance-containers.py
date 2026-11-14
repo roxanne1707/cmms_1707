@@ -140,6 +140,15 @@ def retention_verification(tokens,saved):
         result.setdefault('retention',{})[engine]={'archived':before,'receiptsRetained':before,'retiredPayloadBytes':execution['retiredPayloadBytes'],
             'elapsedMs':round(elapsed,3),'previewNonDestructive':True,'repeatArchived':0,'technicianDenied':True}
         result['checks'].append(f'{engine}: tenant-admin retention preview, execution and repeat; receipts retained; technician denied')
+        if engine=='postgresql':
+            # TECHNICIAN intentionally has no REQUESTS-create permission. Use the normal role API
+            # to turn this synthetic user into a REQUESTER for the separate admission-control test.
+            identity=request(port,'/auth/me',token=worker)
+            requester=next(role for role in request(port,'/roles',token=token) if role['code']=='REQUESTER')
+            request(port,f"/users/{identity['id']}/role?role={requester['id']}",token=token,method='PATCH')
+            fresh=request(port,'/auth/signin',{'email':'container-technician@example.invalid','password':admin_password})['accessToken']
+            assert request(port,'/auth/me',token=fresh)['role']['code']=='REQUESTER'
+            saved[port]=(*saved[port][:4],fresh)
 
 def shared_limit_verification(saved):
     """Two REAL API processes, same owned PG/Redis, no license fixtures or host database."""
