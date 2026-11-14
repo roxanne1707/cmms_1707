@@ -44,16 +44,18 @@ def discover_targets():
         targets[port]=address
     result['transport']='HTTP from ephemeral runner to label-verified internal container IPs, port 8080'
 
-def request(port,path,body=None,token=None):
+def request(port,path,body=None,token=None,method=None,idempotency_key=None):
     if port not in (38089,38189) or not path.startswith('/') or '://' in path:
         raise ValueError('Only disposable loopback API destinations are allowed')
     headers={'Content-Type':'application/json'}
     if token:headers['Authorization']='Bearer '+token
+    if idempotency_key:headers['Idempotency-Key']=idempotency_key
     if path.startswith('/actuator/'):
         headers['Authorization']='Basic '+base64.b64encode(('cmms-metrics:'+config['CI_METRICS_PASSWORD']).encode()).decode()
     data=None if body is None else json.dumps(body).encode()
-    result['lastRequest']={'logicalPort':port,'path':path,'method':'POST' if body is not None else 'GET'}
-    req=urllib.request.Request(f'http://{targets[port]}:8080'+path,data=data,headers=headers)
+    method=method or ('POST' if body is not None else 'GET')
+    result['lastRequest']={'logicalPort':port,'path':path,'method':method}
+    req=urllib.request.Request(f'http://{targets[port]}:8080'+path,data=data,headers=headers,method=method)
     with opener.open(req,timeout=15) as reply:
         return json.load(reply)
 
@@ -69,6 +71,32 @@ def ready(port):
 
 def login(port):
     return request(port,'/auth/signin',{'email':admin_email,'password':admin_password})['accessToken']
+
+def scalar(engine,query):
+    """Read assertions only, through the disposable project, never a host DB port."""
+    if not query.startswith('SELECT '):raise ValueError('Only SELECT assertions are accepted')
+    if engine=='postgresql':
+        args=['postgres','psql','-U','cmms_ci','-d','cmms_container_pg','-At','-c',query]
+    elif engine=='mysql':
+        args=['mysql','sh','-c','MYSQL_PWD="$MYSQL_PASSWORD" exec mysql -ucmms_ci -Dcmms_container_mysql -N -B -e "$1"','cmms-readonly-proof',query]
+    else:raise ValueError('Unknown disposable database')
+    return int(subprocess.check_output(compose+['exec','-T']+args,text=True).strip())
+
+def await_events(engine,company_id):
+    assert type(company_id) is int and company_id>0
+    counts={}
+    for _ in range(60):
+        counts={
+            'published':scalar(engine,f"SELECT COUNT(*) FROM domain_event_outbox WHERE company_id={company_id} AND status='PUBLISHED'"),
+            'receipts':scalar(engine,f"SELECT COUNT(*) FROM consumer_receipt WHERE company_id={company_id}"),
+            'pending':scalar(engine,f"SELECT COUNT(*) FROM event_retry WHERE company_id={company_id} AND state<>'DONE'"),
+            'deliveries':scalar(engine,f"SELECT COUNT(*) FROM event_delivery WHERE company_id={company_id}"),
+            'unfinishedDeliveries':scalar(engine,f"SELECT COUNT(*) FROM event_delivery WHERE company_id={company_id} AND state<>'SKIPPED'")}
+        if counts['published']>=4 and counts['receipts']>=4 and counts['pending']==0 and counts['deliveries']>=1 and counts['unfinishedDeliveries']==0:
+            return counts
+        time.sleep(2)
+    result['eventCountsAtTimeout']=counts
+    raise AssertionError('Durable RabbitMQ consumption did not reach the expected terminal state')
 
 try:
     result['docker']=subprocess.check_output(['docker','version','--format','{{.Server.Version}}'],text=True).strip()
@@ -90,10 +118,19 @@ try:
             'firstName':'Container','lastName':'Verifier','phone':'00000000000',
             'companyName':'Isolated maintenance verification','employeesCount':1,'timeZone':'UTC'})
         assert signup['success']
-        token=login(port);assert request(port,'/auth/me',token=token)['email']==admin_email
+        token=login(port);me=request(port,'/auth/me',token=token);assert me['email']==admin_email
+        worker_email='container-technician@example.invalid'
+        invitation=request(port,'/users/invite',{'role':{'id':me['role']['id']},'emails':[worker_email],'disableSendingEmail':True},token)
+        assert invitation['success']
+        worker_signup=request(port,'/auth/signup',{'email':worker_email,'password':admin_password,
+            'firstName':'Container','lastName':'Technician','phone':'00000000001','role':{'id':me['role']['id']}})
+        assert worker_signup['success']
+        worker_token=request(port,'/auth/signin',{'email':worker_email,'password':admin_password})['accessToken']
+        worker=request(port,'/auth/me',token=worker_token)
+        assert worker['companyId']==me['companyId']
         name=f'Container maintenance pump {engine}'
         asset=request(port,'/assets',{'name':name,'status':'OPERATIONAL'},token)
-        work=request(port,'/work-orders',{'title':'Container repair verification','asset':{'id':asset['id']},'priority':'MEDIUM'},token)
+        work=request(port,'/work-orders',{'title':'Container repair verification','asset':{'id':asset['id']},'priority':'MEDIUM','primaryUser':{'id':worker['id']}},token)
         assert request(port,f"/assets/{asset['id']}",token=token)['name']==name
         assert request(port,f"/work-orders/{work['id']}",token=token)['id']==work['id']
         now=datetime.datetime.now(datetime.timezone.utc)
@@ -103,17 +140,50 @@ try:
         ledger=request(port,'/query/maintenance-ledger',{**query,'assetId':asset['id']},token)
         assert ledger['total']==1 and ledger['content'][0]['id']==work['id']
         result['checks'].append(f'{engine}: overview and MyBatis maintenance ledger match committed work order')
-        saved[port]=(asset['id'],work['id'],name)
+        part=request(port,'/parts',{'name':'Isolated pump seal','quantity':10,'cost':5,'minQuantity':1},token)
+        progress=request(port,f"/work-orders/{work['id']}/change-status",{'status':'IN_PROGRESS'},worker_token,method='PATCH')
+        assert progress['status']=='IN_PROGRESS'
+        consume={'quantity':2,'part':{'id':part['id']},'workOrder':{'id':work['id']}}
+        quantity=request(port,'/part-quantities',consume,worker_token,idempotency_key='container-consume-seal-1')
+        replay=request(port,'/part-quantities',consume,worker_token,idempotency_key='container-consume-seal-1')
+        assert quantity['id']==replay['id'] and replay['quantity']==2
+        assert request(port,f"/parts/{part['id']}",token=token)['quantity']==8
+        allocated=request(port,f"/part-quantities/work-order/{work['id']}",token=token)
+        assert len(allocated)==1 and allocated[0]['quantity']==2
+        completed=request(port,f"/work-orders/{work['id']}/change-status",{'status':'COMPLETE','feedback':'Pump seal replaced; isolated verification complete'},worker_token,method='PATCH')
+        assert completed['status']=='COMPLETE'
+        overview=request(port,f"/query/assets/{asset['id']}/work-order-overview",query,token)
+        ledger=request(port,'/query/maintenance-ledger',{**query,'assetId':asset['id']},token)
+        assert overview['total']==1 and overview['complete']==1
+        assert ledger['total']==1 and ledger['content'][0]['status']=='COMPLETE'
+        counts=await_events(engine,me['companyId'])
+        notices=request(port,'/notifications',token=worker_token)
+        assignments=[n for n in notices if n.get('resourceId')==work['id'] and n.get('notificationType')=='WORK_ORDER']
+        assert len(assignments)==1
+        assert type(worker['id']) is int and type(work['id']) is int
+        assert scalar(engine,f"SELECT COUNT(*) FROM notification WHERE user_id={worker['id']} AND resource_id={work['id']} AND event_purpose='ASSIGNMENT'")==1
+        result.setdefault('maintenanceLoop',{})[engine]={'stockBefore':10,'stockAfter':8,'consumed':2,'duplicateCommandSameResult':True,
+            'status':'COMPLETE','overviewComplete':overview['complete'],'assignmentNotifications':len(assignments),'events':counts}
+        result['checks'].extend([f'{engine}: assigned technician starts and completes repair',
+            f'{engine}: part consumption replay changes stock once (10 -> 8)',
+            f'{engine}: overview invalidation and ledger reflect COMPLETE',
+            f'{engine}: real RabbitMQ confirms, consumer receipts and one assignment notification; outbound delivery SKIPPED'])
+        saved[port]=(asset['id'],work['id'],name,part['id'],worker_token)
         result['checks'].extend([f'{engine}: Liquibase boot/health',f'{engine}: anonymous rejection and authenticated identity',
                                  f'{engine}: create/read asset and linked work order'])
     print('Restarting app containers and checking persisted maintenance data',flush=True)
     command(compose+['restart','app-pg','app-mysql'],120)
     discover_targets()
-    for port,(asset_id,work_id,name) in saved.items():
+    for port,(asset_id,work_id,name,part_id,worker_token) in saved.items():
         ready(port);token=login(port)
         assert request(port,f'/assets/{asset_id}',token=token)['name']==name
-        assert request(port,f'/work-orders/{work_id}',token=token)['asset']['id']==asset_id
-        result['checks'].append(f'port {port}: asset/work-order relationship survives app restart')
+        persisted=request(port,f'/work-orders/{work_id}',token=token)
+        assert persisted['asset']['id']==asset_id and persisted['status']=='COMPLETE'
+        assert request(port,f'/parts/{part_id}',token=token)['quantity']==8
+        assert len(request(port,f'/part-quantities/work-order/{work_id}',token=token))==1
+        notices=request(port,'/notifications',token=worker_token)
+        assert len([n for n in notices if n.get('resourceId')==work_id and n.get('notificationType')=='WORK_ORDER'])==1
+        result['checks'].append(f'port {port}: completed repair, stock, part allocation and unique notification survive app restart')
     images=json.loads(subprocess.check_output(compose+['images','--format','json'],text=True))
     result['images']=images
     result['result']='PASS'
