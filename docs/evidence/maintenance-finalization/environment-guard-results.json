@@ -1,0 +1,9 @@
+{
+  "passed": 3,
+  "checks": [
+    "reject inherited connection/config redirection",
+    "PostgreSQL to MySQL keeps runtime/migration identities",
+    "MySQL to PostgreSQL resets both connections and dialect"
+  ],
+  "failed": 0
+}

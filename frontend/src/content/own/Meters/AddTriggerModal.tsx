@@ -1,3 +1,4 @@
+import { meterPolicyFields, meterPolicyValues, meterPolicyValidation, meterPolicyPayload } from '../../../utils/meterTriggerPolicy';
 import { Dialog, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Form from '../components/form';
@@ -60,10 +61,14 @@ export default function AddTriggerModal({
     {
       name: 'value',
       type: 'number',
+      min: -2147483648,
+      max: 2147483647,
+      step: 1,
       label: t('value') + '(' + meter.unit + ')',
       midWidth: true,
       required: true
     },
+    ...meterPolicyFields(t),
     {
       name: 'workOrderConfig',
       type: 'titleGroupField',
@@ -74,7 +79,7 @@ export default function AddTriggerModal({
   const shape = {
     name: Yup.string().required(t('required_trigger_name')),
     title: Yup.string().required(t('required_wo_title')),
-    value: Yup.number().required(t('required_value')),
+    ...meterPolicyValidation(t),
     triggerCondition: Yup.object().required(t('required_trigger_condition')),
     ...getCustomFieldsRequiredShape(
       customFields,
@@ -83,7 +88,7 @@ export default function AddTriggerModal({
     )
   };
   const formatValues = (values) => {
-    const newValues = { ...values };
+    const newValues = { ...values, ...meterPolicyPayload(values) };
     newValues.primaryUser = formatSelect(newValues.primaryUser);
     newValues.location = formatSelect(newValues.location);
     newValues.team = formatSelect(newValues.team);
@@ -121,11 +126,14 @@ export default function AddTriggerModal({
           p: 3
         }}
       >
+        <Typography variant="body2" sx={{ mb: 2 }} role="note">
+          {t('meter_policy_help')} {t('meter_wait_help')}
+        </Typography>
         <Form
           fields={fields}
           validation={Yup.object().shape(shape)}
           submitText={t('add')}
-          values={{ dueDate: null }}
+          values={{ dueDate: null, ...meterPolicyValues(t) }}
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let formattedValues = formatValues(values);
@@ -148,7 +156,7 @@ export default function AddTriggerModal({
               onCreationSuccess();
             } catch (err) {
               onCreationFailure(err);
-              throw err;
+
             }
           }}
         />

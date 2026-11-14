@@ -1,0 +1,6 @@
+{
+  "recordedAtUtc": "2026-11-14T00:51:56.002333+00:00",
+  "metricsAuthenticatedStatus": 429,
+  "businessAnonymousStatus": 429,
+  "scope": "read-only isolated PostgreSQL API; credentials omitted"
+}

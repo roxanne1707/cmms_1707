@@ -1,0 +1,13 @@
+{
+  "note": "原始日志可能含环境属性，保留在本地，Git 只保存摘要校验和。",
+  "sha256": {
+    "mysql-full.log": "40bb4c7b6139ed4d62c2278f63097d048b99c281fa5bd3fa7e2560191c16535e",
+    "postgresql-full.log": "96011628b3b7ec04edd97851056f493bcd64a6f8b54c7ad7db281f6cc1d88d0f",
+    "frontend-build-final.log": "e6b5a2501bf826248fc5d66ebb28764e3e8fdfdd831670be692170b1107d99a2",
+    "frontend-types-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "client-tests.log": "55437b795a7bda084f7a1a58e99f77959eb9dd0add054df7873a557d071d9dec",
+    "socket-tests.log": "ebccc43a42e6faa633a2d9d3ebac0a9c08b7d8ce3bf121e6daf5c72bfe865956",
+    "meter-policy-tests.log": "317b0c97f42c7c052d60c804048be0e50392715dbac4654ef905c82e2304842f",
+    "artifact-build.log": "fc3a2fc11e4b60840eb5d1c19658dc4d55d6081f1ec61f34e7ff8b08ef6b4e2c"
+  }
+}

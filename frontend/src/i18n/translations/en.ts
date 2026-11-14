@@ -1,7 +1,17 @@
-import { maintenanceQueryEn } from '../../content/own/MaintenanceQueries/translations';
+import {
+ maintenanceQueryEn } from '../../content/own/MaintenanceQueries/translations';
 import { notificationFailureEn } from '../../content/own/NotificationFailures/translations';
 
 const locale = {
+  meter_policy: "Automatic work order policy",
+  meter_policy_episode: "One work order per abnormal episode",
+  meter_policy_once: "Only once for this trigger",
+  meter_policy_help: "An episode ends when a new normal reading is accepted. Completing a work order does not reset it. Only once remains used after recovery or rule edits.",
+  meter_wait_seconds: "Abnormal waiting time (seconds)",
+  meter_wait_help: "After this time, another accepted abnormal reading is required to create a work order. There is no timer-only creation; the meter reading frequency still applies.",
+  meter_wait_invalid: "Enter a whole number of seconds from 0 to 2147483647.",
+  meter_threshold_invalid: "Enter a whole-number threshold from -2147483648 to 2147483647.",
+  meter_wait_summary: "Wait {{seconds}} seconds",
   ...maintenanceQueryEn,
   ...notificationFailureEn,
   maintenance_sla_nav: 'Maintenance SLA',

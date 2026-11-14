@@ -1,5 +1,8 @@
 # 设备工单概览与维修台账 API
 
+> 状态入口：本文保留该阶段的源码证据和验收记录；当前实现、测试及启动方式以 [最终收尾验收](maintenance-final-acceptance.md) 为准。历史轮次的测试数、分支和运行地址不能直接当作当前状态。
+
+
 ## 启用与边界
 
 新增接口仅在 `enhancement.query.enabled=true` 时注册，默认关闭。先完成主 Liquibase 迁移；查询模块依赖 `asset_summary_epoch`、版本序列/触发器，以及 C2 的 `meter_trigger_execution` 来源表。旧分析接口、JPA 写入和既有认证过滤器保持原路径。

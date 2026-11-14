@@ -18,12 +18,13 @@ import java.util.*;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-/** Uses a random disposable schema on the explicitly supplied isolated PostgreSQL only. */
-@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches="jdbc:postgresql://127\\.0\\.0\\.1:[0-9]+/cmms_enhancement_test.*")
+/** Uses a random disposable schema on the explicitly supplied isolated PostgreSQL or MySQL. */
+@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches=".+")
 class ExtraMaintenanceReliabilityIntegrationTest {
     private AnnotationConfigApplicationContext context;
     private JdbcTemplate jdbc,bootstrap;
     private String schema;
+    private com.grash.integration.JdbcLab lab;
     private TransactionTemplate tx;
     private MaintenanceScheduleReceipt receipts;
     private ReportAttachmentStore attachments;
@@ -32,18 +33,17 @@ class ExtraMaintenanceReliabilityIntegrationTest {
         @Bean PlatformTransactionManager transactionManager(DataSource source) {return new DataSourceTransactionManager(source);}
     }
     @BeforeEach void setup() {
-        String url=System.getProperty("cmms.test.jdbc-url"),user=System.getProperty("cmms.test.jdbc-user","cmms_test"),password=System.getProperty("cmms.test.jdbc-password","cmms_test_local");
-        bootstrap=new JdbcTemplate(new DriverManagerDataSource(url,user,password));schema="maintenance_extra_"+UUID.randomUUID().toString().replace("-","");
-        bootstrap.execute("CREATE SCHEMA "+schema);
-        DataSource source=new DriverManagerDataSource(url+(url.contains("?")?"&":"?")+"currentSchema="+schema,user,password);
-        jdbc=new JdbcTemplate(source);
+        lab=new com.grash.integration.JdbcLab();schema=lab.schema;
+        DataSource source=lab.source;jdbc=lab.jdbc;
         jdbc.execute("CREATE TABLE company(id BIGINT PRIMARY KEY)");
         jdbc.execute("CREATE TABLE own_user(id BIGINT PRIMARY KEY,company_id BIGINT REFERENCES company(id))");
         jdbc.execute("CREATE TABLE notification(id BIGINT PRIMARY KEY,user_id BIGINT)");
         jdbc.execute("CREATE TABLE generated_order(id BIGINT PRIMARY KEY,company_id BIGINT)");
-        new ResourceDatabasePopulator(new ClassPathResource("db/changelog/2026_11_14_reliable_events.sql"),new ClassPathResource("db/changelog/2026_11_14_reliability_completion.sql")).execute(source);
+        if(lab.mysql) {
+            lab.mysqlTables("domain_event_outbox","event_retry","consumer_receipt","event_delivery","event_replay_audit","event_report_attachment","maintenance_schedule_execution");
+        } else new ResourceDatabasePopulator(new ClassPathResource("db/changelog/2026_11_14_reliable_events.sql"),new ClassPathResource("db/changelog/2026_11_14_reliability_completion.sql")).execute(source);
         jdbc.update("INSERT INTO company VALUES(1),(2)");
-        context=new AnnotationConfigApplicationContext();context.register(com.grash.database.DatabasePlatform.class,Transactions.class);
+        context=new AnnotationConfigApplicationContext();context.register(Transactions.class);context.registerBean(com.grash.database.DatabasePlatform.class,()->lab.database);
         context.registerBean(DataSource.class,()->source);context.registerBean(JdbcTemplate.class,()->jdbc);
         context.registerBean(ObjectMapper.class,()->new ObjectMapper().findAndRegisterModules());
         context.registerBean(ReliableEventProperties.class,ReliableEventProperties::new);
@@ -53,7 +53,7 @@ class ExtraMaintenanceReliabilityIntegrationTest {
     }
     @AfterEach void cleanup() {
         if(context!=null)context.close();
-        if(bootstrap!=null && schema!=null && schema.matches("maintenance_extra_[a-f0-9]+"))bootstrap.execute("DROP SCHEMA "+schema+" CASCADE");
+        if(lab!=null)lab.close();
     }
     private EventEnvelope event(UUID id) {return new EventEnvelope(1,id,1,"WORK_ORDER_REPORT",3,4L,Instant.now(),List.of(),List.of(),Map.of("workOrderId",3));}
     private int count(String table) {return jdbc.queryForObject("SELECT count(*) FROM "+table,Integer.class);}
@@ -89,7 +89,7 @@ class ExtraMaintenanceReliabilityIntegrationTest {
     @Test void retentionRemovesOnlyCompletedOldReportsAndKeepsFailedDeliveryRecoverable() {
         UUID done=UUID.randomUUID(),dead=UUID.randomUUID(),unconsumed=UUID.randomUUID();
         tx.executeWithoutResult(status->{for(UUID id:List.of(done,dead,unconsumed)){attachments.save(1,id,"report.pdf",new byte[]{1});events.append(event(id));}});
-        jdbc.update("UPDATE event_report_attachment SET created_at=CURRENT_TIMESTAMP-INTERVAL '91 days'");
+        jdbc.update(lab.sql("UPDATE event_report_attachment SET created_at=CURRENT_TIMESTAMP-INTERVAL '91 days'","UPDATE event_report_attachment SET created_at=TIMESTAMPADD(DAY,-91,CURRENT_TIMESTAMP(6))"));
         for(UUID id:List.of(done,dead)) {
             jdbc.update("INSERT INTO consumer_receipt(company_id,event_id,handler) VALUES(?,?,?)",1,id,EventEnvelope.HANDLER);
             jdbc.update("UPDATE event_retry SET state='DONE' WHERE event_id=?",id);

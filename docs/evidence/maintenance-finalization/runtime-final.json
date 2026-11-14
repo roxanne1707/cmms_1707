@@ -1,0 +1,22 @@
+{
+  "recordedAtUtc": "2026-11-14T01:12:11.193119+00:00",
+  "http": {
+    "3089": 200,
+    "3289": 200,
+    "3389": 200,
+    "18089": 401,
+    "28089": 401,
+    "28189": 401
+  },
+  "database": {
+    "epochMigrationApplied": true,
+    "summaryForeignKeys": 2,
+    "counterTriggers": 2
+  },
+  "artifact": {
+    "file": "app-maintenance-20261114T010440013Z-8039bde9.jar",
+    "sha256": "fe0ecdfb33e995fb4c4f5bebd787ded7466c827f500fd541674f700c5b75e459",
+    "pointerMatches": true
+  },
+  "result": "PASS"
+}

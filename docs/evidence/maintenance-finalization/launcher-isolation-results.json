@@ -1,0 +1,20 @@
+{
+  "recordedAtUtc": "2026-11-14T01:12:11.047785+00:00",
+  "before": {
+    "observedFailure": "Inherited MySQL Liquibase URL made PostgreSQL temporary startup validate PostgreSQL changelog against MySQL; validation rejected before changesets ran",
+    "wrongChangelogTarget": "cmms_mysql_lab"
+  },
+  "after": {
+    "mysqlToPostgres": {
+      "started": true,
+      "postgresConnection": true,
+      "changelog": "public.databasechangelog"
+    },
+    "postgresToMysql": {
+      "started": true,
+      "mysqlConnection": true,
+      "changelog": "cmms_mysql_lab.databasechangelog"
+    }
+  },
+  "result": "PASS"
+}

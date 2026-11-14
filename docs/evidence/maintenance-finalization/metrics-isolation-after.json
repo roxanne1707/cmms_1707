@@ -1,0 +1,18 @@
+{
+  "recordedAtUtc": "2026-11-14T01:11:58.439257+00:00",
+  "scope": "actual executable artifact / isolated temporary API 28090 / read-only HTTP; default rate limits retained",
+  "initialBusinessAnonymous": 401,
+  "authenticatedScrapes": {
+    "requests": 95,
+    "http200": 95
+  },
+  "businessAfterScrapes": 401,
+  "businessQuotaProbe": {
+    "requests": 24,
+    "http401": 18,
+    "http429": 6
+  },
+  "authenticatedMetricAfterBusinessExhaustion": 200,
+  "unauthenticatedMetricStatus": 401,
+  "result": "PASS"
+}

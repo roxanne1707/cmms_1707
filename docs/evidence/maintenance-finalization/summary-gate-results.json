@@ -1,0 +1,12 @@
+{
+  "passed": 6,
+  "failed": 0,
+  "checks": [
+    "complete success",
+    "skipped cases rejected",
+    "failed build rejected",
+    "missing final summary rejected",
+    "inconsistent suite/final count rejected",
+    "concatenated runs rejected"
+  ]
+}

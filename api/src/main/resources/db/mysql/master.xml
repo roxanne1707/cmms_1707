@@ -7,4 +7,8 @@
  <changeSet id="mysql-reference-20261114" author="cmms-contributors"><sqlFile path="reference-data.sql" relativeToChangelogFile="true"/></changeSet>
  <changeSet id="mysql-triggers-20261114" author="cmms-contributors"><sqlFile path="triggers.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false" endDelimiter="-- end-trigger"/></changeSet>
  <changeSet id="mysql-overview-cover-20261114" author="cmms-contributors"><sqlFile path="overview-index.sql" relativeToChangelogFile="true"/></changeSet>
+ <changeSet id="mysql-epoch-counter-20261114" author="cmms-contributors">
+  <sqlFile path="epoch-counter.sql" relativeToChangelogFile="true" splitStatements="true"/>
+  <sqlFile path="epoch-counter-triggers.sql" relativeToChangelogFile="true" splitStatements="true" stripComments="false" endDelimiter="-- end-trigger"/>
+ </changeSet>
 </databaseChangeLog>

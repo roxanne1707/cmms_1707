@@ -1,0 +1,23 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const ts = require('../frontend/node_modules/typescript');
+const Yup = require('../frontend/node_modules/yup');
+const source = fs.readFileSync(path.join(__dirname,'../frontend/src/utils/meterTriggerPolicy.ts'),'utf8');
+const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}});
+const mod={exports:{}};
+vm.runInNewContext(compiled.outputText,{module:mod,exports:mod.exports,require:n=>{if(n==='yup')return Yup;throw Error(n)}});
+const api=mod.exports,t=x=>x, shape=Yup.object(api.meterPolicyValidation(t));
+const valid={value:10,waitBefore:0,episodePolicy:{value:'PER_EPISODE'}};
+let count=0;function check(name,fn){fn();count++;console.log('PASS '+name);}
+check('new trigger defaults to per episode and zero seconds',()=>{const v=api.meterPolicyValues(t);assert.equal(v.episodePolicy.value,'PER_EPISODE');assert.equal(v.waitBefore,0)});
+check('legacy recurrent false does not silently mean ONCE',()=>assert.equal(api.meterPolicyValues(t,{recurrent:false}).episodePolicy.value,'PER_EPISODE'));
+check('editing retains ONCE and waiting time',()=>{const v=api.meterPolicyValues(t,{episodePolicy:'ONCE',waitBefore:60});assert.equal(v.episodePolicy.value,'ONCE');assert.equal(v.waitBefore,60)});
+check('submit serializes explicit strategy and integer seconds',()=>{const v=api.meterPolicyPayload({...valid,waitBefore:'60'});assert.equal(v.waitBefore,60);assert.equal(v.episodePolicy,'PER_EPISODE')});
+for(const waitBefore of [-1,0.5,2147483648,Infinity,'',null])check('invalid wait '+String(waitBefore),()=>assert.equal(shape.isValidSync({...valid,waitBefore}),false));
+check('zero waiting is valid',()=>assert.equal(shape.isValidSync(valid),true));
+check('unknown policy is rejected',()=>assert.equal(shape.isValidSync({...valid,episodePolicy:{value:'RECURRENT'}}),false));
+check('missing policy is rejected',()=>assert.equal(shape.isValidSync({...valid,episodePolicy:null}),false));
+check('fractional threshold is rejected instead of rounded',()=>assert.equal(shape.isValidSync({...valid,value:1.2}),false));
+console.log(JSON.stringify({passed:count,failed:0}));

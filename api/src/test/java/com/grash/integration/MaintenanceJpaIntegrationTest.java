@@ -45,6 +45,8 @@ import static org.mockito.Mockito.*;
         "cmms.events.enabled=true", "cmms.events.external-delivery-enabled=false",
         "cmms.events.workers-enabled=false", "cmms.events.listener-auto-startup=false",
         "cmms.events.publish-poll-ms=3600000", "cmms.events.delivery-poll-ms=3600000",
+        "security.rate-limit.enabled=true", "security.rate-limit.unauthenticated.short-term-requests=2",
+        "security.rate-limit.unauthenticated.long-term-requests=2", "cmms.lab.metrics-password=local-metrics-isolation-test",
         "spring.quartz.auto-startup=false", "spring.jpa.hibernate.ddl-auto=validate", "spring.sql.init.mode=never",
         "spring.liquibase.enabled=true", "spring.liquibase.change-log=classpath:/db/master.xml"
 })
@@ -59,6 +61,7 @@ class MaintenanceJpaIntegrationTest {
         registry.add("spring.rabbitmq.password", () -> System.getProperty("cmms.test.rabbit-password", "guest"));
     }
 
+    @Autowired org.springframework.boot.test.web.client.TestRestTemplate http;
     @Autowired EntityManager em;
     @Autowired JdbcTemplate jdbc;
     @Autowired com.grash.database.DatabasePlatform database;
@@ -66,6 +69,7 @@ class MaintenanceJpaIntegrationTest {
     @Autowired InventoryCommandService inventory;
     @Autowired ReadingService readings;
     @Autowired WorkOrderMeterTriggerService triggerService;
+    @Autowired com.grash.mapper.WorkOrderMeterTriggerMapper triggerMapper;
     @Autowired FreshMaintenanceActor actors;
     @Autowired AssetWorkOrderOverviewService overview;
     @Autowired ReliableEventService reliableEvents;
@@ -459,6 +463,39 @@ class MaintenanceJpaIntegrationTest {
     private int notificationCount(UUID eventId, Long userId) {
         return jdbc.queryForObject("SELECT count(*) FROM notification WHERE event_company_id=? AND event_id=? AND user_id=?",
                 Integer.class, companyId, eventId, userId);
+    }
+
+    @Test @Order(19)
+    void metricsScrapesAndBusinessQuotaAreIsolatedOnTheRealServer() {
+        var metrics = http.withBasicAuth("cmms-metrics", "local-metrics-isolation-test");
+        assertEquals(401, http.getForEntity("/auth/me", String.class).getStatusCode().value());
+        for (int i = 0; i < 5; i++) {
+            assertEquals(200, metrics.getForEntity("/actuator/metrics", String.class).getStatusCode().value(),
+                    "Authenticated scrapes must not consume anonymous business quota");
+        }
+        assertEquals(401, http.getForEntity("/auth/me", String.class).getStatusCode().value());
+        assertEquals(429, http.getForEntity("/auth/me", String.class).getStatusCode().value(),
+                "Business request rate limiting must remain active");
+        assertEquals(200, metrics.getForEntity("/actuator/metrics", String.class).getStatusCode().value());
+        assertEquals(401, http.getForEntity("/actuator/metrics", String.class).getStatusCode().value(),
+                "Metrics must still require their dedicated credentials");
+    }
+
+    @Test @Order(18)
+    void meterPolicyEditRoundTripsWithoutResettingOmittedPolicy() {
+        com.grash.dto.WorkOrderMeterTriggerPatchDTO patch=tx.execute(status -> triggerMapper.toPatchDto(em.find(WorkOrderMeterTrigger.class,triggerId)));
+        patch.setEpisodePolicy(MeterEpisodePolicy.ONCE);patch.setWaitBefore(60);
+        var response=tx.execute(status -> triggerMapper.toShowDto(triggerService.update(triggerId,patch,actor.getCompany())));
+        assertEquals(MeterEpisodePolicy.ONCE,response.getEpisodePolicy());assertEquals(60,response.getWaitBefore());
+        patch.setEpisodePolicy(null);patch.setWaitBefore(120);
+        var preserved=tx.execute(status -> triggerMapper.toShowDto(triggerService.update(triggerId,patch,actor.getCompany())));
+        assertEquals(MeterEpisodePolicy.ONCE,preserved.getEpisodePolicy());assertEquals(120,preserved.getWaitBefore());
+        patch.setEpisodePolicy(MeterEpisodePolicy.PER_EPISODE);patch.setWaitBefore(-1);
+        assertThrows(CustomException.class,()->triggerService.update(triggerId,patch,actor.getCompany()));
+        tx.executeWithoutResult(status -> {
+            var stored=em.find(WorkOrderMeterTrigger.class,triggerId);
+            assertEquals(MeterEpisodePolicy.ONCE,stored.getEpisodePolicy());assertEquals(120,stored.getWaitBefore());
+        });
     }
 
     private PartQuantity quantityRequest(Long workOrderId, double value) {

@@ -32,11 +32,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Explicit opt-in only. Never reads the application's deployed datasource configuration. */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches="jdbc:postgresql://127\\.0\\.0\\.1:25432/cmms_enhancement_test.*")
+@EnabledIfSystemProperty(named="cmms.test.jdbc-url",matches=".+")
 class QueryInfrastructureIntegrationTest {
     private DriverManagerDataSource dataSource;
     private JdbcTemplate jdbc,admin;
     private String schema;
+    private com.grash.integration.JdbcLab lab;
     private EntityManagerFactory emf;
     private SqlSessionFactory sqlSessionFactory;
     private LettuceConnectionFactory redisFactory;
@@ -47,15 +48,7 @@ class QueryInfrastructureIntegrationTest {
     private final Set<String> cacheKeys=new HashSet<>();
 
     @BeforeAll void infrastructure()throws Exception{
-        String url=System.getProperty("cmms.test.jdbc-url");
-        if(!url.contains("_test"))throw new IllegalArgumentException("Only an explicitly named _test database is permitted");
-        String username=System.getProperty("cmms.test.jdbc-user","cmms_test");
-        String password=System.getProperty("cmms.test.jdbc-password","cmms_test_local");
-        admin=new JdbcTemplate(new DriverManagerDataSource(url,username,password));
-        schema="query_it_"+Long.toUnsignedString(System.nanoTime(),36);
-        admin.execute("CREATE SCHEMA "+schema);
-        dataSource=new DriverManagerDataSource(url+(url.contains("?")?"&":"?")+"currentSchema="+schema,username,password);
-        jdbc=new JdbcTemplate(dataSource);
+        lab=new com.grash.integration.JdbcLab();schema=lab.schema;dataSource=lab.source;jdbc=lab.jdbc;
         jdbc.execute("CREATE TABLE company(id bigint PRIMARY KEY)");
         jdbc.execute("CREATE TABLE asset(id bigint PRIMARY KEY,company_id bigint NOT NULL REFERENCES company(id),name varchar(100))");
         jdbc.execute("""
@@ -64,10 +57,15 @@ class QueryInfrastructureIntegrationTest {
              status integer,priority integer,created_at timestamp NOT NULL,completed_on timestamp,
              archived boolean NOT NULL DEFAULT false,is_demo boolean DEFAULT false)
             """);
-        jdbc.execute("CREATE TABLE meter_trigger_execution(company_id bigint NOT NULL,work_order_id bigint UNIQUE REFERENCES work_order(id) ON DELETE CASCADE,trigger_id bigint,episode bigint)");
-        String migration=new ClassPathResource("db/changelog/sql/asset_summary_epoch.sql")
-                .getContentAsString(StandardCharsets.UTF_8);
-        jdbc.execute(migration);
+        jdbc.execute("CREATE TABLE meter_trigger_execution(company_id bigint NOT NULL,work_order_id bigint UNIQUE,trigger_id bigint,episode bigint,FOREIGN KEY(work_order_id) REFERENCES work_order(id) ON DELETE CASCADE)");
+        if(lab.mysql) {
+            lab.mysqlTables("asset_summary_epoch");
+            String[] triggers=com.grash.integration.JdbcLab.resource("db/mysql/triggers.sql").split("-- end-trigger");
+            for(int i=0;i<5;i++)jdbc.execute(triggers[i]);
+            for(String sql:com.grash.integration.JdbcLab.resource("db/mysql/epoch-counter.sql").split(";"))if(!sql.isBlank())jdbc.execute(sql);
+            for(String sql:com.grash.integration.JdbcLab.resource("db/mysql/epoch-counter-triggers.sql").split("-- end-trigger"))if(!sql.isBlank())jdbc.execute(sql);
+            jdbc.execute(com.grash.integration.JdbcLab.resource("db/mysql/overview-index.sql"));
+        } else jdbc.execute(new ClassPathResource("db/changelog/sql/asset_summary_epoch.sql").getContentAsString(StandardCharsets.UTF_8));
         jdbc.update("INSERT INTO company VALUES(11),(22)");
         jdbc.update("INSERT INTO asset VALUES(101,11,'Pump'),(102,11,'Motor'),(201,22,'Foreign')");
         LocalContainerEntityManagerFactoryBean factory=new LocalContainerEntityManagerFactoryBean();
@@ -81,7 +79,7 @@ class QueryInfrastructureIntegrationTest {
         redis=new StringRedisTemplate(redisFactory);redis.afterPropertiesSet();
         try(var connection=redis.getConnectionFactory().getConnection()){assertEquals("PONG",connection.ping());}
         cache=new AssetOverviewCache(redis,new ObjectMapper().findAndRegisterModules());
-        overview=new AssetWorkOrderOverviewRepository(emf,jdbc,new com.grash.database.DatabasePlatform("postgresql",jdbc));
+        overview=new AssetWorkOrderOverviewRepository(emf,jdbc,lab.database);
     }
     private LettuceConnectionFactory redisFactory(int port){
         RedisStandaloneConfiguration configuration=new RedisStandaloneConfiguration(
@@ -97,7 +95,7 @@ class QueryInfrastructureIntegrationTest {
         if(redis!=null&&!cacheKeys.isEmpty())redis.delete(cacheKeys);
         if(redisFactory!=null)redisFactory.destroy();
         if(emf!=null)emf.close();
-        if(admin!=null&&schema!=null&&schema.matches("query_it_[a-z0-9]+"))admin.execute("DROP SCHEMA "+schema+" CASCADE");
+        if(lab!=null)lab.close();
     }
     @BeforeEach void fixture(){
         jdbc.update("DELETE FROM work_order");
@@ -142,7 +140,7 @@ class QueryInfrastructureIntegrationTest {
 
     @Test void mybatisMatchesJpaAndPreservesNullAssetsAndStablePagination(){
         var scope=scope();var q=ledger();
-        var baseline=new MaintenanceLedgerJpaRepository(emf,new com.grash.database.DatabasePlatform("postgresql",jdbc));
+        var baseline=new MaintenanceLedgerJpaRepository(emf,lab.database);
         try(var session=sqlSessionFactory.openSession()){
             var mapper=session.getMapper(com.grash.readmodel.mapper.MaintenanceLedgerMapper.class);
             assertEquals(5,mapper.count(11,q));
@@ -177,13 +175,30 @@ class QueryInfrastructureIntegrationTest {
         assertTrue(overview.epoch(11,102)>afterDelete);
     }
 
-    @Test void truncateAlsoInvalidatesSummaries(){
+    @Test void truncateHonorsDatabaseSpecificInvalidationContract(){
         long before=overview.epoch(11,101);
+        if(lab.mysql) {
+            // MySQL has no TRUNCATE row trigger. Operators must rotate the deployment namespace.
+            // Exercise that contract only on this fresh owned schema, never on an application database.
+            var scope=scope();var q=query();cached(scope,before,q,()->overview.aggregate(scope,101,before,q));
+            try(var c=dataSource.getConnection();var st=c.createStatement()) {
+                st.execute("SET FOREIGN_KEY_CHECKS=0");
+                try {st.execute("TRUNCATE work_order");st.execute("TRUNCATE meter_trigger_execution");}
+                finally {st.execute("SET FOREIGN_KEY_CHECKS=1");}
+            } catch(java.sql.SQLException e){throw new RuntimeException(e);}
+            assertEquals(before,overview.epoch(11,101),"MySQL does not fire DELETE triggers on TRUNCATE");
+            var rotated=new AssetOverviewCache(redis,new ObjectMapper().findAndRegisterModules());
+            org.springframework.test.util.ReflectionTestUtils.setField(rotated,"namespace",schema+"-restore");
+            String newKey=schema+"-restore:"+AssetOverviewCache.key(scope,101,before,q);cacheKeys.add(newKey);cacheKeys.add(newKey+":lock");
+            assertEquals(0,rotated.getOrLoad(scope,101,before,q,()->overview.aggregate(scope,101,before,q)).total());
+            return;
+        }
         jdbc.execute("TRUNCATE work_order CASCADE");
         assertTrue(overview.epoch(11,101)>before);
         assertEquals(0,overview.aggregate(scope(),101,overview.epoch(11,101),query()).total());
     }
     @Test void assetCompanyRoundTripAndRecreationNeverReuseVersions(){
+        if(lab.mysql)assertEquals(2,jdbc.queryForObject("SELECT count(*) FROM information_schema.referential_constraints WHERE constraint_schema=DATABASE() AND table_name='asset_summary_epoch'",Integer.class),"Existing summary foreign keys must remain intact");
         jdbc.update("INSERT INTO asset VALUES(301,11,'Moved asset')");
         long initial=overview.epoch(11,301);
         jdbc.update("UPDATE asset SET company_id=22 WHERE id=301");
@@ -250,7 +265,7 @@ class QueryInfrastructureIntegrationTest {
         var second=new AssetOverviewCache(new StringRedisTemplate(redisFactory),new ObjectMapper().findAndRegisterModules());
         assertEquals(expected,second.getOrLoad(scope,101,epoch,q,()->{throw new AssertionError("shared Redis hit expected");}));
     }
-    @Test void realRedisConnectionFailureUsesPgFallback(){
+    @Test void realRedisConnectionFailureUsesDatabaseFallback(){
         LettuceConnectionFactory unavailable=redisFactory(1);
         try{
             StringRedisTemplate offline=new StringRedisTemplate(unavailable);offline.afterPropertiesSet();

@@ -34,10 +34,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class WebSecurityConfigTest {
@@ -144,6 +147,17 @@ class WebSecurityConfigTest {
         SecurityFilterChain chain = webSecurityConfig.filterChain(http, apiKeyAuthFilter);
 
         assertNotNull(chain);
+        assertTrue(chain.getFilters().contains(rateLimitFilter));
+    }
+
+    @Test
+    void rateLimiterDoesNotBecomeAGlobalServletFilter() throws Exception {
+        var registration = webSecurityConfig.rateLimitFilterRegistration();
+        var servletContext = mock(jakarta.servlet.ServletContext.class);
+        assertSame(rateLimitFilter, registration.getFilter());
+        assertFalse(registration.isEnabled());
+        registration.onStartup(servletContext);
+        verifyNoInteractions(servletContext);
     }
 
     private static ApplicationContext realWebContext() {

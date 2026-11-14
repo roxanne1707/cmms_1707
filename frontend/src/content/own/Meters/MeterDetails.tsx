@@ -1,3 +1,4 @@
+import { meterPolicyLabel } from '../../../utils/meterTriggerPolicy';
 import {
   Box,
   Button,
@@ -319,10 +320,12 @@ export default function MeterDetails(props: MeterDetailsProps) {
                 <List>
                   {currentMeterTriggers.map((trigger) => (
                     <ListItem
+                      sx={{ pr: hasEditPermission(PermissionEntity.METERS, meter) ? 12 : 2 }}
                       key={trigger.id}
-                      secondaryAction={
+                      secondaryAction={hasEditPermission(PermissionEntity.METERS, meter) && (
                         <Stack spacing={1} direction="row">
                           <IconButton
+                            aria-label={t('edit_wo_trigger') + ': ' + trigger.name}
                             onClick={() => {
                               setCurrentWorkOrderMeterTrigger(
                                 currentMeterTriggers.find(
@@ -335,6 +338,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
                             <EditTwoToneIcon />
                           </IconButton>
                           <IconButton
+                            aria-label={t('delete') + ': ' + trigger.name}
                             onClick={() => {
                               dispatch(
                                 deleteWorkOrderMeterTrigger(
@@ -347,7 +351,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
                             <DeleteTwoToneIcon color="error" />
                           </IconButton>
                         </Stack>
-                      }
+                      )}
                     >
                       <ListItemText
                         primary={trigger.name}
@@ -355,7 +359,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
                           trigger.triggerCondition === 'MORE_THAN'
                             ? t('greater_than')
                             : t('lower_than')
-                        } ${trigger.value} ${meter.unit}`}
+                        } ${trigger.value} ${meter.unit} · ${meterPolicyLabel(t, trigger.episodePolicy ?? 'PER_EPISODE')} · ${t('meter_wait_summary', { seconds: trigger.waitBefore ?? 0 })}`}
                       />
                     </ListItem>
                   ))}
@@ -388,6 +392,7 @@ export default function MeterDetails(props: MeterDetailsProps) {
         meter={meter}
       />
       <EditTriggerModal
+        key={String(currentWorkOrderMeterTrigger?.id) + String(openEditTriggerModal)}
         open={openEditTriggerModal}
         onClose={() => setOpenEditTriggerModal(false)}
         meter={meter}

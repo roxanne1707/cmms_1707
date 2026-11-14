@@ -21,15 +21,14 @@ if($Frontend){
   exit
 }
 Assert-FreePort 28189
-$jar=Join-Path $repo 'api\target\app-mysql.jar'
-if(-not(Test-Path -LiteralPath $jar)){throw 'Build with Maven package -Dcmms.artifact-name=app-mysql first.'}
-$env:MYSQL_JDBC_URL='jdbc:mysql://127.0.0.1:23306/cmms_mysql_lab?useAffectedRows=true&connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true'
-$env:MYSQL_USER=$access.runtimeUser;$env:MYSQL_PASSWORD=$access.runtimePassword
-$env:SPRING_LIQUIBASE_URL=$env:MYSQL_JDBC_URL
-$env:SPRING_LIQUIBASE_USER=$access.migrationUser;$env:SPRING_LIQUIBASE_PASSWORD=$access.migrationPassword
+. (Join-Path $PSScriptRoot 'maintenance-artifact.ps1')
+$jar=Resolve-MaintenanceArtifact $repo
+. (Join-Path $PSScriptRoot 'maintenance-environment.ps1')
+Set-MaintenanceDatabaseEnvironment -Database mysql -MySqlAccess $access
 $env:CMMS_BOOTSTRAP_ADMINEMAIL=$access.adminEmail;$env:CMMS_BOOTSTRAP_ADMINPASSWORD=$access.adminPassword
 $env:CMMS_BOOTSTRAP_ADMIN_EMAIL=$access.adminEmail;$env:CMMS_BOOTSTRAP_ADMIN_PASSWORD=$access.adminPassword
-$env:MYSQL_CACHE_NAMESPACE='cmms-mysql-lab-v1'
+# Separate pre-counter cache entries on the first additive epoch migration.
+$env:MYSQL_CACHE_NAMESPACE='cmms-mysql-lab-epoch-v2'
 $env:JWT_SECRET_KEY=$access.jwtSecret;$env:CMMS_LAB_METRICS_PASSWORD=$access.metricsPassword
 $env:PUBLIC_FRONT_URL='http://127.0.0.1:3389';$env:PUBLIC_API_URL='http://127.0.0.1:28189'
 $env:MAIL_RECIPIENTS='test@example.invalid';$env:STORAGE_TYPE='MINIO'
@@ -49,4 +48,5 @@ $arguments=@('-Xmx512m','-Duser.timezone=UTC','-jar',('"'+$jar+'"'),
 if($EnableScheduling){$arguments+='--spring.quartz.auto-startup=true'}
 $process=Start-Process -FilePath $Java -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtime 'api.log') -RedirectStandardError (Join-Path $runtime 'api.err.log')
 Set-Content -LiteralPath (Join-Path $runtime 'api.pid') -Value $process.Id -Encoding ascii
+@{pid=$process.Id;jar=$jar;port=28189;startedAtUtc=$process.StartTime.ToUniversalTime().ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtime 'api.process.json') -Encoding utf8
 Write-Output "MySQL API starting: http://127.0.0.1:28189 ; PID $($process.Id); only cmms_mysql_lab on :23306."

@@ -1,7 +1,17 @@
-import { maintenanceQueryZh } from '../../content/own/MaintenanceQueries/translations';
+import {
+ maintenanceQueryZh } from '../../content/own/MaintenanceQueries/translations';
 import { notificationFailureZh } from '../../content/own/NotificationFailures/translations';
 
 const locale = {
+  meter_policy: "自动工单策略",
+  meter_policy_episode: "每个异常周期开单一次",
+  meter_policy_once: "此规则仅开单一次",
+  meter_policy_help: "收到新的正常读数才结束异常周期，完成工单不会重置周期。“仅开单一次”在恢复正常或修改规则后仍保留已开单次数。",
+  meter_wait_seconds: "异常等待时间（秒）",
+  meter_wait_help: "等待到期后，还需收到一条被系统接受的异常读数才会开单，不会仅靠计时自动开单；仪表原有读数频率仍然生效。",
+  meter_wait_invalid: "请输入 0 至 2147483647 之间的整数秒。",
+  meter_threshold_invalid: "请输入 -2147483648 至 2147483647 之间的整数阈值。",
+  meter_wait_summary: "等待 {{seconds}} 秒",
   ...maintenanceQueryZh,
   ...notificationFailureZh,
   maintenance_sla_nav: '维修 SLA 与超时升级',

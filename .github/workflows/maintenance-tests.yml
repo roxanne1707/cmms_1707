@@ -9,6 +9,10 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [postgresql, mysql]
     services:
       postgres:
         image: postgres:16.16-alpine
@@ -20,6 +24,17 @@ jobs:
         options: >-
           --health-cmd "pg_isready -U cmms_test -d cmms_enhancement_test"
           --health-interval 5s --health-timeout 3s --health-retries 20
+      mysql:
+        image: mysql:8.0.33
+        env:
+          MYSQL_ROOT_PASSWORD: cmms_ci_root_local
+          MYSQL_DATABASE: cmms_mysql_test
+          MYSQL_USER: cmms_mysql_test
+          MYSQL_PASSWORD: cmms_mysql_test_local
+        ports: ['23306:3306']
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval 5s --health-timeout 5s --health-retries 30
       redis:
         image: redis:8.4.0-alpine
         ports: ['26379:6379']
@@ -44,15 +59,46 @@ jobs:
         run: psql -h 127.0.0.1 -p 25432 -U cmms_test -d cmms_enhancement_test -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;'
         env:
           PGPASSWORD: cmms_test_local
+      - name: Grant access only to disposable MySQL test databases
+        if: matrix.database == 'mysql'
+        shell: bash
+        run: |
+          docker exec -e MYSQL_PWD=cmms_ci_root_local '${{ job.services.mysql.id }}' mysql -uroot -e "GRANT ALL PRIVILEGES ON \`cmms\\_mysql\\_%\`.* TO 'cmms_mysql_test'@'%';"
+      - name: Record regression start
+        shell: pwsh
+        run: |
+          [DateTimeOffset]::UtcNow.ToString('o') | Set-Content "$env:RUNNER_TEMP/regression-start.txt"
       - name: Full backend regression against isolated services
         shell: pwsh
-        run: ./scripts/test-maintenance.ps1
+        run: |
+          if ('${{ matrix.database }}' -eq 'postgresql') {
+            ./scripts/test-maintenance.ps1 *> "$env:RUNNER_TEMP/maintenance-backend.log"
+          } else {
+            $credentials = Join-Path $env:RUNNER_TEMP 'mysql-test.json'
+            @{username='cmms_mysql_test';password='cmms_mysql_test_local'} | ConvertTo-Json | Set-Content $credentials
+            ./scripts/test-mysql-maintenance.ps1 -CredentialFile $credentials *> "$env:RUNNER_TEMP/maintenance-backend.log"
+          }
+      - name: Require full regression with zero skipped tests
+        if: always()
+        shell: pwsh
+        run: python scripts/summarize-maintenance-tests.py --since (Get-Content "$env:RUNNER_TEMP/regression-start.txt") --log "$env:RUNNER_TEMP/maintenance-backend.log" --min-tests 2100 --require-no-skips --output "$env:RUNNER_TEMP/maintenance-summary.json"
+      - name: Verify test result gate
+        run: python scripts/test-maintenance-summary.py
+      - name: Verify launcher artifact guards
+        shell: pwsh
+        run: ./scripts/test-maintenance-artifact.ps1
+      - name: Verify launcher database isolation
+        shell: pwsh
+        run: ./scripts/test-maintenance-environment.ps1
+      - name: Verify executable release artifact
+        shell: pwsh
+        run: ./scripts/build-maintenance-artifact.ps1 -SkipTests
       - name: Save test evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maintenance-test-reports
-          path: api/target/surefire-reports/
+          name: maintenance-test-summary-${{ matrix.database }}
+          path: ${{ runner.temp }}/maintenance-summary.json
 
   frontend:
     runs-on: ubuntu-latest
@@ -70,9 +116,11 @@ jobs:
       - run: npm ci --legacy-peer-deps
       - run: node ../scripts/test-maintenance-client.cjs
       - run: node ../scripts/test-session-socket.cjs
+      - run: node ../scripts/test-meter-policy.cjs
       - run: npx tsc --noEmit --incremental false
       - run: npm run build
         env:
+          CMMS_BUILD_WORKERS: '1'
           CI: 'false'
           GENERATE_SOURCEMAP: 'false'
           NODE_OPTIONS: --max-old-space-size=4096

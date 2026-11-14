@@ -5,12 +5,13 @@ param(
     [string]$RabbitPassword = 'cmms_test_local',
     [switch]$NoQueryCache,
     [switch]$PerformanceMode,
-    [switch]$EnableScheduling
+    [switch]$EnableScheduling,
+    [switch]$NoBackgroundWorkers
 )
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path $PSScriptRoot -Parent
-$jar = Join-Path $repo 'api\target\app.jar'
-if (-not (Test-Path -LiteralPath $jar)) { throw 'Build api/target/app.jar first with Maven package.' }
+. (Join-Path $PSScriptRoot 'maintenance-artifact.ps1')
+$jar = Resolve-MaintenanceArtifact $repo
 $runtime = Join-Path $repo "local-runtime\maintenance-lab-$Port"
 New-Item -ItemType Directory -Force -Path $runtime | Out-Null
 $probe = [System.Net.Sockets.TcpClient]::new()
@@ -18,8 +19,8 @@ try { $probe.Connect('127.0.0.1',$Port); throw "Port $Port is already in use; no
 catch [System.Net.Sockets.SocketException] { } finally { $probe.Dispose() }
 
 # Dedicated test connection and explicit disabling of all real external credentials/providers.
-$env:DB_URL = '127.0.0.1:25432/cmms_enhancement_test'
-$env:DB_USER = 'cmms_test'; $env:DB_PWD = 'cmms_test_local'
+. (Join-Path $PSScriptRoot 'maintenance-environment.ps1')
+Set-MaintenanceDatabaseEnvironment -Database postgresql
 $keyPath = Join-Path $runtime 'jwt.key'
 if (-not (Test-Path -LiteralPath $keyPath)) {
     $bytes = New-Object byte[] 64
@@ -51,10 +52,12 @@ $arguments = @('-Xmx512m','-Duser.timezone=UTC','-jar',('"'+$jar+'"'),
     '--management.metrics.distribution.percentiles-histogram.http.server.requests=true',
     '--spring.quartz.scheduler-name=cmms-enhancement-proof',
     "--spring.quartz.properties.org.quartz.scheduler.instanceId=LAB_$Port")
+if ($NoBackgroundWorkers) { $arguments += @('--cmms.events.workers-enabled=false','--cmms.events.listener-auto-startup=false') }
 # Benchmark mode disables ONLY the synthetic lab's per-user HTTP quota; authentication remains enabled.
 if ($EnableScheduling) { $arguments += '--spring.quartz.auto-startup=true' }
 if ($PerformanceMode) { $arguments += '--security.rate-limit.enabled=false' }
 $process = Start-Process -FilePath $Java -ArgumentList $arguments -WorkingDirectory $repo -WindowStyle Hidden -PassThru `
     -RedirectStandardOutput (Join-Path $runtime 'api.log') -RedirectStandardError (Join-Path $runtime 'api.err.log')
 Set-Content -LiteralPath (Join-Path $runtime 'api.pid') -Value $process.Id -Encoding ascii
+@{pid=$process.Id;jar=$jar;port=$Port;startedAtUtc=$process.StartTime.ToUniversalTime().ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtime 'api.process.json') -Encoding utf8
 Write-Output "Lab API process $($process.Id) starting at http://127.0.0.1:$Port ; logs: $runtime"

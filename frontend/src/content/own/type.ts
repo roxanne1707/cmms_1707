@@ -16,6 +16,9 @@ export interface TableCustomizedColumnType {
 }
 
 export interface IField {
+  min?: number;
+  max?: number;
+  step?: number;
   label: string;
   type:
     | 'number'

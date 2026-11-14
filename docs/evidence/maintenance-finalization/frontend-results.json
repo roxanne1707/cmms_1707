@@ -1,0 +1,25 @@
+{
+  "result": "PASS",
+  "typecheck": {
+    "command": "npx tsc --noEmit --incremental false",
+    "exitCode": 0
+  },
+  "productionBuild": {
+    "command": "npm run build",
+    "exitCode": 0,
+    "CMMS_BUILD_WORKERS": 1,
+    "minificationAndTypecheckRetained": true
+  },
+  "tests": {
+    "client": 25,
+    "sessionSocket": 12,
+    "meterPolicy": 14,
+    "total": 51,
+    "failed": 0
+  },
+  "browser": {
+    "scenarios": 8,
+    "syntheticMeterWriteFixtures": true,
+    "realDatabasePersistenceVerifiedSeparately": true
+  }
+}

@@ -5,6 +5,7 @@ import com.grash.service.LicenseService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -44,6 +45,16 @@ public class WebSecurityConfig {
     private boolean enableSso;
     @Value("${ldap.enabled:false}")
     private boolean ldapEnabled;
+
+    // This filter already belongs to the business SecurityFilterChain below.
+    // Boot's servlet auto-registration would also apply it to the independent
+    // metrics chain, spending anonymous-user quota on authenticated scrapes.
+    @Bean
+    public FilterRegistrationBean<RateLimitFilter> rateLimitFilterRegistration() {
+        FilterRegistrationBean<RateLimitFilter> registration = new FilterRegistrationBean<>(rateLimitFilter);
+        registration.setEnabled(false);
+        return registration;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, ApiKeyAuthFilter apiKeyAuthFilter) throws Exception {

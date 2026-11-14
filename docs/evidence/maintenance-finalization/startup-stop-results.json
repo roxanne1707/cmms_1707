@@ -1,0 +1,13 @@
+{
+  "recordedAtUtc": "2026-11-14T01:12:29.0358820Z",
+  "temporaryApiPort": 28090,
+  "identityCheckedStop": true,
+  "temporaryPortClosed": true,
+  "remainingApiStatus": {
+    "28089": 401,
+    "18089": 401,
+    "28189": 401
+  },
+  "originalApiPidUnchanged": true,
+  "result": "PASS"
+}
