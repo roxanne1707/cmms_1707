@@ -1,0 +1,20 @@
+{
+  "totals": {
+    "tests": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "xmlTotals": {
+    "tests": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "countSource": "Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases",
+  "passed": 50,
+  "result": "PASS",
+  "commit": "51cb9fe4afa83b25753c477648cec08dd4e25e9f",
+  "runId": 43568578500,
+  "promtoolAllRulesPassed": true
+}

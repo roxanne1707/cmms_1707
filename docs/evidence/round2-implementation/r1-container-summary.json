@@ -1,0 +1,17 @@
+{
+  "totals": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "xmlTotals": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "countSource": "Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases",
+  "passed": 34,
+  "result": "PASS"
+}

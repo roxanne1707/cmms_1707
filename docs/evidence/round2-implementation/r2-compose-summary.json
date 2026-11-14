@@ -1,0 +1,278 @@
+{
+  "runId": "43568578500",
+  "commit": "51cb9fe4afa83b25753c477648cec08dd4e25e9f",
+  "startedAt": "2026-11-14T06:54:35.436242+00:00",
+  "project": "cmms-ci-43568578500-1",
+  "checks": [
+    "executable Docker image built",
+    "postgresql: authenticated health is UP",
+    "postgresql: overview and MyBatis maintenance ledger match committed work order",
+    "postgresql: assigned technician starts and completes repair",
+    "postgresql: part consumption replay changes stock once (10 -> 8)",
+    "postgresql: overview invalidation and ledger reflect COMPLETE",
+    "postgresql: real RabbitMQ confirms, consumer receipts and one assignment notification; outbound delivery SKIPPED",
+    "postgresql: Liquibase boot/health",
+    "postgresql: anonymous rejection and authenticated identity",
+    "postgresql: create/read asset and linked work order",
+    "mysql: authenticated health is UP",
+    "mysql: overview and MyBatis maintenance ledger match committed work order",
+    "mysql: assigned technician starts and completes repair",
+    "mysql: part consumption replay changes stock once (10 -> 8)",
+    "mysql: overview invalidation and ledger reflect COMPLETE",
+    "mysql: real RabbitMQ confirms, consumer receipts and one assignment notification; outbound delivery SKIPPED",
+    "mysql: Liquibase boot/health",
+    "mysql: anonymous rejection and authenticated identity",
+    "mysql: create/read asset and linked work order",
+    "port 38089: completed repair, stock, part allocation and unique notification survive app restart",
+    "port 38189: completed repair, stock, part allocation and unique notification survive app restart",
+    "postgresql: tenant-admin retention preview, execution and repeat; receipts retained; technician denied",
+    "mysql: tenant-admin retention preview, execution and repeat; receipts retained; technician denied",
+    "shared limiter: 2 API instances accept exactly 12 of 40 writes",
+    "shared limiter: user isolation and app restart retain shared budget",
+    "shared limiter: Redis pause rejects protected write with 503; regular asset read works",
+    "shared limiter: forged forwarded addresses do not bypass budget; missing portal cannot create a request"
+  ],
+  "result": "PASS",
+  "cleanup": true,
+  "externalDelivery": false,
+  "docker": "29.4.2",
+  "compose": "5.1.3",
+  "transport": "HTTP from ephemeral runner to label-verified internal container IPs, port 8080",
+  "lastRequest": {
+    "logicalPort": 38289,
+    "path": "/requests/portal/not-a-real-licensed-portal",
+    "method": "POST"
+  },
+  "lastReadinessError": {
+    "type": "URLError",
+    "status": null
+  },
+  "maintenanceLoop": {
+    "postgresql": {
+      "stockBefore": 10,
+      "stockAfter": 8,
+      "consumed": 2,
+      "duplicateCommandSameResult": true,
+      "status": "COMPLETE",
+      "overviewComplete": 1,
+      "assignmentNotifications": 1,
+      "events": {
+        "published": 4,
+        "receipts": 4,
+        "pending": 0,
+        "deliveries": 3,
+        "unfinishedDeliveries": 0
+      }
+    },
+    "mysql": {
+      "stockBefore": 10,
+      "stockAfter": 8,
+      "consumed": 2,
+      "duplicateCommandSameResult": true,
+      "status": "COMPLETE",
+      "overviewComplete": 1,
+      "assignmentNotifications": 1,
+      "events": {
+        "published": 4,
+        "receipts": 4,
+        "pending": 0,
+        "deliveries": 3,
+        "unfinishedDeliveries": 0
+      }
+    }
+  },
+  "retentionExecution": {
+    "postgresql": {
+      "batchId": "938b017e-7313-4af1-98dc-156b24d5a822",
+      "dryRun": false,
+      "status": "COMPLETED",
+      "candidates": 4,
+      "archived": 4,
+      "skipped": 0,
+      "failed": 0,
+      "retiredPayloadBytes": 11095
+    },
+    "mysql": {
+      "batchId": "6834fc00-f50f-48be-b990-02ef6f74dd6e",
+      "dryRun": false,
+      "status": "COMPLETED",
+      "candidates": 4,
+      "archived": 4,
+      "skipped": 0,
+      "failed": 0,
+      "retiredPayloadBytes": 11305
+    }
+  },
+  "retention": {
+    "postgresql": {
+      "archived": 4,
+      "receiptsRetained": 4,
+      "retiredPayloadBytes": 11095,
+      "elapsedMs": 136.235,
+      "previewNonDestructive": true,
+      "repeatArchived": 0,
+      "technicianDenied": true
+    },
+    "mysql": {
+      "archived": 4,
+      "receiptsRetained": 4,
+      "retiredPayloadBytes": 11305,
+      "elapsedMs": 112.026,
+      "previewNonDestructive": true,
+      "repeatArchived": 0,
+      "technicianDenied": true
+    }
+  },
+  "sharedRateLimit": {
+    "result": "PASS",
+    "apiInstances": 2,
+    "sharedDatabase": "postgresql",
+    "requests": 40,
+    "workers": 10,
+    "allowed": {
+      "count": 12,
+      "p95Ms": 2494.236,
+      "p99Ms": 2494.236
+    },
+    "limited": {
+      "count": 28,
+      "p95Ms": 145.835,
+      "p99Ms": 159.903
+    },
+    "redisPause503Ms": 541.392,
+    "restartPreservesQuota": true,
+    "otherUserAllowed": true,
+    "untrustedForwardedHeaderCannotMultiplyBudget": true,
+    "missingPortalNeverCreatedRequest": true,
+    "scope": "Short synthetic admission test; latency percentiles are small-sample observations, not production capacity"
+  },
+  "images": [
+    {
+      "ID": "sha256:ea68e51ffe9b96fef6076f1218af11301aeaf13c6201e0ec9aaef5791d5ddc5d",
+      "ContainerName": "cmms-ci-43568578500-1-mysql-1",
+      "Repository": "mysql",
+      "Tag": "8.0.33",
+      "Platform": "linux/amd64",
+      "Size": 165704371,
+      "Created": "2023-07-22T01:39:14.703607325Z",
+      "LastTagTime": "2026-11-14T06:56:10.752972405Z"
+    },
+    {
+      "ID": "sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d",
+      "ContainerName": "cmms-ci-43568578500-1-redis-1",
+      "Repository": "redis",
+      "Tag": "8.4.0-alpine",
+      "Platform": "linux/amd64",
+      "Size": 33397177,
+      "Created": "2026-01-28T02:39:14.774661694Z",
+      "LastTagTime": "2026-11-14T06:56:07.011648775Z"
+    },
+    {
+      "ID": "sha256:0adbf25a9e96d38823bb813f3ac0ed41fadb665c88f1df7fe6dbfb060cbdc106",
+      "ContainerName": "cmms-ci-43568578500-1-postgres-1",
+      "Repository": "postgres",
+      "Tag": "16.16-alpine",
+      "Platform": "linux/amd64",
+      "Size": 116257046,
+      "Created": "2026-11-12T20:59:48.942437128Z",
+      "LastTagTime": "2026-11-14T06:56:08.719509256Z"
+    },
+    {
+      "ID": "sha256:7b77c3d3a996c7fcca1ca8bf53ce1557ff43c13b8ca2c132df6031781b209ef2",
+      "ContainerName": "cmms-ci-43568578500-1-rabbitmq-1",
+      "Repository": "rabbitmq",
+      "Tag": "4.4.0-alpine",
+      "Platform": "linux/amd64",
+      "Size": 90232160,
+      "Created": "2026-11-05T19:31:56.258967942Z",
+      "LastTagTime": "2026-11-14T06:56:07.989392598Z"
+    },
+    {
+      "ID": "sha256:a188410e196b7028f7ce89b73e473e78a057386ffc8981e4b5e70b4f7c9db7da",
+      "ContainerName": "cmms-ci-43568578500-1-app-pg-peer-1",
+      "Repository": "cmms-maintenance-ci",
+      "Tag": "51cb9fe4afa8",
+      "Platform": "linux/amd64",
+      "Size": 296331073,
+      "Created": "2026-11-14T06:55:54.976811686Z",
+      "LastTagTime": "2026-11-14T06:56:01.069590141Z"
+    },
+    {
+      "ID": "sha256:a188410e196b7028f7ce89b73e473e78a057386ffc8981e4b5e70b4f7c9db7da",
+      "ContainerName": "cmms-ci-43568578500-1-app-pg-1",
+      "Repository": "cmms-maintenance-ci",
+      "Tag": "51cb9fe4afa8",
+      "Platform": "linux/amd64",
+      "Size": 296331073,
+      "Created": "2026-11-14T06:55:54.976811686Z",
+      "LastTagTime": "2026-11-14T06:56:01.069590141Z"
+    },
+    {
+      "ID": "sha256:a188410e196b7028f7ce89b73e473e78a057386ffc8981e4b5e70b4f7c9db7da",
+      "ContainerName": "cmms-ci-43568578500-1-app-mysql-1",
+      "Repository": "cmms-maintenance-ci",
+      "Tag": "51cb9fe4afa8",
+      "Platform": "linux/amd64",
+      "Size": 296331073,
+      "Created": "2026-11-14T06:55:54.976811686Z",
+      "LastTagTime": "2026-11-14T06:56:01.069590141Z"
+    }
+  ],
+  "containerStates": [
+    {
+      "Service": "app-mysql",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    },
+    {
+      "Service": "app-pg",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    },
+    {
+      "Service": "app-pg-peer",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    },
+    {
+      "Service": "mysql",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "postgres",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "rabbitmq",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "redis",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    }
+  ],
+  "bootCompletedCount": 4,
+  "boundPorts": [
+    "8080",
+    "8080",
+    "8080",
+    "8080"
+  ],
+  "diagnosticFlags": {
+    "mysqlTriggerBinlogPrivilege": false
+  },
+  "exceptionTypes": [],
+  "schemaErrors": [],
+  "finishedAt": "2026-11-14T07:00:03.720858+00:00"
+}
