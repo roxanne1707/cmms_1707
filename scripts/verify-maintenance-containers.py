@@ -100,6 +100,47 @@ def await_events(engine,company_id):
     result['eventCountsAtTimeout']=counts
     raise AssertionError('Durable RabbitMQ consumption did not reach the expected terminal state')
 
+def retention_verification(tokens,saved):
+    """Age only this run's completed synthetic event data, inside its owned DB containers."""
+    for port,engine in ((38089,'postgresql'),(38189,'mysql')):
+        token=tokens[port];company=request(port,'/auth/me',token=token)['companyId']
+        assert type(company) is int and company>0
+        worker=saved[port][4]
+        try:
+            request(port,'/reliable-events/retention',token=worker)
+            raise AssertionError('Technician must not access retention administration')
+        except urllib.error.HTTPError as denied:assert denied.code==403
+        preview=request(port,'/reliable-events/retention/runs',{'dryRun':True,'reason':'Preview current synthetic repair events'},token)
+        assert preview['candidates']==0
+        if engine=='postgresql':
+            old="CURRENT_TIMESTAMP - INTERVAL '100 days'"
+        else:old="TIMESTAMPADD(DAY,-100,CURRENT_TIMESTAMP(6))"
+        sql=';'.join([
+            f"UPDATE consumer_receipt SET completed_at={old} WHERE company_id={company}",
+            f"UPDATE event_retry SET updated_at={old} WHERE company_id={company} AND state='DONE'",
+            f"UPDATE domain_event_outbox SET published_at={old} WHERE company_id={company} AND status='PUBLISHED'",
+            f"UPDATE event_delivery SET next_attempt_at={old} WHERE company_id={company} AND state IN ('SENT','SKIPPED')"])
+        if engine=='postgresql':args=['postgres','psql','-U','cmms_ci','-d','cmms_container_pg','-v','ON_ERROR_STOP=1','-c',sql]
+        else:args=['mysql','sh','-c','MYSQL_PWD="$MYSQL_PASSWORD" exec mysql -ucmms_ci -Dcmms_container_mysql -e "$1"','cmms-owned-fixture',sql]
+        command(compose+['exec','-T']+args,30)
+        before=scalar(engine,f'SELECT COUNT(*) FROM consumer_receipt WHERE company_id={company}')
+        preview=request(port,'/reliable-events/retention/runs',{'dryRun':True,'reason':'Preview aged synthetic repair events'},token)
+        assert preview['candidates']==before and before>=4
+        assert scalar(engine,f'SELECT COUNT(*) FROM event_archive_summary WHERE company_id={company}')==0
+        start=time.monotonic()
+        execution=request(port,'/reliable-events/retention/runs',{'dryRun':False,'reason':'Retire only synthetic completed notification payloads'},token)
+        elapsed=(time.monotonic()-start)*1000
+        assert execution['archived']==before and execution['failed']==0
+        assert scalar(engine,f'SELECT COUNT(*) FROM consumer_receipt WHERE company_id={company}')==before
+        assert scalar(engine,f'SELECT COUNT(*) FROM domain_event_outbox WHERE company_id={company}')==0
+        assert scalar(engine,f'SELECT COUNT(*) FROM event_retry WHERE company_id={company}')==0
+        assert scalar(engine,f"SELECT COUNT(*) FROM event_delivery WHERE company_id={company} AND payload<>'{{}}'")==0
+        repeat=request(port,'/reliable-events/retention/runs',{'dryRun':False,'reason':'Verify completed retirement is idempotent'},token)
+        assert repeat['archived']==0
+        result.setdefault('retention',{})[engine]={'archived':before,'receiptsRetained':before,'retiredPayloadBytes':execution['retiredPayloadBytes'],
+            'elapsedMs':round(elapsed,3),'previewNonDestructive':True,'repeatArchived':0,'technicianDenied':True}
+        result['checks'].append(f'{engine}: tenant-admin retention preview, execution and repeat; receipts retained; technician denied')
+
 def shared_limit_verification(saved):
     """Two REAL API processes, same owned PG/Redis, no license fixtures or host database."""
     print('Verifying shared request admission across two API containers',flush=True)
@@ -240,10 +281,12 @@ try:
         result['checks'].extend([f'{engine}: Liquibase boot/health',f'{engine}: anonymous rejection and authenticated identity',
                                  f'{engine}: create/read asset and linked work order'])
     print('Restarting app containers and checking persisted maintenance data',flush=True)
+    retention_tokens={}
     command(compose+['restart','app-pg','app-mysql'],120)
     discover_targets()
     for port,(asset_id,work_id,name,part_id,worker_token) in saved.items():
         ready(port);token=login(port)
+        retention_tokens[port]=token
         assert request(port,f'/assets/{asset_id}',token=token)['name']==name
         persisted=request(port,f'/work-orders/{work_id}',token=token)
         assert persisted['asset']['id']==asset_id and persisted['status']=='COMPLETE'
@@ -252,6 +295,7 @@ try:
         notices=request(port,'/notifications',token=worker_token)
         assert len([n for n in notices if n.get('resourceId')==work_id and n.get('notificationType')=='WORK_ORDER'])==1
         result['checks'].append(f'port {port}: completed repair, stock, part allocation and unique notification survive app restart')
+    retention_verification(retention_tokens,saved)
     shared_limit_verification(saved)
     images=json.loads(subprocess.check_output(compose+['images','--format','json'],text=True))
     result['images']=images
