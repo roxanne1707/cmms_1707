@@ -63,6 +63,8 @@ public class RequestService {
     private final RequestPortalService requestPortalService;
     private final TenantAspect tenantAspect;
     private WorkflowService workflowService;
+    @Autowired(required=false)
+    private com.grash.security.ratelimit.SharedMaintenanceRateLimiter sharedRateLimiter;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -334,6 +336,7 @@ public class RequestService {
         requestReq.setId(null);
         RequestPortal requestPortal = optionalRequestPortal.get();
         Company company = requestPortal.getCompany();
+        if(sharedRateLimiter!=null) sharedRateLimiter.requirePortal(company.getId(),requestPortal.getId());
         validateRequestAgainstCompany(requestReq, company);
         Request createdRequest = create(requestReq, company, requestPortal);
         onRequestCreation(createdRequest, company,

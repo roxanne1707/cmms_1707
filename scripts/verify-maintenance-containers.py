@@ -3,7 +3,7 @@
 No database ports, host data mounts, external delivery or production destinations.
 Only this run's validated Compose project may be removed.
 """
-import base64, datetime, ipaddress, json, os, re, secrets, subprocess, time, urllib.request, urllib.error
+import base64, concurrent.futures, datetime, ipaddress, json, math, os, re, secrets, subprocess, time, urllib.request, urllib.error
 from pathlib import Path
 
 if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('RUNNER_OS') != 'Linux':
@@ -18,7 +18,7 @@ summary=out/'cmms-container-summary.json'
 admin_email='container-admin@example.invalid';admin_password=secrets.token_urlsafe(30)
 config={'CI_DB_PASSWORD':secrets.token_hex(24),'CI_METRICS_PASSWORD':secrets.token_hex(24),'CI_ADMIN_EMAIL':'container-bootstrap@example.invalid',
         'CI_ADMIN_PASSWORD':admin_password,'CI_JWT_SECRET':base64.b64encode(secrets.token_bytes(48)).decode(),
-        'CI_IMAGE_TAG':os.environ['GITHUB_SHA'][:12]}
+        'CI_IMAGE_TAG':os.environ['GITHUB_SHA'][:12],'CI_LIMIT_SECRET':secrets.token_hex(32)}
 env_file.write_text(''.join(f'{k}={v}\n' for k,v in config.items()),encoding='utf-8')
 env_file.chmod(0o600)
 compose=['docker','compose','--env-file',str(env_file),'-f',str(repo/'compose.maintenance-verification.yml'),'-p',project]
@@ -32,8 +32,9 @@ def command(args,timeout=900):
 
 targets={}
 opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
-def discover_targets():
-    for service,port in [('app-pg',38089),('app-mysql',38189)]:
+def discover_targets(include_peer=False):
+    services=[('app-pg',38089),('app-mysql',38189)]+([('app-pg-peer',38289)] if include_peer else [])
+    for service,port in services:
         cid=subprocess.check_output(compose+['ps','-q',service],text=True).strip()
         if not re.fullmatch(r'[a-f0-9]{12,64}',cid):raise ValueError('Expected one running application container')
         info=json.loads(subprocess.check_output(['docker','inspect',cid],text=True))[0]
@@ -44,12 +45,13 @@ def discover_targets():
         targets[port]=address
     result['transport']='HTTP from ephemeral runner to label-verified internal container IPs, port 8080'
 
-def request(port,path,body=None,token=None,method=None,idempotency_key=None):
-    if port not in (38089,38189) or not path.startswith('/') or '://' in path:
+def request(port,path,body=None,token=None,method=None,idempotency_key=None,forwarded_for=None):
+    if port not in (38089,38189,38289) or not path.startswith('/') or '://' in path:
         raise ValueError('Only disposable loopback API destinations are allowed')
     headers={'Content-Type':'application/json'}
     if token:headers['Authorization']='Bearer '+token
     if idempotency_key:headers['Idempotency-Key']=idempotency_key
+    if forwarded_for:headers['X-Forwarded-For']=forwarded_for
     if path.startswith('/actuator/'):
         headers['Authorization']='Basic '+base64.b64encode(('cmms-metrics:'+config['CI_METRICS_PASSWORD']).encode()).decode()
     data=None if body is None else json.dumps(body).encode()
@@ -97,6 +99,72 @@ def await_events(engine,company_id):
         time.sleep(2)
     result['eventCountsAtTimeout']=counts
     raise AssertionError('Durable RabbitMQ consumption did not reach the expected terminal state')
+
+def shared_limit_verification(saved):
+    """Two REAL API processes, same owned PG/Redis, no license fixtures or host database."""
+    print('Verifying shared request admission across two API containers',flush=True)
+    command(compose+['up','-d','--no-build','app-pg-peer'],180)
+    discover_targets(include_peer=True);ready(38289)
+    token=login(38089);me=request(38089,'/auth/me',token=token)
+    asset_id,_,_,_,worker_token=saved[38089]
+    company_id=me['companyId'];assert type(company_id) is int
+    def submit(i):
+        port=38089 if i%2==0 else 38289;start=time.monotonic()
+        try:
+            request(port,'/requests',{'title':f'Shared limit isolated {i}','asset':{'id':asset_id},'priority':'MEDIUM'},token)
+            status=200
+        except urllib.error.HTTPError as e:
+            status=e.code
+            with e:body=json.load(e)
+            assert status==429 and body['error']=='MAINTENANCE_RATE_LIMITED'
+            assert int(e.headers['Retry-After'])>=1
+        return {'status':status,'elapsedMs':(time.monotonic()-start)*1000,'logicalPort':port}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+        samples=list(pool.map(submit,range(40)))
+    assert sum(s['status']==200 for s in samples)==12
+    assert sum(s['status']==429 for s in samples)==28
+    assert scalar('postgresql',f"SELECT COUNT(*) FROM request WHERE company_id={company_id} AND title LIKE 'Shared limit isolated %'")==12
+    # A separate user still has a budget; the shared company gate has remaining capacity.
+    request(38289,'/requests',{'title':'Worker independent request budget','asset':{'id':asset_id}},worker_token)
+    command(compose+['restart','app-pg-peer'],120)
+    discover_targets(include_peer=True);ready(38289)
+    assert submit(41)['status']==429
+    # Only the run-owned Redis server is paused. Existing Windows Redis is never contacted.
+    command(compose+['exec','-T','redis','redis-cli','CLIENT','PAUSE','2000','ALL'],15)
+    started=time.monotonic()
+    try:
+        request(38089,'/requests',{'title':'Must not be persisted during Redis pause'},token)
+        raise AssertionError('Protected write admitted without Redis')
+    except urllib.error.HTTPError as e:
+        assert e.code==503
+        with e:assert json.load(e)['error']=='MAINTENANCE_LIMIT_UNAVAILABLE'
+    failure_ms=(time.monotonic()-started)*1000;assert failure_ms<2500
+    assert request(38089,f'/assets/{asset_id}',token=token)['id']==asset_id
+    time.sleep(2.2);assert submit(43)['status']==429
+    before=scalar('postgresql',f'SELECT COUNT(*) FROM request WHERE company_id={company_id}')
+    anonymous=[]
+    for i in range(10):
+        try:
+            request(38089 if i%2==0 else 38289,'/requests/portal/not-a-real-licensed-portal',{'title':'Must not bypass portal license'},forwarded_for=f'203.0.113.{i+1}')
+            raise AssertionError('Missing or unlicensed portal accepted')
+        except urllib.error.HTTPError as e:
+            anonymous.append(e.code)
+            with e:body=json.load(e)
+            if e.code==429:assert body['error']=='MAINTENANCE_RATE_LIMITED'
+            else:assert e.code in (403,404,406)
+    assert anonymous.count(429)==4 and all(s!=503 for s in anonymous)
+    assert scalar('postgresql',f'SELECT COUNT(*) FROM request WHERE company_id={company_id}')==before
+    def latency(status):
+        values=sorted(s['elapsedMs'] for s in samples if s['status']==status)
+        return {'count':len(values),'p95Ms':round(values[math.ceil(len(values)*0.95)-1],3),'p99Ms':round(values[math.ceil(len(values)*0.99)-1],3)}
+    result['sharedRateLimit']={'result':'PASS','apiInstances':2,'sharedDatabase':'postgresql','requests':40,'workers':10,
+        'allowed':latency(200),'limited':latency(429),'redisPause503Ms':round(failure_ms,3),'restartPreservesQuota':True,
+        'otherUserAllowed':True,'untrustedForwardedHeaderCannotMultiplyBudget':True,'missingPortalNeverCreatedRequest':True,
+        'scope':'Short synthetic admission test; latency percentiles are small-sample observations, not production capacity'}
+    result['checks'].extend(['shared limiter: 2 API instances accept exactly 12 of 40 writes',
+        'shared limiter: user isolation and app restart retain shared budget',
+        'shared limiter: Redis pause rejects protected write with 503; regular asset read works',
+        'shared limiter: forged forwarded addresses do not bypass budget; missing portal cannot create a request'])
 
 try:
     result['docker']=subprocess.check_output(['docker','version','--format','{{.Server.Version}}'],text=True).strip()
@@ -184,6 +252,7 @@ try:
         notices=request(port,'/notifications',token=worker_token)
         assert len([n for n in notices if n.get('resourceId')==work_id and n.get('notificationType')=='WORK_ORDER'])==1
         result['checks'].append(f'port {port}: completed repair, stock, part allocation and unique notification survive app restart')
+    shared_limit_verification(saved)
     images=json.loads(subprocess.check_output(compose+['images','--format','json'],text=True))
     result['images']=images
     result['result']='PASS'

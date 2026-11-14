@@ -29,6 +29,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimiterService rateLimiterService;
     private final ClientIpResolver clientIpResolver;
+    @org.springframework.beans.factory.annotation.Autowired(required=false)
+    private com.grash.security.ratelimit.SharedMaintenanceRateLimiter sharedRateLimiter;
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -42,6 +44,15 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         // Get the current authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(sharedRateLimiter!=null) {
+            var decision=sharedRateLimiter.evaluate(request,authentication);
+            if(decision.isPresent()) {
+                if(decision.get().allowed()) filterChain.doFilter(request,response);
+                else decision.get().write(response);
+                return; // The shared policy replaces this route's general local quota, not its authorization.
+            }
+        }
 
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail userDetail) {
             Long userId = userDetail.getUser().getId();

@@ -25,6 +25,26 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RateLimitFilterTest {
 
+    @Test void sharedAllowanceDoesNotSpendLegacyQuotaTwice() throws Exception {
+        when(rateLimiterService.isRateLimitEnabled()).thenReturn(true);
+        var shared=mock(com.grash.security.ratelimit.SharedMaintenanceRateLimiter.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(filter,"sharedRateLimiter",shared);
+        when(shared.evaluate(request,null)).thenReturn(java.util.Optional.of(new com.grash.security.ratelimit.RateLimitDecision(200,0)));
+        filter.doFilterInternal(request,response,filterChain);
+        verify(filterChain).doFilter(request,response);
+        verify(rateLimiterService,never()).resolveUnAuthenticatedUserBucket(any());
+        verify(rateLimiterService,never()).resolveAuthenticatedUserBucket(any());
+    }
+    @Test void sharedUnavailableStopsWriteAndReturnsRetryAfter() throws Exception {
+        when(rateLimiterService.isRateLimitEnabled()).thenReturn(true);
+        var shared=mock(com.grash.security.ratelimit.SharedMaintenanceRateLimiter.class);
+        org.springframework.test.util.ReflectionTestUtils.setField(filter,"sharedRateLimiter",shared);
+        when(shared.evaluate(request,null)).thenReturn(java.util.Optional.of(new com.grash.security.ratelimit.RateLimitDecision(503,1)));
+        when(response.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+        filter.doFilterInternal(request,response,filterChain);
+        verify(response).setStatus(503);verify(response).setHeader("Retry-After","1");verifyNoInteractions(filterChain);
+    }
+
     @Mock
     private RateLimiterService rateLimiterService;
     @Mock

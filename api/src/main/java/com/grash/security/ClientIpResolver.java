@@ -116,6 +116,8 @@ public class ClientIpResolver {
     }
 
     private static boolean isValidIp(String ip) {
+        // Header identities must be numeric IP literals; never perform attacker-chosen DNS lookups.
+        if(ip.length()>45 || !ip.matches("[0-9a-fA-F:.]+") || (!ip.contains(":") && !looksLikeIpv4(ip))) return false;
         try {
             InetAddress.getByName(ip);
             return true;
