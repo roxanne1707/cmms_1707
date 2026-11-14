@@ -16,7 +16,7 @@ repo=Path(__file__).resolve().parents[1];out=Path(os.environ['RUNNER_TEMP'])
 env_file=out/'cmms-container.env';log_file=out/'cmms-container-private.log'
 summary=out/'cmms-container-summary.json'
 admin_email='container-admin@example.invalid';admin_password=secrets.token_urlsafe(30)
-config={'CI_DB_PASSWORD':secrets.token_hex(24),'CI_ADMIN_EMAIL':admin_email,
+config={'CI_DB_PASSWORD':secrets.token_hex(24),'CI_ADMIN_EMAIL':'container-bootstrap@example.invalid',
         'CI_ADMIN_PASSWORD':admin_password,'CI_JWT_SECRET':base64.b64encode(secrets.token_bytes(48)).decode(),
         'CI_IMAGE_TAG':os.environ['GITHUB_SHA'][:12]}
 env_file.write_text(''.join(f'{k}={v}\n' for k,v in config.items()),encoding='utf-8')
@@ -66,12 +66,23 @@ try:
         try:request(port,'/auth/me');raise AssertionError('Anonymous identity endpoint accepted')
         except urllib.error.HTTPError as e:
             assert e.code in (401,403)
+        signup=request(port,'/auth/signup',{'email':admin_email,'password':admin_password,
+            'firstName':'Container','lastName':'Verifier','phone':'00000000000',
+            'companyName':'Isolated maintenance verification','employeesCount':1,'timeZone':'UTC'})
+        assert signup['success']
         token=login(port);assert request(port,'/auth/me',token=token)['email']==admin_email
         name=f'Container maintenance pump {engine}'
         asset=request(port,'/assets',{'name':name,'status':'OPERATIONAL'},token)
         work=request(port,'/work-orders',{'title':'Container repair verification','asset':{'id':asset['id']},'priority':'MEDIUM'},token)
         assert request(port,f"/assets/{asset['id']}",token=token)['name']==name
         assert request(port,f"/work-orders/{work['id']}",token=token)['id']==work['id']
+        now=datetime.datetime.now(datetime.timezone.utc)
+        query={'start':(now-datetime.timedelta(days=1)).isoformat(),'end':(now+datetime.timedelta(days=1)).isoformat()}
+        overview=request(port,f"/query/assets/{asset['id']}/work-order-overview",query,token)
+        assert overview['total']==1
+        ledger=request(port,'/query/maintenance-ledger',{**query,'assetId':asset['id']},token)
+        assert ledger['total']==1 and ledger['content'][0]['id']==work['id']
+        result['checks'].append(f'{engine}: overview and MyBatis maintenance ledger match committed work order')
         saved[port]=(asset['id'],work['id'],name)
         result['checks'].extend([f'{engine}: Liquibase boot/health',f'{engine}: anonymous rejection and authenticated identity',
                                  f'{engine}: create/read asset and linked work order'])

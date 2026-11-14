@@ -129,7 +129,9 @@ class DeliveryProtocolContainerIT {
         assertEquals("SENT",sender().send(UUID.randomUUID(),"EMAIL",payload).state());
         boolean found=false;
         for(Part part:leaves(captured()))if("maintenance.pdf".equals(part.getFileName())) {
-            assertTrue(part.isMimeType("application/pdf"));assertArrayEquals(pdf,part.getInputStream().readAllBytes());found=true;
+            assertTrue(part.isMimeType("application/pdf"));
+            assertEquals("base64",part.getHeader("Content-Transfer-Encoding")[0]);
+            assertArrayEquals(pdf,part.getInputStream().readAllBytes());found=true;
         }
         assertTrue(found);
     }

@@ -147,7 +147,13 @@ public class EventDeliverySender {
         var message=bounded.createMimeMessage(); MimeMessageHelper helper=new MimeMessageHelper(message,true,"UTF-8");
         helper.setFrom(new InternetAddress(environment.getProperty("spring.mail.from",configured.getUsername()),branding.getBrandConfig().getName()));
         helper.setTo(target.email()); helper.setSubject(target.title()); helper.setText(html,true);
-        if(attachment!=null) helper.addAttachment(attachment.filename(),new org.springframework.core.io.ByteArrayResource(attachment.content()),"application/pdf");
+        if(attachment!=null) {
+            helper.addAttachment(attachment.filename(),new org.springframework.core.io.ByteArrayResource(attachment.content()),"application/pdf");
+            // Even an ASCII-only PDF is binary: SMTP 7bit transport can normalize LF to CRLF,
+            // invalidating byte offsets or signatures. Preserve the immutable snapshot exactly.
+            var multipart=helper.getRootMimeMultipart();
+            multipart.getBodyPart(multipart.getCount()-1).setHeader("Content-Transfer-Encoding","base64");
+        }
         bounded.send(message);
     }
 }
