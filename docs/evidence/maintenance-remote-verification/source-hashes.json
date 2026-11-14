@@ -1,0 +1,17 @@
+{
+  "testedCommit": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+  "sha256": {
+    ".github/workflows/maintenance-tests.yml": "013e0e2fa649dcca9da14648b19bb0f79f3b2a34ab5bf1526e2f78c1d98ea8a6",
+    ".github/workflows/maintenance-containers.yml": "b60b489a46b455ca6e39123995f45d09d6ae3e7699829e3b8f67e7c829944f08",
+    "compose.maintenance-verification.yml": "3b5b2e5faecffdf13e04cb3cdcaab0ba35b933da15c23950ed394bf01a64db2a",
+    "api/pom.xml": "2a3cd0e02c87cd8aaa60a225bdfa79595c415900acbb67a0fadd4992bd87c316",
+    "api/src/main/java/com/grash/event/EventDeliverySender.java": "232cf461048d4af902d4c82c1257aea59eb5573d016a15df3644ff68405a1979",
+    "api/src/test/java/com/grash/event/DeliveryProtocolContainerIT.java": "9b7a7ef043b8042f799c104de807e490442e19e369f5cf65d0463e78324bc65c",
+    "api/src/test/java/com/grash/integration/MaintenanceJpaIntegrationTest.java": "7b3b3dd15260a92a14d70ac589c245a4038235122e1a02cb048ce45f79e61a14",
+    "scripts/verify-maintenance-containers.py": "244ff09688bdffe70b7a830910cdb705e8aafb8382518300cf239e88e2fd7f3e",
+    "scripts/summarize-maintenance-tests.py": "ca9849def06fba75007e215b40c1c894becbfedd4e492ba702f0ebcd16f8de13",
+    "scripts/test-maintenance-summary.py": "728551bc687137895a4a9e40857b60aaffac9e45595586d0a9f291cfff4d1be8",
+    "scripts/test-mysql-maintenance.ps1": "d3e650472ea1dc5bb142a5cf003c301e7de2840c513bcc3858de7ef20f69669e"
+  },
+  "hashBasis": "Git blob bytes at testedCommit; Windows working-tree CRLF may differ"
+}

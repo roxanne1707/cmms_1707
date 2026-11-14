@@ -1,0 +1,49 @@
+{
+  "startedAt": "2026-11-14T04:05:26Z",
+  "recordedAt": "2026-11-14T04:07:07.139201+00:00",
+  "totals": {
+    "tests": 26,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "xmlTotals": {
+    "tests": 26,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "countSource": "Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases",
+  "passed": 25,
+  "result": "FAIL",
+  "suites": [
+    {
+      "suite": "com.grash.event.DeliveryProtocolContainerIT",
+      "tests": 8,
+      "failures": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "problems": [
+    "Stale, incomplete or failed Maven build"
+  ],
+  "failedCases": [
+    {
+      "suite": "com.grash.event.DeliveryProtocolContainerIT",
+      "test": "reportAttachmentReachesSmtpWithoutByteChanges",
+      "type": "org.opentest4j.AssertionFailedError",
+      "causes": [],
+      "frames": [
+        "com.grash.event.DeliveryProtocolContainerIT.reportAttachmentReachesSmtpWithoutByteChanges(DeliveryProtocolContainerIT.java:132)"
+      ]
+    }
+  ]
+}

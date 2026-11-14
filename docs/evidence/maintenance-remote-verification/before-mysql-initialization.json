@@ -1,0 +1,3088 @@
+{
+  "startedAt": "2026-11-14T04:05:50.0433525+00:00",
+  "recordedAt": "2026-11-14T04:09:49.744697+00:00",
+  "totals": {
+    "tests": 2166,
+    "failures": 0,
+    "errors": 311,
+    "skipped": 0
+  },
+  "xmlTotals": {
+    "tests": 2066,
+    "failures": 0,
+    "errors": 311,
+    "skipped": 0
+  },
+  "countSource": "Maven final result cross-checked with all console suite rows; nested JUnit XML can omit parent-class cases",
+  "passed": 1855,
+  "result": "FAIL",
+  "suites": [
+    {
+      "suite": "com.grash.advancedsearch.FilterFieldTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.advancedsearch.SearchCriteriaTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.advancedsearch.SearchFieldPolicyTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.advancedsearch.SearchOperationTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.advancedsearch.SpecificationBuilderTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.advancedsearch.WrapperSpecificationTest",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.aspect.TenantAspectTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.cache.AssetOverviewCacheTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.AsyncConfigTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.AuditConfigTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.CacheConfigTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.EmailConfigurationTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.EmailMessageLocaleTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.LdapSecurityConfigTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.OAuth2ClientRegistrationConfigTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.OpenApiConfigTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.QuartzConfigTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.SwaggerConfigTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.SwaggerSecurityConfigTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.WebMvcConfigTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.WebSecurityConfigTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.configuration.WebSocketConfigTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.AssetControllerTest",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.AuthControllerTest",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.AuthSessionControllerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.InventoryFreshActorControllerTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.LocationControllerTest",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.MaintenanceQueryControllerTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.MeterControllerTest",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.PartControllerTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.PreventiveMaintenanceControllerTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.RequestControllerTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.RoleControllerTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.SubscriptionControllerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.UserControllerTest",
+      "tests": 30,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.WorkOrderControllerTest",
+      "tests": 40,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.controller.analytics.AnalyticsCorrectnessTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.EventAccessPolicyTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.EventDeliverySenderTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ExtendedEventAccessPolicyTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ExtendedReliableEventServiceTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ExtraMaintenanceReliabilityIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ReliableEventsPostgresIntegrationTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ReportAttachmentStoreTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.ReportDeliverySenderTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.event.WorkOrderEventListenerTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.exception.CustomExceptionTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.exception.RestExceptionHandlerControllerTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.factory.MailServiceFactoryTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.factory.StorageServiceFactoryTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.ApiDocsIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 4,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "tests": 51,
+      "failures": 0,
+      "errors": 51,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.DomainReliabilityIntegrationTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "tests": 31,
+      "failures": 0,
+      "errors": 31,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 19,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "tests": 14,
+      "failures": 0,
+      "errors": 14,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "tests": 26,
+      "failures": 0,
+      "errors": 26,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 22,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 20,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 18,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "tests": 34,
+      "failures": 0,
+      "errors": 34,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "tests": 71,
+      "failures": 0,
+      "errors": 71,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.integration.query.QueryInfrastructureIntegrationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 1,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.DeleteDemoCompaniesJobTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.LdapSyncJobSchedulerTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.LdapSyncJobTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.MaintenanceJobRetryTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.PreventiveMaintenanceNotificationJobTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.SubscriptionEndJobTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.job.WorkOrderCreationJobTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.ApiKeyAuthFilterTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.ClientIpResolverTest",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.CurrentUserResolverTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.CustomUserDetailTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.CustomUserDetailsServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.FreshMaintenanceActorTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.JwtTokenFilterTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.JwtTokenProviderTest",
+      "tests": 20,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.OAuth2AuthenticationFailureHandlerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.OAuth2AuthenticationSuccessHandlerTest",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.QueryAccessPolicyTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.RateLimitFilterTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.SessionRegistryPostgresIntegrationTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.security.WebSocketAuthInterceptorTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.AssetServiceTest",
+      "tests": 111,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.InventoryCommandServiceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.LocationServiceTest",
+      "tests": 41,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.MaintenanceScheduleExecutorTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.MeterEpisodeRulesTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.MeterServiceTest",
+      "tests": 39,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.NotificationServiceTest",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.PartServiceTest",
+      "tests": 58,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.PreventiveMaintenanceServiceTest",
+      "tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.RefreshTokenServiceTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.RefreshTokenTransactionIntegrationTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.RequestServiceTest",
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.RoleServiceTest",
+      "tests": 33,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.ScheduleServiceTest",
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.SubscriptionServiceTest",
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.UserServiceTest",
+      "tests": 105,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.WorkOrderServiceTest",
+      "tests": 211,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.query.OverviewQueryTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.service.query.QueryServicesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.sla.MaintenanceSlaRulesTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.template.MainLayoutConsumerTemplatesTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.template.MainLayoutTemplateTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.template.WorkOrderReportTemplateTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.AuditComparatorTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.CacheKeyUtilsTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.CsvFileGeneratorTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.HelperTest",
+      "tests": 90,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.LicenseFileValidatorTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.LogoSetupComponentTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.MultipartFileImplTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.TenantAspectUtilsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.utils.WebhookUrlValidatorTest",
+      "tests": 29,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "com.grash.validation.PasswordValidatorTest",
+      "tests": 21,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "problems": [
+    "Stale, incomplete or failed Maven build"
+  ],
+  "failedCases": [
+    {
+      "suite": "com.grash.integration.ApiDocsIntegrationTest",
+      "test": "unknownGroup_isRejected",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.beans.factory.BeanCreationException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.ApiDocsIntegrationTest",
+      "test": "atlasCmmsGroup_returnsOpenApiSpec",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.ApiDocsIntegrationTest",
+      "test": "defaultUngroupedDocs_areDisabledAsInProduction",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.ApiDocsIntegrationTest",
+      "test": "atlasCmmsGroup_includesWebhookDocumentation",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "deleteByIdAndUser_notCreator_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getByNfcIdAndCompany_withoutLicense_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findChildren_returnsChildAssets",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findChildren_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "checkAccessToAssetId_viewDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByPartAndUser_returnsAssetsWithPart",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByLocationAndUser_returnsAssetsForLocation",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "checkAccessToAssetId_ownerCanView",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByPartAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findChildren_root_returnsTopLevelAssets",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findChildrenPaginated_paginatesChildren",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findChildren_noViewPermission_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "checkAccessToAssetId_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByLocationAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_updatesAndPersists",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_duplicateBarcode_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_parentAssetCannotBeSelf_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_statusToDown_createsDowntime",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "patch_statusBackToOperational_stopsDowntime",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByIdsAndCompany_multipleIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByNfcIdAndCompany_returnsMatch",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByCompanyAndParentAssetNull_onlyTopLevelAssets",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByIdAndCompany_scopedToCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByCompany_returnsAllForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "hasChildren_returnsTrueForParentWithChildren",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByCompanyForExport_eagerlyFetchesRelations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByBarcodeAndCompany_returnsMatch",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findByNameIgnoreCaseAndCompany_caseInsensitive",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findAssetChildren_paginated",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getParentIdsWithChildren_identifiesParentsOnly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getTotalAcquisitionCost_sumsCostsBeforeDate",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "stopDownTime_marksOperationalAndSetsDuration",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "triggerDownTime_setsStatusAndCreatesDowntime",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getDowntime_returnsSumOfDurations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getUptime_returnsDurationMinusDowntime",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getMTBF_withMultipleDowntimes",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getSearchCriteria_canViewOthersFalse_addsCreatedByFilter",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getSearchCriteria_accessDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "findBySearchCriteria_filtersByName",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_parentAssetWithoutLicense_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_duplicateNfcId_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_autoGeneratesBarcodeWhenConfigured",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_duplicateBarcode_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_sequentialCustomIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "create_dispatchesNewAssetWebhook",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_persistsAssetWithCustomId",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.AssetIntegrationTest",
+      "test": "createByUser_exceedsUsageLimit_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "create_persistsLocationWithCustomId",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.beans.factory.BeanCreationException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "create_sequentialCustomIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "create_dispatchesNewLocationWebhook",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "create_exceedsUsageLimit_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "deleteByIdAndUser_notCreator_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getChildrenPaginated_paginatesChildren",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getById_viewDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getById_ownerCanView",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getChildren_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getChildren_root_returnsTopLevelLocations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getChildren_returnsChildLocations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getById_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getChildren_noViewPermission_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByIdsAndCompany_multipleIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByIdAndCompany_scopedToCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByCompany_returnsAllForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByCompanyAndParentLocationNull_onlyTopLevelLocations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByCompanyForExport_returnsLocations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "hasChildren_returnsTrueForParentWithChildren",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findByNameIgnoreCaseAndCompany_caseInsensitive",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findLocationChildren_paginated",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getSearchCriteria_canViewOthersFalse_addsCreatedByFilter",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getSearchCriteria_accessDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "findBySearchCriteria_filtersByName",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "patch_updatesAndPersists",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "patch_notCreator_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "patch_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.LocationIntegrationTest",
+      "test": "patch_parentLocationCannotBeSelf_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "fullContextAndMasterMigrationAreUsable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.context.ApplicationContextException",
+        "org.springframework.boot.web.server.WebServerException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "actualHibernateInventoryCommandPersistsAndReplaysOnce",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "actualJpaTransactionRollsBackInventoryAuditAndCommand",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "actualConcurrentHibernateSessionsCannotOverspend",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "realReadingEpisodeNetworkReplayAndOutboxAreAtomic",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "realJpaWriteAdvancesEpochAndNewQuerySeesCommittedCounts",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "productionMeterTriggerLicenseGateRemainsActive",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "realMeterEventConsumerUsesFullNotificationSchemaAndCurrentPermissions",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "differentMetersAllocateDistinctWorkOrderNumbersWithStaleJpaSequences",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "concurrentFirstCommandsInitializeExactlyOneCompanySequence",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "bulkRemovalRefreshesDetailsCachedBeforeTheParentLock",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "mybatisLedgerMatchesJpaOnTheSelectedDatabase",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "replayAndMybatisAuditCommitAndRollbackTogether",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "sessionUuidPersistenceAndRevocationWorkOnTheSelectedDatabase",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "nativeAnalyticsSqlIsExecutableWithTenantScope",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "hierarchyCycleCannotCommit",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "jdbcNotificationIdBlocksDoNotOverlapHibernatePooledIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "meterPolicyEditRoundTripsWithoutResettingOmittedPolicy",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceJpaIntegrationTest",
+      "test": "metricsScrapesAndBusinessQuotaAreIsolatedOnTheRealServer",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "freshPermissionsAreCheckedOnLinkReplayAndSlaReads",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.context.ApplicationContextException",
+        "org.springframework.boot.web.server.WebServerException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.UnsatisfiedDependencyException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "foreignCompanyCannotBeLinkedOrEnrolled",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "linkAndOutboxRollbackWithOuterTransaction",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "policyDoesNotSilentlyEnrollHistoryAndSnapshotsNewOrder",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "concurrentDifferentTargetsChooseOnlyOne",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "concurrentSlaWorkersCreateOneEscalationPerKind",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "timelyCompletionDoesNotEscalateAndSummaryIsTenantScoped",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "cancellationCompletedOrderAndWrongEquipmentAreRejected",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "deletingLinkedOrderRetainsAuditAndAllowsExplicitRelinking",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "linkAndCancellationCannotBothWin",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "manyRequestsShareOneOrderAndDuplicateLinkHasOneAuditAndEvent",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "slaEscalationAndOutboxRollbackTogether",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "captureFirstResponseAndCompletionEvenIfOrderReopens",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MaintenanceSlaRequestIntegrationTest",
+      "test": "deletingDuplicateRequestDoesNotClearOriginalParentRequest",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByIdAndCompany_scopedToCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.beans.factory.BeanCreationException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByCompany_returnsAllForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByCompanyForExport_eagerlyFetchesRelations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByAsset_unknownAsset_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByAsset_returnsMetersForAsset",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findByIdsAndCompany_returnsOnlyMatchingCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "createByUser_requiresMeterPlanFeature_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "create_persistsMeterWithRelations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "create_roleWithoutMeterCreatePermission_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "create_exceedsUsageLimit_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "deleteByIdAndUser_cannotDelete_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "delete_removesMeter_keepsAsset",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "patch_updatesFieldsAndPersists",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "patch_cannotEdit_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "patch_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getById_viewDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getById_ownerCanView",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getById_viewOtherDisabled_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getById_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "importMeter_setsRelations_andPersists",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getSearchCriteria_canViewOthersFalse_addsCreatedByFilter",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getSearchCriteria_accessDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "findBySearchCriteria_filtersByName",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.MeterIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "deleteByIdAndUser_notCreator_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "create_sequentialCustomIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "create_scheduleFieldsPersistedFromDTO",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "create_planLacksFeature_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "create_exceedsUsageLimit_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "create_persistsPMWithCustomIdAndSchedule",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "patch_updatesAndPersists",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "patch_notEditor_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "patch_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getSearchCriteria_accessDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "findBySearchCriteriaWithEntityGraph_filtersByName",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getById_viewDenied_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getById_ownerCanView",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getById_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "findByIdsAndCompany_multipleIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "findByCompanyForExport_eagerlyFetchesSchedule",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "findByIdAndCompany_scopedToCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "findByCompany_returnsAllForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.PreventiveMaintenanceIntegrationTest",
+      "test": "getAll_returnsAll",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "findBySearchCriteria_filtersByStatusPending",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "findByCompany_returnsOnlyRequestsForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "cancel_setsCancelledAndReason",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "cancel_emptyReason_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "cancel_alreadyApproved_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "approve_alreadyApproved_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "approve_createsWorkOrderAndLinks",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "approve_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "create_dispatchesNewRequestWebhook",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "create_sequentialCustomIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "create_persistsAndLinksCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "create_withoutCreatePermission_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "countPending_countsOnlyUncancelledAndUnapproved",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "createFromPortal_missingRecaptchaToken_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "patch_updatesTitle",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "getById_returnsRequestForViewer",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RequestIntegrationTest",
+      "test": "getById_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "update_changesRoleFields",
+      "type": "java.lang.IllegalStateException",
+      "causes": [
+        "org.springframework.beans.factory.BeanCreationException",
+        "org.springframework.beans.factory.BeanCreationException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.CommandExecutionException",
+        "liquibase.exception.LiquibaseException",
+        "liquibase.exception.MigrationFailedException",
+        "liquibase.exception.DatabaseException",
+        "java.sql.SQLException"
+      ],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "create_userCreatedRole_withoutLicense_throwsForbidden",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "create_defaultCodeRole_persistsWithPermissions",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findDefaultRoleWithCode_userCreatedCode_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "update_nonExistent_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findByCompany_doesNotIncludeRolesOfOtherCompanies",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findDefaultRoleWithCode_returnsDefaultRole",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findByCompany_returnsDefaultPlusCompanyRoles",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findDefaultRoles_returnsOnlyDefaultRoles",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "getAll_returnsAllRolesIncludingDefaults",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "updateDefaultRoles_restoresStaleDefaultRole",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findById_nonExistent_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "updateDefaultRoles_whenDefaultsAreCurrent_noChanges",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "findById_returnsRole",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "saveAll_persistsAllRoles",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "delete_nonExistent_doesNothing",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "updateDefaultRoles_doesNotTouchCompanyRoles",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.RoleIntegrationTest",
+      "test": "delete_removesRole",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "deleteByUsername_removesUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByLocation_emptyLocation_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySearchCriteria_filtersByCompanyId",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySearchCriteria_filtersByEmail",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "update_changesUserFields",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByEmail_nonExistent_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByIdAndCompany_wrongCompany_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "deleteByUsername_nonExistent_doesNothing",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySsoProviderIdAndSsoProvider_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByCompany_emptyCompany_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByLocation_returnsUsersAtLocation",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySsoProviderIdAndSsoProvider_wrongProvider_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findWorkersByCompany_excludesRequestersAndViewOnly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "enableUser_self_enablesUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "hasMorePaidUsersThan_returnsFalse_whenWithinLimit",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySSOCompany_returnsMatchingUsers",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "getAll_returnsAllUsers",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "enableUser_byEmail_enablesUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "hasMorePaidUsersThan_returnsTrue_whenExceeded",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByEmail_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByEmailAndCompany_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findById_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findBySearchCriteria_pagination",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByEmailAndCompany_wrongCompany_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByIdAndCompany_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "count_returnsCorrectCount",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "existsByEmail_nonExistent_returnsFalse",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByEmail_caseInsensitive_returnsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "save_persistsUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "existsByEmail_returnsTrue",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "update_nonExistent_throwsException",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "saveAll_persistsMultipleUsers",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "findByCompany_returnsAllUsers",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.UserIntegrationTest",
+      "test": "update_withPassword_changesPassword",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "sendReport_noCustomerEmails_throwsBadRequest",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "sendReport_pdfBytesNonEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "sendReport_validEmails_invokesMailService",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "sendReport_workOrderNotFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getPartCost_withRealData",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getAllCost_excludesLabor",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getLaborCostAndTime_withRealData",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getAdditionalCost_withRealData",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getAllCost_includesLabor",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "estimatedStartDateInRange_returnsWorkOrder",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "filterFields_noFilterFields_returnsAll",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "dueDateInRange_returnsWorkOrder",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "filterFields_combinedTitleAndPriority_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "filterFields_statusOpen_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "outOfRange_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_cascadesAdditionalCost",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_cascadesLabor",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_withParentRequest_clearsLinkAndDeletes",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_sendsEmailToSettingsAdmins",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_removesFromDB",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "deleteByIdAndUser_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByIdsAndCompany_multipleIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByAssignedToUserAndCreatedAtBetween_filtersByUserAndDate",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByAssignedToUser_returnsOrdersForPrimaryUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getWorkOrdersByPart_noQuantities_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findLastByPM_returnsLatest",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCreatedBy_returnsCorrectUser",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompanyAndCreatedAtBetween_filtersByCompanyAndDate",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCategoryAndCreatedAtBetween_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByIdAndCompany_scopedToCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findWOCostsByDateRange_returnsCostsByCompletedDate",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompanyWithTimeAndCost_onlyWorkOrdersWithRecords",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompany_returnsAllForCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findTopNAssetsTimeCost_returnsCostAggregation",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompanyWithTimeAndCost_queriesCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findTopNAssetsByIncompleteWO_respectsLimit",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByLocation_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "countUrgent_returnsCorrectCount",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByAssetAndCreatedAtBetween_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompanyForExport_eagerlyFetchesRelations",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findTopNAssetsRepairTime_returnsRankedByAvgDuration",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompletedByAndCreatedAtBetween_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findUnscheduledByCompany_returnsUnscheduled",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByDueDateBetweenAndCompany_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompletedOnBetweenAndCompany_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByPriorityAndCompanyAndCreatedAtBetween_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByAssignedToUser_returnsOrdersViaTeam",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCompanyAndCreatedAtBetween_wrongCompany_returnsEmpty",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findTopNAssetsByIncompleteWO_returnsRankedByCount",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findByCreatedByAndCreatedAtBetween_filtersCorrectly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getWorkOrdersByPart_withPartQuantities",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "findTotalWOCosts_returnsAggregatedSums",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "changeStatus_detachRefetchDoesNotLeakStaleState",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "changeStatus_nullStatus_throwsNotAcceptable",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "changeStatus_toInProgress_setsStatus",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "changeStatus_toOnHold_setsStatus",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "removeFile_persistsRemoval",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "addFiles_notFound_throwsNotFound",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "addFiles_multipleFiles_persistsAll",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "addFiles_persistsAndReturns",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getSearchCriteria_canViewOthersFalse_addsCreatedByOrAssignedToFilter",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getSearchCriteria_canViewOthersTrue_noCreatedByFilter",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "searchByTitle_contains",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "search_combinedFilters",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getSearchCriteria_assignedToUserFilterIsStripped",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "getSearchCriteria_clientRole_filtersByCompany",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "searchByPriority_in",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "searchByStatus_openOnly",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "create_sequentialCustomIds",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "create_dispatchesNewWorkOrderWebhook",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.WorkOrderIntegrationTest",
+      "test": "create_throwsForbiddenWhenUsageLimitExceeded",
+      "type": "java.lang.IllegalStateException",
+      "causes": [],
+      "frames": []
+    },
+    {
+      "suite": "com.grash.integration.query.QueryInfrastructureIntegrationTest",
+      "test": "",
+      "type": "org.springframework.jdbc.UncategorizedSQLException",
+      "causes": [
+        "java.sql.SQLException"
+      ],
+      "frames": [
+        "com.grash.integration.query.QueryInfrastructureIntegrationTest.infrastructure(QueryInfrastructureIntegrationTest.java:64)"
+      ]
+    }
+  ]
+}

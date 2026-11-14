@@ -1,0 +1,27 @@
+{
+  "runId": 43556302654,
+  "commit": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+  "frontend": {
+    "clientCases": 25,
+    "socketCases": 12,
+    "meterCases": 14,
+    "total": 51,
+    "result": "PASS"
+  },
+  "guards": {
+    "artifact": 9,
+    "environment": 3,
+    "summaryGate": 7,
+    "result": "PASS"
+  },
+  "mysqlTriggerPrerequisite": {
+    "before": {
+      "errorCode": 1419
+    },
+    "after": {
+      "createAndExecuteSucceeded": true,
+      "superGrantedToTestAccount": false
+    },
+    "result": "PASS"
+  }
+}

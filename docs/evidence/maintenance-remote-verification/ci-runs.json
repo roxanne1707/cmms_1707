@@ -1,0 +1,396 @@
+{
+  "repository": "roxanne1707/cmms_1707",
+  "testedCommit": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+  "allJobsPassed": true,
+  "runs": [
+    {
+      "id": 43556302641,
+      "name": "Maintenance container verification",
+      "url": "https://github.com/roxanne1707/cmms_1707/actions/runs/43556302641",
+      "headSha": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-11-14T04:22:09Z",
+      "updatedAt": "2026-11-14T04:26:20Z",
+      "jobs": [
+        {
+          "id": 132329805080,
+          "name": "compose-apps",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build, boot, exercise and restart isolated PG and MySQL apps",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 132329805287,
+          "name": "testcontainers",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run real PostgreSQL and SMTP Testcontainers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Require all explicit container tests to pass without skips",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 43556302654,
+      "name": "Maintenance enhancement verification",
+      "url": "https://github.com/roxanne1707/cmms_1707/actions/runs/43556302654",
+      "headSha": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-11-14T04:22:09Z",
+      "updatedAt": "2026-11-14T04:29:31Z",
+      "jobs": [
+        {
+          "id": 132329805143,
+          "name": "frontend",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm ci --legacy-peer-deps",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run node ../scripts/test-maintenance-client.cjs",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run node ../scripts/test-session-socket.cjs",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run node ../scripts/test-meter-policy.cjs",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npx tsc --noEmit --incremental false",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run build",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 132329805303,
+          "name": "verify (mysql)",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize shared test-only PostgreSQL extension",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Allow trusted migrations to create triggers in this disposable MySQL",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Grant access only to disposable MySQL test databases",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Record regression start",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Full backend regression against isolated services",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Require full regression with zero skipped tests",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify test result gate",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify launcher artifact guards",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify launcher database isolation",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify executable release artifact",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Save test evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 132329805368,
+          "name": "verify (postgresql)",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize shared test-only PostgreSQL extension",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Allow trusted migrations to create triggers in this disposable MySQL",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Grant access only to disposable MySQL test databases",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Record regression start",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Full backend regression against isolated services",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Require full regression with zero skipped tests",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify test result gate",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify launcher artifact guards",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify launcher database isolation",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify executable release artifact",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Save test evidence",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-java@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

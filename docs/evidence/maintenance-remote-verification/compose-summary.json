@@ -1,0 +1,149 @@
+{
+  "runId": "43556302641",
+  "commit": "343dfab0de4bcb4f148e7e34318d1314f19b8c14",
+  "startedAt": "2026-11-14T04:22:17.218075+00:00",
+  "project": "cmms-ci-43556302641-1",
+  "checks": [
+    "executable Docker image built",
+    "postgresql: authenticated health is UP",
+    "postgresql: overview and MyBatis maintenance ledger match committed work order",
+    "postgresql: Liquibase boot/health",
+    "postgresql: anonymous rejection and authenticated identity",
+    "postgresql: create/read asset and linked work order",
+    "mysql: authenticated health is UP",
+    "mysql: overview and MyBatis maintenance ledger match committed work order",
+    "mysql: Liquibase boot/health",
+    "mysql: anonymous rejection and authenticated identity",
+    "mysql: create/read asset and linked work order",
+    "port 38089: asset/work-order relationship survives app restart",
+    "port 38189: asset/work-order relationship survives app restart"
+  ],
+  "result": "PASS",
+  "cleanup": true,
+  "externalDelivery": false,
+  "docker": "29.4.2",
+  "compose": "5.1.3",
+  "transport": "HTTP from ephemeral runner to label-verified internal container IPs, port 8080",
+  "lastRequest": {
+    "logicalPort": 38189,
+    "path": "/work-orders/9952",
+    "method": "GET"
+  },
+  "lastReadinessError": {
+    "type": "URLError",
+    "status": null
+  },
+  "images": [
+    {
+      "ID": "sha256:0adbf25a9e96d38823bb813f3ac0ed41fadb665c88f1df7fe6dbfb060cbdc106",
+      "ContainerName": "cmms-ci-43556302641-1-postgres-1",
+      "Repository": "postgres",
+      "Tag": "16.16-alpine",
+      "Platform": "linux/amd64",
+      "Size": 116257046,
+      "Created": "2026-11-12T20:59:48.942437128Z",
+      "LastTagTime": "2026-11-14T04:23:35.769118787Z"
+    },
+    {
+      "ID": "sha256:7b77c3d3a996c7fcca1ca8bf53ce1557ff43c13b8ca2c132df6031781b209ef2",
+      "ContainerName": "cmms-ci-43556302641-1-rabbitmq-1",
+      "Repository": "rabbitmq",
+      "Tag": "4.4.0-alpine",
+      "Platform": "linux/amd64",
+      "Size": 90232160,
+      "Created": "2026-11-05T19:31:56.258967942Z",
+      "LastTagTime": "2026-11-14T04:23:34.969371781Z"
+    },
+    {
+      "ID": "sha256:e32850dab97bde637afc91f029716e14495adc0bccece2470a64110a0b6da0ff",
+      "ContainerName": "cmms-ci-43556302641-1-app-mysql-1",
+      "Repository": "cmms-maintenance-ci",
+      "Tag": "343dfab0de4b",
+      "Platform": "linux/amd64",
+      "Size": 296297996,
+      "Created": "2026-11-14T04:23:23.810589558Z",
+      "LastTagTime": "2026-11-14T04:23:29.479747343Z"
+    },
+    {
+      "ID": "sha256:e32850dab97bde637afc91f029716e14495adc0bccece2470a64110a0b6da0ff",
+      "ContainerName": "cmms-ci-43556302641-1-app-pg-1",
+      "Repository": "cmms-maintenance-ci",
+      "Tag": "343dfab0de4b",
+      "Platform": "linux/amd64",
+      "Size": 296297996,
+      "Created": "2026-11-14T04:23:23.810589558Z",
+      "LastTagTime": "2026-11-14T04:23:29.479747343Z"
+    },
+    {
+      "ID": "sha256:ea68e51ffe9b96fef6076f1218af11301aeaf13c6201e0ec9aaef5791d5ddc5d",
+      "ContainerName": "cmms-ci-43556302641-1-mysql-1",
+      "Repository": "mysql",
+      "Tag": "8.0.33",
+      "Platform": "linux/amd64",
+      "Size": 165704371,
+      "Created": "2023-07-22T01:39:14.703607325Z",
+      "LastTagTime": "2026-11-14T04:23:38.494493494Z"
+    },
+    {
+      "ID": "sha256:4eec4565e45aa0b3966554c866bc73211e281b0b3d89fe9a33c982e6faca809d",
+      "ContainerName": "cmms-ci-43556302641-1-redis-1",
+      "Repository": "redis",
+      "Tag": "8.4.0-alpine",
+      "Platform": "linux/amd64",
+      "Size": 33397177,
+      "Created": "2026-01-28T02:39:14.774661694Z",
+      "LastTagTime": "2026-11-14T04:23:33.494442547Z"
+    }
+  ],
+  "containerStates": [
+    {
+      "Service": "app-mysql",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    },
+    {
+      "Service": "app-pg",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    },
+    {
+      "Service": "mysql",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "postgres",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "rabbitmq",
+      "State": "running",
+      "Health": "healthy",
+      "ExitCode": 0
+    },
+    {
+      "Service": "redis",
+      "State": "running",
+      "Health": "",
+      "ExitCode": 0
+    }
+  ],
+  "bootCompletedCount": 4,
+  "boundPorts": [
+    "8080",
+    "8080",
+    "8080",
+    "8080"
+  ],
+  "diagnosticFlags": {
+    "mysqlTriggerBinlogPrivilege": false
+  },
+  "exceptionTypes": [],
+  "schemaErrors": [],
+  "finishedAt": "2026-11-14T04:26:15.975518+00:00"
+}

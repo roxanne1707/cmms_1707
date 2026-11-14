@@ -1,0 +1,34 @@
+{
+  "checkedAt": "2026-11-14T04:19:24.2780802+00:00",
+  "checks": [
+    {
+      "port": 18089,
+      "httpStatus": 200
+    },
+    {
+      "port": 28089,
+      "httpStatus": 200
+    },
+    {
+      "port": 28189,
+      "httpStatus": 200
+    }
+  ],
+  "processes": [
+    {
+      "Id": 18352,
+      "ProcessName": "java",
+      "startedAtUtc": "2026-11-14T01:05:27.8440325Z"
+    },
+    {
+      "Id": 24432,
+      "ProcessName": "java",
+      "startedAtUtc": "2026-11-13T12:24:02.8923524Z"
+    },
+    {
+      "Id": 35516,
+      "ProcessName": "java",
+      "startedAtUtc": "2026-11-14T01:11:17.3727363Z"
+    }
+  ]
+}

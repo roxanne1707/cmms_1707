@@ -1,6 +1,6 @@
 # Atlas CMMS 最终收尾验收（2026-11-14）
 
-本轮指定的四项收尾已完成本地实现和验收：仪表策略 Web 页面、可执行启动产物、MySQL 完整回归及双数据库 CI 定义、统一验收文档。验收范围为 `cmms-fork` 的独立测试环境；原 `cmms` 目录、数据库和部署配置没有迁移、清理或覆盖。CI 远端运行与 Docker 容器执行未发生，不能写成已通过。
+本轮指定的四项收尾已完成本地实现和验收：仪表策略 Web 页面、可执行启动产物、MySQL 完整回归及双数据库 CI 定义、统一验收文档。验收范围为 `cmms-fork` 的独立测试环境；原 `cmms` 目录、数据库和部署配置没有迁移、清理或覆盖。此前尚未执行的远端 CI、隔离容器与受控通知协议，现已在 [补充验收](maintenance-remote-verification.md) 中完成；本页其余本地数据保留原轮次。真实外部服务商到达仍未验证。
 
 ## 1. 完成内容与源码入口
 
@@ -69,14 +69,14 @@ Browser 插件在本次环境不可用，使用现有 Playwright 与系统 Chrom
 6. `scripts/start-maintenance-lab.ps1 -Java <java> -EnableScheduling` 和 `scripts/start-mysql-maintenance.ps1 -Java <java> -EnableScheduling` 使用验证产物；端口已占用会拒绝启动。停止指定增强实例用 `scripts/stop-maintenance-lab.ps1 -Port <28089或28189>`，不能以 kill 全部 Java 的方式操作。
 7. 凭据、JWT 密钥、`.env`、运行数据、数据库、诊断 dump、构建包继续忽略；Git 中只放源码及脱敏证据。当前服务只绑定本机。
 
-工作流已增加 PostgreSQL/MySQL 矩阵和前端门禁，YAML 与 PowerShell 语法通过本地检查；本次没有推送触发 GitHub Actions，也没有本机 Docker，因此远端 Linux/容器执行仍待验证。不会用本地通过替代远端成功截图。
+工作流已增加 PostgreSQL/MySQL 矩阵和前端门禁，YAML 与 PowerShell 语法通过本地检查；前一轮未推送，也未执行容器；现已在个人 Fork 的功能分支实际跑通 Linux 双库 CI 和容器链路，见 [补充验收](maintenance-remote-verification.md)。本机 Windows 仍未安装 Docker。
 
 ## 6. 已知边界和后续工作
 
 - **必须保留的数据库约束**：MySQL 启动器已将实验缓存命名空间从 v1 改为 epoch-v2，保留旧缓存自然过期，不清空共享 Redis。MySQL 独立 epoch 历史表不能随设备清理，否则重建可能再次复用版本。它保留历史计数，允许版本有间隔；不要求连续。原 summary 外键未移除。计数器不能恢复迁移前已删除设备的历史版本；首次升级应轮换缓存命名空间，或确保旧缓存与旧写入者完全过期后再开放写入。本次增强 API 停机回归时间已超过旧缓存 60 秒最大 TTL，且没有旧测试写入实例继续运行。计数器长期增长的容量与归档成本尚未测量。
 - **MySQL TRUNCATE**：不触发行级失效。测试明确验证这种差异，随后使用新缓存命名空间。运行账号禁止 DDL/TRUNCATE；恢复备份或重用数据时切换命名空间，不能将其称为与 PostgreSQL TRUNCATE 等价。
 - **性能数字**：以前的 PostgreSQL/Redis/MySQL 合成数据测量仍保留在各阶段报告，本轮不重报成新的性能成果。新计数器的写入开销、长期容量及跨主机高可用未测试。
-- **外部系统**：真实 SMTP、Push、Webhook、生产监控和跨主机 RabbitMQ 高可用没有验收；本次坚持禁用外发。
+- **外部系统**：后续已补 Mailpit 真实 SMTP 协议、受控 Webhook HTTP 验证；真实邮箱到达、手机 Push、公网 Webhook、生产监控和跨主机 RabbitMQ 高可用仍未验收。原部署外发设置未改变。
 - **功能边界**：手机尺寸 Web 页面已验收，独立移动 App 的策略控件未补；工作日历 SLA、更完整规则引擎、遗留通知全部迁移、命令/历史计数保留治理仍属后续范围。
 - **贡献边界**：设备、工单、用户/权限、产品基础属于原 Atlas CMMS。仪表周期、库存事务、Redis 查询、RabbitMQ/Outbox、MyBatis-Plus 查询与补投审计等增强来自此前二次开发，本轮继续补齐页面、双库回归、缓存版本修复和启动/监控可靠性；属于 Codex 辅助完成。只有自己复现、理解与能解释的工作才可写成个人掌握，不能把原作者代码或这些测试数量整体包装成原创。
 
