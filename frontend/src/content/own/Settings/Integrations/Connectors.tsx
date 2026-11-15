@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
@@ -10,8 +11,7 @@ function Connectors() {
         {t('connectors')}
       </Typography>
       <Typography variant="body2" color="textSecondary">
-        Coming soon...
-      </Typography>
+        {translateUiText("Coming soon...")} </Typography>
     </Box>
   );
 }

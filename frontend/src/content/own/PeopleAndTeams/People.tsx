@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Button,
@@ -502,7 +503,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
           <SearchInput onChange={debouncedQueryChange} />
         </Box>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Typography>Enabled Only</Typography>
+          <Typography>{translateUiText("Enabled Only")} </Typography>
           <Switch
             checked={enabledOnly}
             onChange={() => setEnabledOnly((prevState) => !prevState)}

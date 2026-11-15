@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Container,
@@ -409,7 +410,7 @@ export default function RequestPortalPublicPage() {
                   window.open(brandConfig.website, '_blank');
                 }}
               >
-                Powered by {brandConfig.name}
+                {translateUiText("Powered by")} {brandConfig.name}
               </Typography>
               {languageSwitcher}
             </Stack>

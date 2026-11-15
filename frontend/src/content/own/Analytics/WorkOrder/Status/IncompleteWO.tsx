@@ -51,28 +51,28 @@ function IncompleteWO({ handleOpenModal, start, end, companyId }: WOStatusIncomp
     filters: Filter[];
   }[] = [
     {
-      label: 'High',
+      label: t('high_priority'),
       count: incompleteByPriority.high.count,
       color: theme.colors.error.main,
       estimatedHours: incompleteByPriority.high.estimatedHours,
       filters: [{ key: 'fs', value: false }]
     },
     {
-      label: 'Medium',
+      label: t('medium_priority'),
       count: incompleteByPriority.medium.count,
       color: theme.colors.warning.main,
       estimatedHours: incompleteByPriority.medium.estimatedHours,
       filters: [{ key: 'fs', value: false }]
     },
     {
-      label: 'Low',
+      label: t('low_priority'),
       count: incompleteByPriority.low.count,
       color: theme.colors.success.main,
       estimatedHours: incompleteByPriority.low.estimatedHours,
       filters: [{ key: 'fs', value: false }]
     },
     {
-      label: 'None',
+      label: t('none_priority'),
       count: incompleteByPriority.none.count,
       color: theme.colors.alpha.black[70],
       estimatedHours: incompleteByPriority.low.estimatedHours,

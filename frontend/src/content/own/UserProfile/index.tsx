@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { useContext, useEffect } from 'react';
 
 import { Helmet } from 'react-helmet-async';
@@ -42,7 +43,7 @@ function UserProfile() {
   return (
     <>
       <Helmet>
-        <title>{user.firstName} - Profile Details</title>
+        <title>{user.firstName} {translateUiText("- Profile Details")} </title>
       </Helmet>
       <Grid
         sx={{

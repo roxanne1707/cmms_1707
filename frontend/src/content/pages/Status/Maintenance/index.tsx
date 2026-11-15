@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Container,
@@ -33,7 +34,7 @@ function StatusMaintenance() {
   return (
     <>
       <Helmet>
-        <title>Status - Maintenance</title>
+        <title>{translateUiText("Status - Maintenance")} </title>
       </Helmet>
       <MainContent>
         <Container maxWidth="md">
@@ -61,7 +62,7 @@ function StatusMaintenance() {
               </Typography>
             </Container>
             <img
-              alt="Maintenance"
+              alt={translateUiText("Maintenance")}
               height={250}
               src="/static/images/status/maintenance.svg"
             />

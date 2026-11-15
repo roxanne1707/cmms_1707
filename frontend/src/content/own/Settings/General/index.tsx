@@ -139,7 +139,7 @@ function GeneralSettings() {
                             key={language.code}
                             value={language.code.toUpperCase()}
                           >
-                            {language.label}
+                            {t(language.label)}
                           </MenuItem>
                         ))}
                       </Field>
@@ -206,7 +206,7 @@ function GeneralSettings() {
                             <MenuItem
                               key={currency.id}
                               value={currency.id}
-                            >{`${currency.name} - ${currency.code}`}</MenuItem>
+                            >{`${t(currency.name)} - ${currency.code}`}</MenuItem>
                           ))}
                       </Field>
                     </Grid>
@@ -229,7 +229,7 @@ function GeneralSettings() {
                           <MenuItem
                             key={currency.id}
                             value={currency.id}
-                          >{`${currency.name} - ${currency.code}`}</MenuItem>
+                          >{`${t(currency.name)} - ${currency.code}`}</MenuItem>
                         ))}
                       </TextField>
                     </Grid>

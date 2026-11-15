@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Helmet } from 'react-helmet-async';
 import { Card, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -288,7 +289,7 @@ function CreatePurchaseOrder() {
       return <PermissionErrorMessage message={'no_access_purchase_orders'} />;
   } else
     return (
-      <FeatureErrorMessage message={'Upgrade to create Purchase Orders'} />
+      <FeatureErrorMessage message={translateUiText("Upgrade to create Purchase Orders")} />
     );
 }
 

@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import FieldsConfigurationForm from '../../FieldsConfigurationForm';
@@ -43,7 +44,7 @@ function ConfigureRequestFields() {
             </Box>
           </Box>
         ) : (
-          <FeatureErrorMessage message="Upgrade to configure the Request Form" />
+          <FeatureErrorMessage message={translateUiText("Upgrade to configure the Request Form")} />
         )}
       </Box>
     </Grid>

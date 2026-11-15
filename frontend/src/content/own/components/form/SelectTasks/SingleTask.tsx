@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Button,
@@ -274,7 +275,7 @@ export default function SingleTask({
             <Grid item key={image.id}>
               <img
                 src={image.url}
-                alt={'task'}
+                alt={translateUiText("task")}
                 onClick={() =>
                   handleZoomImage(
                     task.images.map((img) => img.url),

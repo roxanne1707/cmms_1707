@@ -23,7 +23,7 @@ export const CustomSnackBarProvider: FC = ({ children }) => {
     message: string,
     type: 'error' | 'warning' | 'success'
   ) => {
-    enqueueSnackbar(message, {
+    enqueueSnackbar(t(message, { defaultValue: message }), {
       variant: type,
       anchorOrigin: {
         vertical: 'top',

@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import * as React from 'react';
 import {
   Button,
@@ -50,7 +51,7 @@ const SplitButton: React.FC<SplitButtonProps> = ({
       <ButtonGroup
         variant="contained"
         ref={null}
-        aria-label="split button"
+        aria-label={translateUiText("split button")}
         sx={sx}
       >
         <Button onClick={onMainClick} startIcon={startIcon}>
@@ -61,7 +62,7 @@ const SplitButton: React.FC<SplitButtonProps> = ({
             size="small"
             aria-controls={open ? 'split-button-menu' : undefined}
             aria-expanded={open ? 'true' : undefined}
-            aria-label="select merge strategy"
+            aria-label={translateUiText("select merge strategy")}
             aria-haspopup="menu"
             onClick={handleArrowClick}
             style={{

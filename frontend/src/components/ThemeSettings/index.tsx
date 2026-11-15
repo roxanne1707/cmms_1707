@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { FC, useContext, useRef, useState, MouseEvent } from 'react';
 import {
   Popover,
@@ -202,7 +203,7 @@ const ThemeSettings: FC = () => {
     <>
       <ThemeSettingsButton>
         <Tooltip arrow title={t('Theme Settings')}>
-          <Fab ref={ref} onClick={handleOpen} color="primary" aria-label="add">
+          <Fab ref={ref} onClick={handleOpen} color="primary" aria-label={translateUiText("add")}>
             <SettingsTwoToneIcon />
           </Fab>
         </Tooltip>
@@ -230,8 +231,7 @@ const ThemeSettings: FC = () => {
               }}
               variant="body1"
             >
-              Layout Blueprints
-            </Typography>
+              {translateUiText("Layout Blueprints")} </Typography>
             <Button
               fullWidth
               size="large"
@@ -242,8 +242,7 @@ const ThemeSettings: FC = () => {
               aria-expanded={open ? 'true' : undefined}
               onClick={openMenu}
             >
-              Choose layout
-            </Button>
+              {translateUiText("Choose layout")} </Button>
             <Menu
               disableScrollLock
               anchorEl={anchorEl}
@@ -265,8 +264,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/extended-sidebar/dashboards"
               >
-                Extended Sidebar
-              </MenuItem>
+                {translateUiText("Extended Sidebar")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -274,8 +272,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/accent-header/dashboards"
               >
-                Accent Header
-              </MenuItem>
+                {translateUiText("Accent Header")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -283,8 +280,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/accent-sidebar/dashboards"
               >
-                Accent Sidebar
-              </MenuItem>
+                {translateUiText("Accent Sidebar")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -292,8 +288,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/boxed-sidebar/dashboards"
               >
-                Boxed Sidebar
-              </MenuItem>
+                {translateUiText("Boxed Sidebar")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -301,8 +296,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/collapsed-sidebar/dashboards"
               >
-                Collapsed Sidebar
-              </MenuItem>
+                {translateUiText("Collapsed Sidebar")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -310,8 +304,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/bottom-navigation/dashboards"
               >
-                Bottom Navigation
-              </MenuItem>
+                {translateUiText("Bottom Navigation")} </MenuItem>
               <MenuItem
                 sx={{
                   fontWeight: 'bold'
@@ -319,8 +312,7 @@ const ThemeSettings: FC = () => {
                 component={NavLink}
                 to="/top-navigation/dashboards"
               >
-                Top Navigation
-              </MenuItem>
+                {translateUiText("Top Navigation")} </MenuItem>
             </Menu>
           </Box>
           <Divider />
@@ -335,10 +327,9 @@ const ThemeSettings: FC = () => {
               }}
               variant="body1"
             >
-              Light color schemes
-            </Typography>
+              {translateUiText("Light color schemes")} </Typography>
             <Stack alignItems="center" spacing={2}>
-              <Tooltip placement="left" title="Pure Light" arrow>
+              <Tooltip placement="left" title={translateUiText("Pure Light")} arrow>
                 <ButtonWrapper
                   className={theme === 'PureLightTheme' ? 'active' : ''}
                   onClick={() => {
@@ -356,7 +347,7 @@ const ThemeSettings: FC = () => {
                   </ColorSchemeWrapper>
                 </ButtonWrapper>
               </Tooltip>
-              <Tooltip placement="left" title="Grey Goose" arrow>
+              <Tooltip placement="left" title={translateUiText("Grey Goose")} arrow>
                 <ButtonWrapper
                   className={theme === 'GreyGooseTheme' ? 'active' : ''}
                   onClick={() => {
@@ -374,7 +365,7 @@ const ThemeSettings: FC = () => {
                   </ColorSchemeWrapper>
                 </ButtonWrapper>
               </Tooltip>
-              <Tooltip placement="left" title="Purple Flow" arrow>
+              <Tooltip placement="left" title={translateUiText("Purple Flow")} arrow>
                 <ButtonWrapper
                   className={theme === 'PurpleFlowTheme' ? 'active' : ''}
                   onClick={() => {

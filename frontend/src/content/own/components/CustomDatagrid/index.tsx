@@ -1,4 +1,4 @@
-import { DataGrid, DataGridProps } from '@mui/x-data-grid';
+import { DataGrid, DataGridProps, zhCN } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography, useTheme } from '@mui/material';
 import gridLocaleText from './GridLocaleText';
@@ -21,7 +21,7 @@ interface CustomDatagridProps extends DataGridProps {
 }
 
 function CustomDataGrid(props: CustomDatagridProps) {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const { height } = useWindowDimensions();
   const tableRef = useRef<HTMLDivElement>();
@@ -42,14 +42,16 @@ function CustomDataGrid(props: CustomDatagridProps) {
     setTableHeight(getTableHeight());
   }, [tableRef.current]);
 
-  const translatedGridLocaleText = Object.fromEntries(
+  const translatedGridLocaleText = { ...Object.fromEntries(
     Object.entries(gridLocaleText).map(([key, value]) => {
       if (typeof value === 'function') {
         return [key, value];
       }
       return [key, t(value)];
     })
-  );
+  ), ...(i18n.language?.startsWith('zh')
+    ? zhCN.components.MuiDataGrid.defaultProps.localeText
+    : {}) };
   return (
     <div ref={tableRef} style={{ height: tableHeight, width: '100%' }}>
       {/*@ts-ignore*/}

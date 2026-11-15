@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Button, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import SettingsLayout from '../SettingsLayout';
@@ -104,7 +105,7 @@ function Checklists() {
             setCurrentChecklist(params.row);
             setOpenDelete(true);
           }}
-          label="Remove Checklist"
+          label={translateUiText("Remove Checklist")}
         />
       ]
     }

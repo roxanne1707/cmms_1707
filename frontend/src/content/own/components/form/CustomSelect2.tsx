@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Autocomplete,
   Box,
@@ -234,7 +235,7 @@ export const CustomSelect = ({
                 variant="outlined"
                 required={field.required}
                 label={field.label}
-                placeholder={field.placeholder}
+                placeholder={translateUiText(field.placeholder)}
                 error={!!formik.errors[field.name] || field.error}
                 helperText={
                   typeof formik.errors[field.name] === 'string'
@@ -396,7 +397,7 @@ export const CustomSelect = ({
                 variant="outlined"
                 required={field.required}
                 label={field.label}
-                placeholder={field.placeholder}
+                placeholder={translateUiText(field.placeholder)}
                 error={!!formik.errors[field.name] || field.error}
                 helperText={
                   typeof formik.errors[field.name] === 'string'
@@ -572,7 +573,7 @@ export const CustomSelect = ({
                 variant="outlined"
                 required={field.required}
                 label={field.label}
-                placeholder={field.placeholder}
+                placeholder={translateUiText(field.placeholder)}
                 error={!!formik.errors[field.name] || field.error}
                 helperText={
                   typeof formik.errors[field.name] === 'string'
@@ -755,7 +756,7 @@ export const CustomSelect = ({
                 variant="outlined"
                 required={field.required}
                 label={field.label}
-                placeholder={field.placeholder}
+                placeholder={translateUiText(field.placeholder)}
                 error={!!formik.errors[field.name] || field.error}
                 helperText={
                   typeof formik.errors[field.name] === 'string'
@@ -979,7 +980,7 @@ export const CustomSelect = ({
       error={!!formik.errors[field.name] || field.error}
       errorMessage={formik.errors[field.name]}
       onOpen={onOpen}
-      placeholder={field.placeholder}
+      placeholder={translateUiText(field.placeholder)}
       multiple={field.multiple}
       fullWidth={field.fullWidth}
       key={field.name}

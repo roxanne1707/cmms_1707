@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Card,
@@ -46,7 +47,7 @@ function Status404() {
   return (
     <>
       <Helmet>
-        <title>Status - 404</title>
+        <title>{translateUiText("Status - 404")} </title>
         <meta name="robots" content="noindex, nofollow" />
         <meta name="prerender-status-code" content="404" />
       </Helmet>

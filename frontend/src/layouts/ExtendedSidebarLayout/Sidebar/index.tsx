@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { useContext } from 'react';
 import Scrollbar from 'src/components/Scrollbar';
 import { SidebarContext } from 'src/contexts/SidebarContext';
@@ -78,8 +79,7 @@ function Sidebar() {
                       window.open('https://www.intel-loop.com/', '_blank');
                     }}
                   >
-                    Powered by Intelloop
-                  </Typography>
+                    {translateUiText("Powered by Intelloop")} </Typography>
                 )}
               </Box>
             </Box>
@@ -137,8 +137,7 @@ function Sidebar() {
                         window.open('https://www.intel-loop.com/', '_blank');
                       }}
                     >
-                      Powered by Intelloop
-                    </Typography>
+                      {translateUiText("Powered by Intelloop")} </Typography>
                   )}
                 </Box>
               </Box>

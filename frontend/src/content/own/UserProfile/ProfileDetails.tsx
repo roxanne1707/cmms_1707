@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   Button,
@@ -144,7 +145,7 @@ function ProfileDetails() {
     <CustomDialog
       onClose={handleCloseEditModal}
       open={openEditModal}
-      title="Edit profile"
+      title={translateUiText("Edit profile")}
       subtitle="Fill in the fields below"
     >
       <Formik
@@ -303,7 +304,7 @@ function ProfileDetails() {
     <CustomDialog
       onClose={handleClosePasswordModal}
       open={openPasswordModal}
-      title="Change password"
+      title={translateUiText("Change password")}
       subtitle="Fill in the fields below"
     >
       <Formik

@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Divider, Grid, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { ChangeEvent, useContext, useEffect, useState } from 'react';
@@ -71,7 +72,7 @@ function WorkOrderSettings() {
           </Tabs>
           <Divider sx={{ mt: 1 }} />
           {!hasFeature(PlanFeature.REQUEST_CONFIGURATION) ? (
-            <FeatureErrorMessage message="Upgrade to configure the work orders" />
+            <FeatureErrorMessage message={translateUiText("Upgrade to configure the work orders")} />
           ) : (
             <Box p={3}>
               {currentTab === 'create' && (

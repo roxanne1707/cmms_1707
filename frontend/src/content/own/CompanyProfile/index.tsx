@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { useContext, useEffect } from 'react';
 
 import { Helmet } from 'react-helmet-async';
@@ -25,7 +26,7 @@ function CompanyProfile() {
   return (
     <>
       <Helmet>
-        <title>{company.name} - Company Details</title>
+        <title>{company.name} {translateUiText("- Company Details")} </title>
       </Helmet>
       <Box
         sx={{

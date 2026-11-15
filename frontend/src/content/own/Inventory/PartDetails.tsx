@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   CircularProgress,
@@ -252,8 +253,7 @@ export default function PartDetails(props: PartDetailsProps) {
                         variant="h6"
                         sx={{ color: theme.colors.alpha.black[70] }}
                       >
-                        Assigned users
-                      </Typography>
+                        {translateUiText("Assigned users")} </Typography>
                       {part.assignedTo.map((user) => (
                         <Link
                           key={user.id}

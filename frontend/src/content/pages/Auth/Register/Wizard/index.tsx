@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Children, ReactElement, useState } from 'react';
 import {
   Alert,
@@ -66,7 +67,7 @@ function RegisterWizard() {
   return (
     <>
       <Helmet>
-        <title>Register - Wizard</title>
+        <title>{translateUiText("Register - Wizard")} </title>
       </Helmet>
       <MainContent>
         <Container
@@ -296,7 +297,7 @@ function RegisterWizard() {
                         }}
                         action={
                           <IconButton
-                            aria-label="close"
+                            aria-label={translateUiText("close")}
                             color="inherit"
                             size="small"
                             onClick={() => {
@@ -334,8 +335,7 @@ function RegisterWizard() {
                       variant="contained"
                       href="/account/login-basic"
                     >
-                      Continue to sign in
-                    </Button>
+                      {translateUiText("Continue to sign in")} </Button>
                   </Container>
                 </Box>
               </FormikStep>

@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Box,
   debounce,
@@ -577,7 +578,7 @@ const Customers = ({ openModal, handleCloseModal }: PropsType) => {
           )}
         </Box>
         <IconButton
-          aria-label="close"
+          aria-label={translateUiText("close")}
           onClick={() => {
             setIsCustomerDetailsOpen(false);
           }}

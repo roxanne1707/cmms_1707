@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Fragment,
   forwardRef,
@@ -234,8 +235,7 @@ function HeaderSearch() {
                   color="text.secondary"
                   fontWeight="bold"
                 >
-                  esc
-                </Typography>
+                  {translateUiText("esc")} </Typography>
               </Card>
             </Box>
           </form>
@@ -309,7 +309,7 @@ function HeaderSearch() {
                                 }}
                                 fontSize="small"
                               />
-                              <Typography>{result.title}</Typography>
+                              <Typography>{t(result.title)}</Typography>
                             </Box>
                             <KeyboardArrowRightTwoToneIcon fontSize="small" />
                           </ListButton>
@@ -343,7 +343,7 @@ function HeaderSearch() {
                           }}
                           fontSize="small"
                         />
-                        <Typography>Analytics dashboard</Typography>
+                        <Typography>{translateUiText("Analytics dashboard")} </Typography>
                       </Box>
                       <Box>
                         <Tooltip
@@ -374,7 +374,7 @@ function HeaderSearch() {
                           }}
                           fontSize="small"
                         />
-                        <Typography>Top navigation layout</Typography>
+                        <Typography>{translateUiText("Top navigation layout")} </Typography>
                       </Box>
                       <Box>
                         <Tooltip
@@ -414,7 +414,7 @@ function HeaderSearch() {
                           }}
                           fontSize="small"
                         />
-                        <Typography>Hospital overview page</Typography>
+                        <Typography>{translateUiText("Hospital overview page")} </Typography>
                       </Box>
                       <Box>
                         <Tooltip

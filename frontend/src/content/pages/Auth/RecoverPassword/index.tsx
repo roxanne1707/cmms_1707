@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { forwardRef, ReactElement, Ref, useContext, useState } from 'react';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -241,7 +242,7 @@ function RecoverPasswordBasic() {
             <Alert
               action={
                 <IconButton
-                  aria-label="close"
+                  aria-label={translateUiText("close")}
                   color="inherit"
                   size="small"
                   onClick={() => {

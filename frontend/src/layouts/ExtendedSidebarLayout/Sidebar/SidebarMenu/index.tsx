@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   alpha,
   Box,
@@ -284,8 +285,7 @@ function SidebarMenu() {
                 : `Your trial has ended`}
             </Typography>
             <Typography color={'white'} fontSize={'14px'}>
-              You are on the {company.subscription.subscriptionPlan.name} plan
-            </Typography>
+              {translateUiText("You are on the")} {company.subscription.subscriptionPlan.name} {translateUiText("plan")} </Typography>
             <Button
               component={Link}
               href={
@@ -303,8 +303,7 @@ function SidebarMenu() {
               color="primary"
               sx={{ mt: 1 }}
             >
-              Upgrade
-            </Button>
+              {translateUiText("Upgrade")} </Button>
           </Stack>
         )}
       <>

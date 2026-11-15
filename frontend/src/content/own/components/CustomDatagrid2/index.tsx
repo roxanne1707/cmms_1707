@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   flexRender,
   getCoreRowModel,
@@ -395,28 +396,28 @@ function CustomDatagrid2<TData extends RowData>({
         <IconButton
           onClick={handleFirstPageClick}
           disabled={page === 0}
-          aria-label="first page"
+          aria-label={translateUiText("first page")}
         >
           <FirstPageIcon />
         </IconButton>
         <IconButton
           onClick={handleBackClick}
           disabled={page === 0}
-          aria-label="previous page"
+          aria-label={translateUiText("previous page")}
         >
           <KeyboardArrowLeft />
         </IconButton>
         <IconButton
           onClick={handleNextClick}
           disabled={page >= totalPages - 1}
-          aria-label="next page"
+          aria-label={translateUiText("next page")}
         >
           <KeyboardArrowRight />
         </IconButton>
         <IconButton
           onClick={handleLastPageClick}
           disabled={page >= totalPages - 1}
-          aria-label="last page"
+          aria-label={translateUiText("last page")}
         >
           <LastPageIcon />
         </IconButton>

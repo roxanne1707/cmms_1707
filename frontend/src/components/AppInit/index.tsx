@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Typography } from '@mui/material';
 
 import Logo from 'src/components/LogoSign';
@@ -29,8 +30,7 @@ function AppInit() {
               window.open('https://www.intel-loop.com/', '_blank');
             }}
           >
-            Powered by Intelloop
-          </Typography>
+            {translateUiText("Powered by Intelloop")} </Typography>
         )}
       </Box>
     </Box>

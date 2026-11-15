@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { useEffect, useState } from 'react';
 import {
   Box,
@@ -103,7 +104,7 @@ function StatusComingSoon() {
   return (
     <>
       <Helmet>
-        <title>Status - Coming Soon</title>
+        <title>{translateUiText("Status - Coming Soon")} </title>
       </Helmet>
       <MainContent>
         <Container maxWidth="md">
@@ -133,14 +134,14 @@ function StatusComingSoon() {
               </Typography>
             </Container>
             <img
-              alt="Coming Soon"
+              alt={translateUiText("Coming Soon")}
               height={200}
               src="/static/images/status/coming-soon.svg"
             />
           </Box>
 
           <Box display="flex" justifyContent="center">
-            {timerComponents.length ? timerComponents : <>Time's up!</>}
+            {timerComponents.length ? timerComponents : <>{translateUiText("Time's up!")} </>}
           </Box>
 
           <Container maxWidth="sm">

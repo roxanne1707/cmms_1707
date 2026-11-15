@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Box, Card, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import CustomDataGrid from '../../components/CustomDatagrid';
@@ -52,7 +53,7 @@ const AssetFiles = ({ asset }: PropsType) => {
             key="delete"
             icon={<DeleteTwoToneIcon fontSize="small" color="error" />}
             onClick={() => handleDelete(Number(params.id))}
-            label="Remove part"
+            label={translateUiText("Remove part")}
           />
         ];
         if (!hasEditPermission(PermissionEntity.ASSETS, asset)) actions.shift();

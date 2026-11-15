@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { useState } from 'react';
 import {
   Box,
@@ -55,7 +56,7 @@ function Status500() {
   return (
     <>
       <Helmet>
-        <title>Status - 500</title>
+        <title>{translateUiText("Status - 500")} </title>
       </Helmet>
       <MainContent>
         <Grid

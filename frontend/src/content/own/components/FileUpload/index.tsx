@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import {
   Alert,
   Avatar,
@@ -199,7 +200,7 @@ function FileUpload(props: FileUploadProps) {
       <ListItemText primary={file.name} />
       <IconButton
         edge="end"
-        aria-label="delete"
+        aria-label={translateUiText("delete")}
         onClick={(e) => {
           e.stopPropagation();
           handleRemove(index);

@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import File from '../../../models/owns/file';
 import { IconButton, Link, List, ListItem, ListItemText } from '@mui/material';
 import DoDisturbOnTwoToneIcon from '@mui/icons-material/DoDisturbOnTwoTone';
@@ -27,7 +28,7 @@ export default function FilesList({
             removeDisabled ? null : (
               <IconButton
                 edge="end"
-                aria-label="delete"
+                aria-label={translateUiText("delete")}
                 onClick={() => {
                   if (window.confirm(confirmMessage)) {
                     onRemove(file.id);

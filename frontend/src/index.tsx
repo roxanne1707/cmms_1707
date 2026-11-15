@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import ReactDOM from 'react-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
@@ -41,7 +42,7 @@ ReactDOM.render(
             <ZendeskProvider apiKey={zendeskKey}>
               <AuthProvider>
                 <Sentry.ErrorBoundary
-                  fallback={<div>Something went wrong.</div>}
+                  fallback={<div>{translateUiText("Something went wrong.")} </div>}
                 >
                   <App />
                 </Sentry.ErrorBoundary>

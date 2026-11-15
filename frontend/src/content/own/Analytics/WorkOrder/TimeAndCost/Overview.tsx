@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import { Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import AnalyticsCard from '../../AnalyticsCard';
@@ -82,7 +83,7 @@ function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersPro
     <AnalyticsCard
       title={t('costs')}
       height={200}
-      description="Associated costs and time relate to work orders that were completed within the time frame specified in the filters."
+      description={translateUiText("Associated costs and time relate to work orders that were completed within the time frame specified in the filters.")}
     >
       <Stack sx={{ height: '100%', justifyContent: 'center' }}>
         {loading.completeCosts ? (

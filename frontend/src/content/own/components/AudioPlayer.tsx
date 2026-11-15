@@ -1,3 +1,4 @@
+import { translateUiText } from 'src/utils/uiTranslation';
 import React, { useRef, useState } from 'react';
 
 interface AudioPlayerProps {
@@ -35,14 +36,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ url }) => {
       <audio ref={audioRef} src={url}>
       </audio>
       <button onClick={playAudio} disabled={isPlaying}>
-        Play
-      </button>
+        {translateUiText("Play")} </button>
       <button onClick={pauseAudio} disabled={!isPlaying}>
-        Pause
-      </button>
+        {translateUiText("Pause")} </button>
       <button onClick={stopAudio} disabled={!isPlaying}>
-        Stop
-      </button>
+        {translateUiText("Stop")} </button>
     </div>
   );
 };

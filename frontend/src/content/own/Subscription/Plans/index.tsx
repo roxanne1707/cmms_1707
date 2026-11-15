@@ -383,7 +383,7 @@ function SubscriptionPlans() {
                                       {period == 'monthly'
                                         ? plan.monthlyCostPerUser
                                         : plan.yearlyCostPerUser}{' '}
-                                      USD
+                      {t('USD')}
                                     </b>{' '}
                                     {period == 'monthly'
                                       ? t('per_user_month')
